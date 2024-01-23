@@ -1,0 +1,11 @@
+{
+	"ExampleStruct":	[{
+			"intA":	17,
+			"boolB":	false,
+			"charC":	"S",
+			"floatD":	1067282596,
+			"doubleE":	151182849,
+			"constCharPtrF":	"Mirror",
+			"stdStringG":	"Example"
+		}]
+}

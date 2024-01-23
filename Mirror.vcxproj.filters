@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Libraries\cJSON\cJSON.cpp">
+      <Filter>cJSON</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Serialization.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Mirror.cpp">
+      <Filter>Mirror</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Libraries\cJSON\cJSON.h">
+      <Filter>cJSON</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Serialization.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mirror.h">
+      <Filter>Mirror</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MirrorTypes.h">
+      <Filter>Mirror</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="cJSON">
+      <UniqueIdentifier>{615bf533-d7f5-47ba-a49b-23bed39f058e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Serialization">
+      <UniqueIdentifier>{035bc9ae-5cf8-48ff-91d9-e2cdfa89a975}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mirror">
+      <UniqueIdentifier>{d30ead10-1b24-4ed1-abb6-5c9e253c4721}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
