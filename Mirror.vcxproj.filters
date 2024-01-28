@@ -11,6 +11,7 @@
     <ClCompile Include="Source\Mirror.cpp">
       <Filter>Mirror</Filter>
     </ClCompile>
+    <ClCompile Include="Source\StaticDataFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\cJSON\cJSON.h">
@@ -25,6 +26,7 @@
     <ClInclude Include="Source\MirrorTypes.h">
       <Filter>Mirror</Filter>
     </ClInclude>
+    <ClInclude Include="Source\main.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cJSON">

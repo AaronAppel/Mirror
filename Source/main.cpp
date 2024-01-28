@@ -1,3 +1,4 @@
+#include "main.h"
 
 #include <stdio.h>
 
@@ -6,26 +7,25 @@
 #include "Mirror.h"
 #include "Serialization.h"
 
-struct ExampleStruct
-{
-	int intA = 17;
-	bool boolB = false;
-	char charC = 'S';
-	float floatD = 1.23f;
-	double doubleE = 23.5607;
-	const char* constCharPtrF = "Mirror";
-	std::string stdStringG = "Example";
-};
-MIRROR_TYPE(ExampleStruct);
-MIRROR_MEMBERS_FOR(ExampleStruct)
-MIRROR_MEMBER(intA);
-MIRROR_MEMBER(boolB);
-MIRROR_MEMBER(charC);
-MIRROR_MEMBER(floatD);
-MIRROR_MEMBER(doubleE);
-MIRROR_MEMBER(constCharPtrF);
-MIRROR_MEMBER(stdStringG);
-END_MEMBER_MIRROR
+MIRROR_CLASS_START(ExampleStruct)
+MIRROR_CLASS_MEMBER(intA);
+MIRROR_CLASS_MEMBER(boolB);
+MIRROR_CLASS_MEMBER(charC);
+MIRROR_CLASS_MEMBER(floatD);
+MIRROR_CLASS_MEMBER(doubleE);
+MIRROR_CLASS_MEMBER(constCharPtrF);
+MIRROR_CLASS_MEMBER(stdStringG);
+MIRROR_CLASS_END
+
+MIRROR_CLASS_START(ExampleClass)
+MIRROR_CLASS_MEMBER(intX)
+MIRROR_CLASS_MEMBER(intY)
+MIRROR_CLASS_END
+
+MIRROR_CLASS_START(ExampleNestedCutomTypes)
+MIRROR_CLASS_MEMBER(exStruct)
+MIRROR_CLASS_MEMBER(exClass)
+MIRROR_CLASS_END
 
 const char* const g_filePath = "Mirror.json";
 
@@ -34,8 +34,22 @@ void Deserialize();
 
 int main()
 {
+	std::vector<Mirror::Field> ints;
+	ints.reserve(10);
+	Mirror::Field field;
+	field.name = "";
+	ints.push_back(field);
+
+	const Mirror::ClassInfo* a = Mirror::InfoForClass<ExampleClass>();
+
+	ExampleClass exClass;
+	const Mirror::ClassInfo* b = Mirror::InfoForClass(exClass);
+
+	ExampleStruct exStruct;
+	const Mirror::ClassInfo* c = Mirror::InfoForClass(exStruct);
+
 	Serialize();
-	Deserialize();
+	// Deserialize();
 
 	int breakPoint = 0;
 }
@@ -46,14 +60,17 @@ void Serialize()
 	if (jsonRoot == nullptr)
 		return;
 
-	cJSON* arr = cJSON_CreateArray();
-	arr->child = cJSON_CreateObject();
-	arr->string = _strdup(Mirror::InfoForType<ExampleStruct>()->stringName.c_str());
-
 	ExampleStruct exampleStructObj;
-	Serialization::SerializeObject<ExampleStruct>(exampleStructObj, arr);
+	Serialization::SerializeObject<ExampleStruct>(exampleStructObj, jsonRoot);
 
-	cJSON_AddItemToArray(jsonRoot, arr);
+	ExampleClass exampleClassObj;
+	Serialization::SerializeObject<ExampleClass>(exampleClassObj, jsonRoot);
+
+	int8_t exampleInt = 2;
+	Serialization::SerializeType<int8_t>(exampleInt, jsonRoot);
+
+	ExampleNestedCutomTypes exampleNestedCutomTypesObj;
+	Serialization::SerializeObject<ExampleNestedCutomTypes>(exampleNestedCutomTypesObj, jsonRoot);
 
 	const char* jsonStr = cJSON_Print(jsonRoot);
 	if (jsonStr)

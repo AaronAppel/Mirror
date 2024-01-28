@@ -4,6 +4,8 @@
 #include <string.h> // _strdup()
 #include <vector>
 
+#include "main.h"
+
 // Just some old, convenient helpers
 std::vector<cJSON*> GetAllItemsFromArray(const cJSON* arrayObject);
 cJSON* GetItemFromArrayByIndex(const cJSON* cJSONarray, int index);
@@ -102,10 +104,45 @@ namespace Serialization
         }
     }
 
+    void DeserializeJsonPrimitive(const cJSON* jsonObj, const Mirror::ClassInfo* classInfo, void* obj)
+    {
+        if (!jsonObj || !obj)
+            return;
+
+        switch (jsonObj->type)
+        {
+        case cJSON_String:
+            {
+                Mirror::Field field;
+                DeserializeJsonString(jsonObj, field, obj);
+            }
+            break;
+
+        case cJSON_True:
+        case cJSON_False:
+        case cJSON_NULL:
+        case cJSON_Number:
+        case cJSON_Array:
+        case cJSON_Object:
+            {
+                Mirror::Field field;
+                DeserializeJsonNumber(jsonObj, field, obj);
+            }
+            break;
+        }
+    }
+
     void DeserializeJsonObject(const cJSON* jsonObj, const Mirror::ClassInfo* classInfo, void* obj)
     {
-        if (!jsonObj || !classInfo || !obj)
+        if (!jsonObj || !obj)
             return;
+
+        if (!classInfo)
+        {
+            // Try to handle the case where an int was passed instead of a class
+            DeserializeJsonPrimitive(jsonObj, classInfo, obj);
+            return;
+        }
 
         const std::vector<cJSON*> arr = GetAllItemsFromArray(jsonObj);
         for (size_t i = 0; i < arr.size(); i++)
@@ -157,65 +194,174 @@ namespace Serialization
 
             switch (field.type->enumType)
             {
-                case MirrorTypes::m_string:
+            case MirrorTypes::ExampleStruct:
                 {
-                    const std::string* fieldAddress = (const std::string*)((char*)obj + field.offset);
-                    cJSON* newcJsonStr = cJSON_CreateString(fieldAddress->c_str());
-                    newcJsonStr->string = _strdup(field.name.c_str());
-                    AddItemToArray(jsonObj, newcJsonStr);
+                    SerializeJsonObject(obj, Mirror::InfoForClass<ExampleStruct>(), jsonObj);
                 }
                 break;
 
-                case MirrorTypes::m_charPtr:
-                case MirrorTypes::m_constCharPtr:
+            case MirrorTypes::ExampleClass:
                 {
-                    const char* fieldAddress = *(const char**)((char*)obj + field.offset);
-                    cJSON* newcJsonStr = cJSON_CreateString(fieldAddress);
-                    newcJsonStr->string = _strdup(field.name.c_str());
-                    AddItemToArray(jsonObj, newcJsonStr);
+                    SerializeJsonObject(obj, Mirror::InfoForClass<ExampleClass>(), jsonObj);
                 }
                 break;
 
-                case MirrorTypes::m_char:
+            case MirrorTypes::ExampleNestedCutomTypes:
                 {
-                    char* fieldAddress = (char*)obj + field.offset;
-                    char nullTerminatedString[2] = "\0";
-                    nullTerminatedString[0] = *fieldAddress;
-                    cJSON* newcJsonStr = cJSON_CreateString(nullTerminatedString);
-                    newcJsonStr->string = _strdup(field.name.c_str());
-                    AddItemToArray(jsonObj, newcJsonStr);
+                    cJSON* arr = cJSON_CreateArray();
+                    arr->string = _strdup(Mirror::InfoForType<ExampleNestedCutomTypes>()->stringName.c_str());
+                    cJSON_AddItemToArray(jsonObj, arr);
+                    SerializeJsonObject(obj, Mirror::InfoForClass<ExampleNestedCutomTypes>(), arr);
                 }
                 break;
 
-                case MirrorTypes::m_bool:
-                {
-                    bool* boolAddress = (bool*)((char*)obj + field.offset);
-                    cJSON* newcJsonBool = cJSON_CreateBool(*boolAddress);
-                    newcJsonBool->string = _strdup(field.name.c_str());
-                    AddItemToArray(jsonObj, newcJsonBool);
-                }
-                break;
-
-                case MirrorTypes::m_int8_t:
-                case MirrorTypes::m_int16_t:
-                case MirrorTypes::m_int32_t:
-                case MirrorTypes::m_int64_t: // #TODO Handle different number sizes properly
-                case MirrorTypes::m_uint8_t:
-                case MirrorTypes::m_uint16_t:
-                case MirrorTypes::m_uint32_t:
-                case MirrorTypes::m_uint64_t:
-                case MirrorTypes::m_int:
-                case MirrorTypes::m_float:
-                case MirrorTypes::m_double:
-                {
-                    int* numberAddress = (int*)((char*)obj + field.offset);
-                    cJSON* newcJsonNumber = cJSON_CreateNumber(*numberAddress);
-                    newcJsonNumber->string = _strdup(field.name.c_str());
-                    AddItemToArray(jsonObj, newcJsonNumber);
-                }
+            default:
+                SerializeJsonType(obj, field, jsonObj);
                 break;
             }
         }
+    }
+
+    void SerializeJsonType(const void* obj, const Mirror::Field& field, cJSON* jsonObj)
+    {
+        if (!jsonObj || !obj)
+            return;
+
+        switch (field.type->enumType)
+        {
+        case MirrorTypes::m_string:
+            {
+                const std::string* fieldAddress = (const std::string*)((char*)obj + field.offset);
+                cJSON* newcJsonStr = cJSON_CreateString(fieldAddress->c_str());
+                newcJsonStr->string = _strdup(field.name.c_str());
+                AddItemToArray(jsonObj, newcJsonStr);
+            }
+            break;
+
+        case MirrorTypes::m_charPtr:
+        case MirrorTypes::m_constCharPtr:
+            {
+                const char* fieldAddress = *(const char**)((char*)obj + field.offset);
+                cJSON* newcJsonStr = cJSON_CreateString(fieldAddress);
+                newcJsonStr->string = _strdup(field.name.c_str());
+                AddItemToArray(jsonObj, newcJsonStr);
+            }
+            break;
+
+        case MirrorTypes::m_char:
+            {
+                char* fieldAddress = (char*)obj + field.offset;
+                char nullTerminatedString[2] = "\0";
+                nullTerminatedString[0] = *fieldAddress;
+                cJSON* newcJsonStr = cJSON_CreateString(nullTerminatedString);
+                newcJsonStr->string = _strdup(field.name.c_str());
+                AddItemToArray(jsonObj, newcJsonStr);
+            }
+            break;
+
+        case MirrorTypes::m_bool:
+            {
+                bool* boolAddress = (bool*)((char*)obj + field.offset);
+                cJSON* newcJsonBool = cJSON_CreateBool(*boolAddress);
+                newcJsonBool->string = _strdup(field.name.c_str());
+                AddItemToArray(jsonObj, newcJsonBool);
+            }
+            break;
+
+        case MirrorTypes::m_int8_t:
+        case MirrorTypes::m_int16_t:
+        case MirrorTypes::m_int32_t:
+        case MirrorTypes::m_int64_t: // #TODO Handle different number sizes properly
+        case MirrorTypes::m_uint8_t:
+        case MirrorTypes::m_uint16_t:
+        case MirrorTypes::m_uint32_t:
+        case MirrorTypes::m_uint64_t:
+        case MirrorTypes::m_int:
+        case MirrorTypes::m_float:
+        case MirrorTypes::m_double:
+            {
+                int* numberAddress = (int*)((char*)obj + field.offset);
+                cJSON* newcJsonNumber = cJSON_CreateNumber(*numberAddress);
+                newcJsonNumber->string = _strdup(field.name.c_str());
+                AddItemToArray(jsonObj, newcJsonNumber);
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    void SerializeJsonType(const void* obj, const Mirror::TypeInfo& typeInfo, cJSON* jsonObj)
+    {
+        if (!obj || !jsonObj)
+            return;
+
+        switch (typeInfo.enumType)
+        {
+        case MirrorTypes::m_string:
+        {
+            const std::string* fieldAddress = (const std::string*)obj;
+            cJSON* newcJsonStr = cJSON_CreateString(fieldAddress->c_str());
+            newcJsonStr->string = _strdup(typeInfo.stringName.c_str());
+            AddItemToArray(jsonObj, newcJsonStr);
+        }
+        break;
+
+        case MirrorTypes::m_charPtr:
+        case MirrorTypes::m_constCharPtr:
+        {
+            const char* fieldAddress = *(const char**)obj;
+            cJSON* newcJsonStr = cJSON_CreateString(fieldAddress);
+            newcJsonStr->string = _strdup(typeInfo.stringName.c_str());
+            AddItemToArray(jsonObj, newcJsonStr);
+        }
+        break;
+
+        case MirrorTypes::m_char:
+        {
+            char* fieldAddress = (char*)obj;
+            char nullTerminatedString[2] = "\0";
+            nullTerminatedString[0] = *fieldAddress;
+            cJSON* newcJsonStr = cJSON_CreateString(nullTerminatedString);
+            newcJsonStr->string = _strdup(typeInfo.stringName.c_str());
+            AddItemToArray(jsonObj, newcJsonStr);
+        }
+        break;
+
+        case MirrorTypes::m_bool:
+        {
+            bool* boolAddress = (bool*)obj;
+            cJSON* newcJsonBool = cJSON_CreateBool(*boolAddress);
+            newcJsonBool->string = _strdup(typeInfo.stringName.c_str());
+            AddItemToArray(jsonObj, newcJsonBool);
+        }
+        break;
+
+        case MirrorTypes::m_int8_t:
+        case MirrorTypes::m_int16_t:
+        case MirrorTypes::m_int32_t:
+        case MirrorTypes::m_int64_t: // #TODO Handle different number sizes properly
+        case MirrorTypes::m_uint8_t:
+        case MirrorTypes::m_uint16_t:
+        case MirrorTypes::m_uint32_t:
+        case MirrorTypes::m_uint64_t:
+        case MirrorTypes::m_int:
+        case MirrorTypes::m_float:
+        case MirrorTypes::m_double:
+        {
+            int* numberAddress = (int*)obj;
+            cJSON* newcJsonNumber = cJSON_CreateNumber(*numberAddress);
+            newcJsonNumber->string = _strdup(typeInfo.stringName.c_str());
+            AddItemToArray(jsonObj, newcJsonNumber);
+        }
+        break;
+
+        default:
+            break;
+        }
+
+        // memcpy(jsonObj, obj, typeInfo.size);
     }
 
 }
