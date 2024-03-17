@@ -1,4 +1,9 @@
 .vs/
+*bin/
+*x64/
+*x86/
+*Debug/
+*Release/
 
 *.tlog
 *.log
@@ -15,11 +20,14 @@
 *.recipe
 *.enc
 
+*.sln
+**.vcxproj
+**.user
+
 *.dll
 
-*x64
-*x86
-*Debug
-*Release
-
 *❗*
+
+Setup-Windows-Vs2022.bat - Shortcut.lnk
+Cleanup.bat - Shortcut.lnk
+App/Mirror.json

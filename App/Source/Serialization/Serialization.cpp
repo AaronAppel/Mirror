@@ -4,7 +4,9 @@
 #include <string.h> // _strdup()
 #include <vector>
 
-#include "main.h"
+#include "../../cJSON/Source/cJSON.h"
+
+#include "../main.h"
 
 // Just some old, convenient helpers
 std::vector<cJSON*> GetAllItemsFromArray(const cJSON* arrayObject);
@@ -29,7 +31,7 @@ namespace Serialization
         if (!jsonObj || !jsonObj->valuestring || (jsonObj->type != cJSON_String) || !obj)
             return;
 
-        switch (field.type->enumType)
+        switch (field.typeInfo->enumType)
         {
             case MirrorTypes::m_string:
             {
@@ -38,7 +40,7 @@ namespace Serialization
                 std::string* fieldAddress = reinterpret_cast<std::string*>((char*)obj + field.offset);
                 if (smallerSize > fieldAddress->size())
                 {
-                    smallerSize = field.type->size;
+                    smallerSize = field.typeInfo->size;
                 }
 
                 if (smallerSize > 0)
@@ -72,7 +74,7 @@ namespace Serialization
         if (!jsonObj || (jsonObj->type == cJSON_String) || (jsonObj->type == cJSON_NULL) || !obj)
             return;
 
-        switch (field.type->enumType)
+        switch (field.typeInfo->enumType)
         {
             case MirrorTypes::m_int8_t:
             case MirrorTypes::m_int16_t:
@@ -88,9 +90,9 @@ namespace Serialization
             case MirrorTypes::m_double:
             {
                 size_t smallerSize = sizeof(jsonObj->valueint);
-                if (smallerSize > field.type->size)
+                if (smallerSize > field.typeInfo->size)
                 {
-                    smallerSize = field.type->size;
+                    smallerSize = field.typeInfo->size;
                 }
 
                 if (smallerSize > 0)
@@ -104,7 +106,7 @@ namespace Serialization
         }
     }
 
-    void DeserializeJsonPrimitive(const cJSON* jsonObj, const Mirror::ClassInfo* classInfo, void* obj)
+    void DeserializeJsonPrimitive(const cJSON* jsonObj, const Mirror::TypeInfo* TypeInfo, void* obj)
     {
         if (!jsonObj || !obj)
             return;
@@ -132,15 +134,15 @@ namespace Serialization
         }
     }
 
-    void DeserializeJsonObject(const cJSON* jsonObj, const Mirror::ClassInfo* classInfo, void* obj)
+    void DeserializeJsonObject(const cJSON* jsonObj, const Mirror::TypeInfo* TypeInfo, void* obj)
     {
         if (!jsonObj || !obj)
             return;
 
-        if (!classInfo)
+        if (!TypeInfo)
         {
             // Try to handle the case where an int was passed instead of a class
-            DeserializeJsonPrimitive(jsonObj, classInfo, obj);
+            DeserializeJsonPrimitive(jsonObj, TypeInfo, obj);
             return;
         }
 
@@ -151,11 +153,11 @@ namespace Serialization
             if (!arrItem)
                 continue;
 
-            for (size_t i = 0; i < classInfo->fields.size(); i++)
+            for (size_t i = 0; i < TypeInfo->fields.size(); i++)
             {
-                const Mirror::Field& field = classInfo->fields[i];
+                const Mirror::Field& field = TypeInfo->fields[i];
 
-                if (!field.type)
+                if (!field.typeInfo)
                     break; // #TODO Review #NOTE Break early if fields become null (and future values are null) to save iterations
 
                 if (strcmp(field.name.c_str(), arrItem->string) != 0) // #NOTE This logic matches the type name, but can be extended
@@ -180,29 +182,29 @@ namespace Serialization
         }
     }
 
-    void SerializeJsonObject(const void* obj, const Mirror::ClassInfo* objClassInfo, cJSON* jsonObj)
+    void SerializeJsonObject(const void* obj, const Mirror::TypeInfo* objTypeInfo, cJSON* jsonObj)
     {
-        if (!jsonObj || !objClassInfo || !obj)
+        if (!jsonObj || !objTypeInfo || !obj)
             return;
 
-        for (size_t i = 0; i < objClassInfo->fields.size(); i++)
+        for (size_t i = 0; i < objTypeInfo->fields.size(); i++)
         {
-            const Mirror::Field& field = objClassInfo->fields[i];
+            const Mirror::Field& field = objTypeInfo->fields[i];
 
-            if (!field.type)
+            if (!field.typeInfo)
                 break; // #NOTE Future fields should also be null
 
-            switch (field.type->enumType)
+            switch (field.typeInfo->enumType)
             {
             case MirrorTypes::ExampleStruct:
                 {
-                    SerializeJsonObject(obj, Mirror::InfoForClass<ExampleStruct>(), jsonObj);
+                    SerializeJsonObject(obj, Mirror::InfoForType<ExampleStruct>(), jsonObj);
                 }
                 break;
 
             case MirrorTypes::ExampleClass:
                 {
-                    SerializeJsonObject(obj, Mirror::InfoForClass<ExampleClass>(), jsonObj);
+                    SerializeJsonObject(obj, Mirror::InfoForType<ExampleClass>(), jsonObj);
                 }
                 break;
 
@@ -211,7 +213,7 @@ namespace Serialization
                     cJSON* arr = cJSON_CreateArray();
                     arr->string = _strdup(Mirror::InfoForType<ExampleNestedCutomTypes>()->stringName.c_str());
                     cJSON_AddItemToArray(jsonObj, arr);
-                    SerializeJsonObject(obj, Mirror::InfoForClass<ExampleNestedCutomTypes>(), arr);
+                    SerializeJsonObject(obj, Mirror::InfoForType<ExampleNestedCutomTypes>(), arr);
                 }
                 break;
 
@@ -227,7 +229,7 @@ namespace Serialization
         if (!jsonObj || !obj)
             return;
 
-        switch (field.type->enumType)
+        switch (field.typeInfo->enumType)
         {
         case MirrorTypes::m_string:
             {

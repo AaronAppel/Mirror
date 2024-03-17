@@ -1,57 +1,48 @@
+
+#ifdef MIRROR_EXAMPLES
 #include "main.h"
 
+#include <iostream>
 #include <stdio.h>
 
-#include "../Libraries/cJSON/cJSON.h"
+#include "../../cJSON/Source/cJSON.h"
 
 #include "Mirror.h"
-#include "Serialization.h"
-
-MIRROR_CLASS_START(ExampleStruct)
-MIRROR_CLASS_MEMBER(intA);
-MIRROR_CLASS_MEMBER(boolB);
-MIRROR_CLASS_MEMBER(charC);
-MIRROR_CLASS_MEMBER(floatD);
-MIRROR_CLASS_MEMBER(doubleE);
-MIRROR_CLASS_MEMBER(constCharPtrF);
-MIRROR_CLASS_MEMBER(stdStringG);
-MIRROR_CLASS_END
-
-MIRROR_CLASS_START(ExampleClass)
-MIRROR_CLASS_MEMBER(intX)
-MIRROR_CLASS_MEMBER(intY)
-MIRROR_CLASS_END
-
-MIRROR_CLASS_START(ExampleNestedCutomTypes)
-MIRROR_CLASS_MEMBER(exStruct)
-MIRROR_CLASS_MEMBER(exClass)
-MIRROR_CLASS_END
+#include "Serialization/Serialization.h"
 
 const char* const g_filePath = "Mirror.json";
+
+bool FileExists();
 
 void Serialize();
 void Deserialize();
 
 int main()
 {
-	std::vector<Mirror::Field> ints;
-	ints.reserve(10);
-	Mirror::Field field;
-	field.name = "";
-	ints.push_back(field);
+	const Mirror::TypeInfo* baseClass = Mirror::InfoForType<ExampleClass>();
+	const Mirror::TypeInfo* derived = Mirror::InfoForType<ExampleDerivedClass>();
 
-	const Mirror::ClassInfo* a = Mirror::InfoForClass<ExampleClass>();
+	ExampleClass exampleClass;
+	const Mirror::TypeInfo* classObjectReferenceTypeInfo = Mirror::InfoForType(exampleClass);
 
-	ExampleClass exClass;
-	const Mirror::ClassInfo* b = Mirror::InfoForClass(exClass);
-
-	ExampleStruct exStruct;
-	const Mirror::ClassInfo* c = Mirror::InfoForClass(exStruct);
+	ExampleStruct exampleStruct;
+	const Mirror::TypeInfo* structObjectReferenceTypeInfo = Mirror::InfoForType(exampleStruct);
 
 	Serialize();
-	// Deserialize();
+	Deserialize();
 
 	int breakPoint = 0;
+}
+
+bool FileExists(const char* const filePath)
+{
+	FILE* file;
+	if (fopen_s(&file, filePath, "r") == 0)
+	{
+		fclose(file);
+		return true;
+	}
+	return false;
 }
 
 void Serialize()
@@ -88,6 +79,12 @@ void Serialize()
 
 void Deserialize()
 {
+	if (!FileExists(g_filePath))
+	{
+		std::cout << "File not found: " << g_filePath;
+		return;
+	}
+
 	FILE* filehandle;
 	fopen_s(&filehandle, g_filePath, "rb");
 	if (filehandle)
@@ -111,3 +108,4 @@ void Deserialize()
 		cJSON_Delete((cJSON*)jsonRoot);
 	}
 }
+#endif

@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef MIRROR_EXAMPLES
 #include <string>
 
 #include "Mirror.h"
@@ -25,9 +26,17 @@ private:
 	int intY = 4;
 };
 
+class ExampleDerivedClass : public ExampleClass
+{
+private:
+	MIRROR_PRIVATE_MEMBERS
+		int intZ = 7;
+};
+
 // TODO Serialization layouts. Design the user implementation example for Mirror
 struct ExampleNestedCutomTypes
 {
 	ExampleStruct exStruct;
 	ExampleClass exClass;
 };
+#endif
