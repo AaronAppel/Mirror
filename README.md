@@ -8,6 +8,10 @@ The code isn't extensively tested, so just be aware.
 Hopefully someone finds Mirror helpful.
 Thanks for stopping by :)
 
+# Building
+Currently, the build system I use is premake5, which is included inside of the Scripts/ folder.
+To build a Visual Studio 2022 solution on Windows, run the Scripts/Setup-Windows-Vs2022.bat file.
+
 # Usage
 1. Create your custom class/struct :
 
@@ -34,7 +38,7 @@ MIRROR_CLASS_MEMBER(intY)
 MIRROR_CLASS_END(ExampleClass)
 ```
 
-Here we can omit/ignore values we don't need exposed (not serialized for intance)
+Here we can omit/ignore values we don't need exposed (not serialized for instance)
 
 3. Add an entry into the MirrorTypes.h enum :
 ```
@@ -46,7 +50,7 @@ enum class MirrorTypes
 //	...
 }
 ```
-Type names can collide so be sure to watch case sensitivity and avoid primitives and keywords like int.
+Type names can collide, so be sure to watch case sensitivity and avoid primitives and keywords like int.
 
 4. Get type info at runtime for the type :
 ```
