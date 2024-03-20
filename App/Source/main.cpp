@@ -17,8 +17,19 @@ bool FileExists();
 void Serialize();
 void Deserialize();
 
+#include <typeinfo>
+
+void Func()
+{
+	const Mirror::TypeInfo* variable = nullptr;
+	const char* typeName = typeid(variable).name();
+}
+
+
 int main()
 {
+	Func();
+
 	const Mirror::TypeInfo* baseClass = Mirror::InfoForType<ExampleClass>();
 	const Mirror::TypeInfo* derived = Mirror::InfoForType<ExampleDerivedClass>();
 
