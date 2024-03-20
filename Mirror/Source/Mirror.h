@@ -32,9 +32,10 @@ struct Mirror
 		MirrorTypes enumType = MirrorTypes::m_Invalid;
 		size_t size = 0;
 
-		bool isSubClass() { return superTypeInfo != nullptr; }
-		bool hasSubClass() { return !derivedTypesMap.empty(); }
-		bool isCollection() { return collectionTypeInfo != nullptr; }
+		bool isPrimitive() const { return enumType > MirrorTypes::m_PRIMITIVES_START; }
+		bool isSubClass() const { return superTypeInfo != nullptr; }
+		bool hasSubClass() const { return !derivedTypesMap.empty(); }
+		bool isCollection() const { return collectionTypeInfo != nullptr; }
 		bool isPointer = false;
 
 		std::vector<Field> fields = { }; // #TODO Hide/private non-constants
