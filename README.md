@@ -38,7 +38,7 @@ MIRROR_CLASS_MEMBER(intY)
 MIRROR_CLASS_END(ExampleClass)
 ```
 
-Here we can omit/ignore values we don't need exposed (not serialized for instance)
+Here we can omit/ignore values we don't need exposed (not serialized for example)
 
 3. Add an entry into the MirrorTypes.h enum :
 ```
@@ -78,4 +78,4 @@ for (size_t i = 0; i < exampleClassTypeInfo->fields.size(); i++)
 	}
 }
 ```
-In QwerkE, I also use this reflection and serialization technique in object inspectors for viewing and editing values using UI like [dear imgui](https://github.com/ocornut/imgui)
+In [QwerkE](https://github.com/AaronAppel/QwerkE), I also use this reflection and serialization technique in object inspectors for viewing and editing values using UI like [dear imgui](https://github.com/ocornut/imgui)
