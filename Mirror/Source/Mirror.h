@@ -80,9 +80,6 @@ struct Mirror
 	template<typename T>
 	static const TypeInfo* InfoForType();
 
-	template <class T>
-	static const TypeInfo* GetParentClassInfo();
-
 };
 
 template <typename T>
@@ -108,9 +105,9 @@ static const Mirror::TypeInfo* Mirror::InfoForType(const TYPE& typeObj)
 }
 
 template<typename T>
-static void SetCollectionLambdas(const Mirror::TypeInfo* typeInfo)
+static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo)
 {
-	Mirror::TypeInfo* typeInfo = const_cast(typeInfo);
+	Mirror::TypeInfo* typeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	// #TODO Add lambdas (construct, add to collection, iterate collection)
 	// typeInfo->
 }
@@ -134,7 +131,7 @@ static const Mirror::TypeInfo* Mirror::InfoForType()
 
 	if (TypeInfoCategory_Collection == localStaticTypeInfo.category)
 	{
-		SetCollectionLambdas(localStaticTypeInfo);
+		SetCollectionLambdas<T>(&localStaticTypeInfo);
 	}
 
 	return &localStaticTypeInfo;
