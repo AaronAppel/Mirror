@@ -9,13 +9,11 @@
     <ClInclude Include="Source\Mirror.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MirrorTypes.h">
+    <ClInclude Include="Source\TypeDeduction.h">
       <Filter>Source</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\Mirror.cpp">
+    <ClInclude Include="Source\MirrorUtils.h">
       <Filter>Source</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
 </Project>

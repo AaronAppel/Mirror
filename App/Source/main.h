@@ -1,6 +1,7 @@
 #pragma once
 
 #ifdef MIRROR_EXAMPLES
+#include <map>
 #include <string>
 
 #include "Mirror.h"
@@ -14,6 +15,7 @@ struct ExampleStruct
 	double doubleE = 23.5607;
 	const char* constCharPtrF = "Mirror";
 	std::string stdStringG = "Example";
+	std::map<int, bool> exampleMap;
 };
 
 class ExampleClass
@@ -39,4 +41,5 @@ struct ExampleNestedCutomTypes
 	ExampleStruct exStruct;
 	ExampleClass exClass;
 };
+
 #endif

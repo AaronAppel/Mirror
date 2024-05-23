@@ -3,19 +3,18 @@
 #include "main.h"
 
 #include <iostream>
+#include <map>
 #include <stdio.h>
+#include <string>
+#include <vector>
 
 #include "../../cJSON/Source/cJSON.h"
 
 #include "Mirror.h"
-#include "Serialization/Serialization.h"
 
 const char* const g_filePath = "Mirror.json";
 
 bool FileExists();
-
-void Serialize();
-void Deserialize();
 
 #include <typeinfo>
 
@@ -25,9 +24,122 @@ void Func()
 	const char* typeName = typeid(variable).name();
 }
 
+typedef std::map<int, char> m_map_int_char;
+
+using Func_void_voidPtr = void (*)(void*);
+
+void Collection(void* collectionAddress, Func_void_voidPtr func)
+{
+	std::map<int, char>* map1 = (std::map<int, char>*)collectionAddress;
+	for (auto& pair : *map1)
+	{
+		func(&pair);
+	}
+}
+
+// #TODO Test with vecotrs, arrays, pairs, and whatever else
+
+// #TODO Try to remove need for specialization of collections
+typedef std::map<int, bool> m_map_int_bool;
+MIRROR_MAP(m_map_int_bool, int, bool)
+
+// typedef std::map<int, char> m_map_int_char;
+// MIRROR_MAP(m_map_int_char, int, char)
+
+MIRROR_CLASS_START(ExampleStruct)
+MIRROR_CLASS_MEMBER(intA);
+MIRROR_CLASS_MEMBER(boolB);
+MIRROR_CLASS_MEMBER(charC);
+MIRROR_CLASS_MEMBER(floatD);
+MIRROR_CLASS_MEMBER(doubleE);
+MIRROR_CLASS_MEMBER(constCharPtrF);
+MIRROR_CLASS_MEMBER(stdStringG);
+MIRROR_CLASS_MEMBER(exampleMap);
+MIRROR_CLASS_END(ExampleStruct)
+
+MIRROR_CLASS_START(ExampleDerivedClass)
+MIRROR_CLASS_MEMBER(intZ)
+MIRROR_CLASS_END(ExampleDerivedClass)
+
+MIRROR_CLASS_START(ExampleClass)
+MIRROR_CLASS_SUBCLASS(ExampleDerivedClass)
+MIRROR_CLASS_MEMBER(intX)
+MIRROR_CLASS_MEMBER(intY)
+MIRROR_CLASS_END(ExampleClass)
+
+MIRROR_CLASS_START(ExampleNestedCutomTypes)
+MIRROR_CLASS_MEMBER(exStruct)
+MIRROR_CLASS_MEMBER(exClass)
+MIRROR_CLASS_END(ExampleNestedCutomTypes)
 
 int main()
 {
+	const Mirror::TypeInfo* intInfo = Mirror::InfoForType<int>();
+	const Mirror::TypeInfo* int8Info = Mirror::InfoForType<int8_t>();
+	const Mirror::TypeInfo* uint32Info = Mirror::InfoForType<uint32_t>();
+
+	const Mirror::TypeInfo* mapIntCharInfo = Mirror::InfoForType<std::map<int, char>>();
+
+	const Mirror::TypeInfo* boolInfo = Mirror::InfoForType<bool>();
+
+	// #TODO Have a switch statement to check uniqueness of all generated type ids
+
+	auto result = MIRROR_TYPE_ID(int);
+	switch (intInfo->id)
+	{
+	case MIRROR_TYPE_ID(int):
+		break;
+
+	case MIRROR_TYPE_ID(uint8_t):
+		break;
+
+	case MIRROR_TYPE_ID(uint16_t):
+		break;
+
+	case MIRROR_TYPE_ID(uint32_t):
+		break;
+
+	default:
+		break;
+	}
+
+	std::map<int, char> map1;
+	std::vector<int> vec1;
+
+	std::map<int, char>::iterator mapIt;
+	mapIt = map1.begin();
+
+	std::map<int, char>* p = (std::map<int, char>*)&map1;
+	mapIt = p->begin();
+	auto count = p->size();
+
+	const Mirror::TypeInfo* mapTypeInfo = Mirror::InfoForType<std::map<int, char>>();
+
+	Func_void_voidPtr func = [](void* pair) {
+		std::pair<int, char>* pairPtr = (std::pair<int, char>*)pair;
+		};
+	Collection(&map1, func);
+
+	mapIt++;
+
+	std::vector<int>::iterator vecIt;
+
+	char* str = new char[sizeof(std::string)];
+
+	new (str) std::string();
+	*(std::string*)str = "ABC";
+	std::string* strPtr = (std::string*)str;
+	*(std::string*)str = std::string();
+
+	strPtr = (std::string*)str;
+
+	std::pair<int, bool> a;
+
+	m_map_int_char map;
+	map.insert({ 0, 'A' });
+	const Mirror::TypeInfo* typeInfo = Mirror::InfoForType<m_map_int_char>();
+	typeInfo->ClearCollection(&map);
+
 	Func();
 
 	const Mirror::TypeInfo* baseClass = Mirror::InfoForType<ExampleClass>();
@@ -38,9 +150,6 @@ int main()
 
 	ExampleStruct exampleStruct;
 	const Mirror::TypeInfo* structObjectReferenceTypeInfo = Mirror::InfoForType(exampleStruct);
-
-	Serialize();
-	Deserialize();
 
 	int breakPoint = 0;
 }
@@ -56,67 +165,4 @@ bool FileExists(const char* const filePath)
 	return false;
 }
 
-void Serialize()
-{
-	cJSON* jsonRoot = cJSON_CreateObject();
-	if (jsonRoot == nullptr)
-		return;
-
-	ExampleStruct exampleStructObj;
-	Serialization::SerializeObject<ExampleStruct>(exampleStructObj, jsonRoot);
-
-	ExampleClass exampleClassObj;
-	Serialization::SerializeObject<ExampleClass>(exampleClassObj, jsonRoot);
-
-	int8_t exampleInt = 2;
-	Serialization::SerializeType<int8_t>(exampleInt, jsonRoot);
-
-	ExampleNestedCutomTypes exampleNestedCutomTypesObj;
-	Serialization::SerializeObject<ExampleNestedCutomTypes>(exampleNestedCutomTypesObj, jsonRoot);
-
-	const char* jsonStr = cJSON_Print(jsonRoot);
-	if (jsonStr)
-	{
-		FILE* filehandle;
-		errno_t error = fopen_s(&filehandle, g_filePath, "w+");
-		if (filehandle)
-		{
-			fwrite(jsonStr, 1, strlen(jsonStr), filehandle);
-			fclose(filehandle);
-		}
-		free((char*)jsonStr);
-	}
-}
-
-void Deserialize()
-{
-	if (!FileExists(g_filePath))
-	{
-		std::cout << "File not found: " << g_filePath;
-		return;
-	}
-
-	FILE* filehandle;
-	fopen_s(&filehandle, g_filePath, "rb");
-	if (filehandle)
-	{
-		fseek(filehandle, 0, SEEK_END);
-		long size = ftell(filehandle);
-		rewind(filehandle);
-		char* fileBuffer = new char[size];
-		fread(fileBuffer, size, 1, filehandle);
-		fclose(filehandle);
-
-		cJSON* jsonRoot = cJSON_Parse(fileBuffer);
-		delete[] fileBuffer;
-
-		if (jsonRoot == nullptr)
-			return;
-
-		ExampleStruct exampleStructObj;
-		Serialization::DeserializeJsonObject<ExampleStruct>(jsonRoot->child, exampleStructObj);
-
-		cJSON_Delete((cJSON*)jsonRoot);
-	}
-}
 #endif

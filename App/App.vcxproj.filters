@@ -6,16 +6,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Serialization\Serialization.h">
-      <Filter>Serialization</Filter>
-    </ClInclude>
     <ClInclude Include="Source\main.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\AppMirrorTypes.cpp" />
-    <ClCompile Include="Source\Serialization\Serialization.cpp">
-      <Filter>Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
 </Project>
