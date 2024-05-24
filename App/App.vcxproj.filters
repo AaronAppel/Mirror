@@ -6,9 +6,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Serialization\MirrorTesting.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Serialization\Serialize.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Serialization\Utilities.h">
+      <Filter>Serialization</Filter>
+    </ClInclude>
     <ClInclude Include="Source\main.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Serialization\DeserializeJson.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Serialization\SerializeJson.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Serialization\SerializeTest.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Serialization\Utilities.cpp">
+      <Filter>Serialization</Filter>
+    </ClCompile>
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
 </Project>

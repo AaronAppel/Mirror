@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-// #include <typeinfo>
+#include <typeinfo>
 // #include <type_traits>
 
 #include "MirrorUtils.h"
@@ -170,6 +170,9 @@ struct Mirror
 
 	template<typename T>
 	static const TypeInfo* InfoForType();
+
+	template<typename... T>
+	struct MirrorTemplateArgumentList { };
 };
 
 template <typename T>
@@ -351,7 +354,7 @@ static const Mirror::TypeInfo* Mirror::InfoForType()
 	size_t index = localStaticTypeInfo.stringName.find_last_of(':');
 	if (index != localStaticTypeInfo.stringName.npos)
 	{
-		// localStaticTypeInfo.stringName = localStaticTypeInfo.stringName.substr(index + 1); // "class QwerkE::Mesh" -> "Mesh"
+		// localStaticTypeInfo.stringName = localStaticTypeInfo.stringName.substr(index + 1); // "class NameSpace::Mesh" -> "Mesh"
 	}
 	localStaticTypeInfo.id = HashFromString(localStaticTypeInfo.stringName.c_str());
 	// #NOTE remove_all_extents for the case of arrays

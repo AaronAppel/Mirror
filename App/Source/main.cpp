@@ -12,6 +12,8 @@
 
 #include "Mirror.h"
 
+#include "Serialization/Serialize.h"
+
 const char* const g_filePath = "Mirror.json";
 
 bool FileExists();
@@ -44,6 +46,10 @@ MIRROR_CLASS_END(ExampleNestedCutomTypes)
 
 int main()
 {
+	const Mirror::TypeInfo* uint8_tInfo = Mirror::InfoForType<uint8_t>();
+	uint8_t a = 0;
+	Serialize::ToFile(a, "file.txt");
+
 	const Mirror::TypeInfo* vecIntInfo = Mirror::InfoForType<std::vector<int>>();
 	const Mirror::TypeInfo* mapIntCharInfo = Mirror::InfoForType<std::map<int, char>>();
 
