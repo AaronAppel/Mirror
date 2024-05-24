@@ -16,36 +16,6 @@ const char* const g_filePath = "Mirror.json";
 
 bool FileExists();
 
-#include <typeinfo>
-
-void Func()
-{
-	const Mirror::TypeInfo* variable = nullptr;
-	const char* typeName = typeid(variable).name();
-}
-
-typedef std::map<int, char> m_map_int_char;
-
-using Func_void_voidPtr = void (*)(void*);
-
-void Collection(void* collectionAddress, Func_void_voidPtr func)
-{
-	std::map<int, char>* map1 = (std::map<int, char>*)collectionAddress;
-	for (auto& pair : *map1)
-	{
-		func(&pair);
-	}
-}
-
-// #TODO Test with vecotrs, arrays, pairs, and whatever else
-
-// #TODO Try to remove need for specialization of collections
-typedef std::map<int, bool> m_map_int_bool;
-MIRROR_MAP(m_map_int_bool, int, bool)
-
-// typedef std::map<int, char> m_map_int_char;
-// MIRROR_MAP(m_map_int_char, int, char)
-
 MIRROR_CLASS_START(ExampleStruct)
 MIRROR_CLASS_MEMBER(intA);
 MIRROR_CLASS_MEMBER(boolB);
@@ -74,11 +44,14 @@ MIRROR_CLASS_END(ExampleNestedCutomTypes)
 
 int main()
 {
+	const Mirror::TypeInfo* vecIntInfo = Mirror::InfoForType<std::vector<int>>();
+	const Mirror::TypeInfo* mapIntCharInfo = Mirror::InfoForType<std::map<int, char>>();
+
+	const Mirror::TypeInfo* intArrayInfo = Mirror::InfoForType<int[1]>();
+
 	const Mirror::TypeInfo* intInfo = Mirror::InfoForType<int>();
 	const Mirror::TypeInfo* int8Info = Mirror::InfoForType<int8_t>();
 	const Mirror::TypeInfo* uint32Info = Mirror::InfoForType<uint32_t>();
-
-	const Mirror::TypeInfo* mapIntCharInfo = Mirror::InfoForType<std::map<int, char>>();
 
 	const Mirror::TypeInfo* boolInfo = Mirror::InfoForType<bool>();
 
@@ -110,15 +83,11 @@ int main()
 	mapIt = map1.begin();
 
 	std::map<int, char>* p = (std::map<int, char>*)&map1;
+
 	mapIt = p->begin();
 	auto count = p->size();
 
 	const Mirror::TypeInfo* mapTypeInfo = Mirror::InfoForType<std::map<int, char>>();
-
-	Func_void_voidPtr func = [](void* pair) {
-		std::pair<int, char>* pairPtr = (std::pair<int, char>*)pair;
-		};
-	Collection(&map1, func);
 
 	mapIt++;
 
@@ -132,15 +101,6 @@ int main()
 	*(std::string*)str = std::string();
 
 	strPtr = (std::string*)str;
-
-	std::pair<int, bool> a;
-
-	m_map_int_char map;
-	map.insert({ 0, 'A' });
-	const Mirror::TypeInfo* typeInfo = Mirror::InfoForType<m_map_int_char>();
-	typeInfo->ClearCollection(&map);
-
-	Func();
 
 	const Mirror::TypeInfo* baseClass = Mirror::InfoForType<ExampleClass>();
 	const Mirror::TypeInfo* derived = Mirror::InfoForType<ExampleDerivedClass>();

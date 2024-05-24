@@ -37,6 +37,18 @@ namespace is_stl_container_impl {
 	template <typename... Args> struct is_stl_container<std::priority_queue    <Args...>> :std::true_type {};
 }
 
+// #TODO Look to reduce redundancy with is_stl_container_impl. Maybe include vector check in container check
+namespace is_stl_vector_impl {
+	template <typename T>       struct is_stl_vector :std::false_type {};
+	template <typename... Args> struct is_stl_vector<std::vector <Args...>> :std::true_type {};
+}
+
+namespace is_stl_map_impl {
+	template <typename T>       struct is_stl_map :std::false_type {};
+	template <typename... Args> struct is_stl_map<std::map <Args...>> :std::true_type {};
+	template <typename... Args> struct is_stl_map<std::unordered_map <Args...>> :std::true_type {};
+}
+
 namespace is_stl_pair_impl {
 	template <typename T>       struct is_stl_pair :std::false_type {};
 	template <typename... Args> struct is_stl_pair<std::pair <Args...>> :std::true_type {};
@@ -46,6 +58,15 @@ namespace is_stl_pair_impl {
 template <typename T> struct is_stl_container {
 	static constexpr bool const value = is_stl_container_impl::is_stl_container<std::decay_t<T>>::value;
 };
+
+template <typename T> struct is_stl_vector {
+	static constexpr bool const value = is_stl_vector_impl::is_stl_vector<std::decay_t<T>>::value;
+};
+
+template <typename T> struct is_stl_map {
+	static constexpr bool const value = is_stl_map_impl::is_stl_map<std::decay_t<T>>::value;
+};
+
 template <typename T> struct is_stl_pair {
 	static constexpr bool const value = is_stl_pair_impl::is_stl_pair<std::decay_t<T>>::value;
 };
