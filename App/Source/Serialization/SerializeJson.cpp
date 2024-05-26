@@ -112,7 +112,6 @@ namespace Serialize {
             cJsonItem = CreateJsonNumber<int8_t>(name, obj); break;
         case MIRROR_TYPE_ID(int16_t):
             cJsonItem = CreateJsonNumber<int16_t>(name, obj); break;
-        case MIRROR_TYPE_ID(int):
         case MIRROR_TYPE_ID(int32_t):
             cJsonItem = CreateJsonNumber<int32_t>(name, obj); break;
         case MIRROR_TYPE_ID(int64_t): // #NOTE Special case of conversion on 64 bit types

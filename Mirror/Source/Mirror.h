@@ -24,7 +24,7 @@
 #define MIRROR_FIELD_ID_SIZE std::size_t
 #define MIRROR_TYPE_SIZE_MAX UINT16_MAX
 
-#define MIRROR_TYPE_ID(x) HashFromString(#x)
+#define MIRROR_TYPE_ID(x) HashFromString<x>(#x)
 
 // #TODO Configure build system to enable/disable testing asserts
 #ifndef MIRROR_TESTING
@@ -351,12 +351,13 @@ static const Mirror::TypeInfo* Mirror::InfoForType()
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; }
 	localStaticTypeInfo.category = GetCategory<T>();
 	localStaticTypeInfo.stringName = typeid(T).name();
+	// localStaticTypeInfo.stringName = #T;
 	size_t index = localStaticTypeInfo.stringName.find_last_of(':');
 	if (index != localStaticTypeInfo.stringName.npos)
 	{
 		// localStaticTypeInfo.stringName = localStaticTypeInfo.stringName.substr(index + 1); // "class NameSpace::Mesh" -> "Mesh"
 	}
-	localStaticTypeInfo.id = HashFromString(localStaticTypeInfo.stringName.c_str());
+	localStaticTypeInfo.id = HashFromString<T>(localStaticTypeInfo.stringName.c_str());
 	// #NOTE remove_all_extents for the case of arrays
 	// #TODO Review size for arrays is correct
 	localStaticTypeInfo.size = sizeof(T);

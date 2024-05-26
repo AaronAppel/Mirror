@@ -44,9 +44,26 @@ MIRROR_CLASS_MEMBER(exStruct)
 MIRROR_CLASS_MEMBER(exClass)
 MIRROR_CLASS_END(ExampleNestedCutomTypes)
 
+typedef int newInt;
+
+struct TestClass
+{
+	newInt newInt;
+};
+
 int main()
 {
+	decltype(TestClass::newInt) newInt;
+	auto newIntInfo = Mirror::InfoForType(newInt);
+
+	auto isSame = std::is_same_v<double, long double>;
+
+	auto charInfo = Mirror::InfoForType<char*>();
+	auto constCharInfo = Mirror::InfoForType<const char>();
+
 	const Mirror::TypeInfo* uint8_tInfo = Mirror::InfoForType<uint8_t>();
+	auto uChar8TypeId = MIRROR_TYPE_ID(unsigned char);
+	auto uint8TypeId = MIRROR_TYPE_ID(uint8_t);
 	uint8_t a = 0;
 	Serialize::ToFile(a, "file.txt");
 
@@ -66,7 +83,7 @@ int main()
 	auto result = MIRROR_TYPE_ID(int);
 	switch (intInfo->id)
 	{
-	case MIRROR_TYPE_ID(int):
+	case MIRROR_TYPE_ID(int32_t):
 		break;
 
 	case MIRROR_TYPE_ID(uint8_t):
