@@ -75,10 +75,6 @@ namespace Serialize {
 
         cJSON* cJsonItem = nullptr;
 
-        const Mirror::TypeInfo* uint8_tInfo = Mirror::InfoForType<uint8_t>();
-        auto result = MIRROR_TYPE_ID(uint8_t);
-        auto result2 = MIRROR_TYPE_ID(unsigned char);
-
         switch (objTypeInfo->id)
         {
         case MIRROR_TYPE_ID(std::string):

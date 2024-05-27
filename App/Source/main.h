@@ -15,7 +15,7 @@ struct ExampleStruct
 	double doubleE = 23.5607;
 	const char* constCharPtrF = "Mirror";
 	std::string stdStringG = "Example";
-	std::map<int, bool> exampleMap;
+	std::map<int, bool> exampleMapH = { { 0, true } };
 };
 
 class ExampleClass

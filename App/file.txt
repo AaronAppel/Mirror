@@ -1,3 +1,19 @@
 {
-	"float":	0
+	"ExampleStruct":	{
+		"intA":	17,
+		"boolB":	false,
+		"charC":	"S",
+		"floatD":	1.230000,
+		"doubleE":	23.560700,
+		"constCharPtrF":	"Mirror",
+		"exampleMapH":	{
+			"struct std::pair<int const ,bool>":	{
+				"int":	{
+			},
+				"bool":	{
+					"bool":	true
+				}
+			}
+		}
+	}
 }

@@ -103,5 +103,3 @@ template <> constexpr std::size_t HashFromString<const long double*>(const char*
 template <> constexpr std::size_t HashFromString<const char*>(const char* type_name) { return 51; }
 
 template <> constexpr std::size_t HashFromString<const bool*>(const char* type_name) { return 52; }
-
-//

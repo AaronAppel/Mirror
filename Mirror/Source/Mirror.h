@@ -429,6 +429,7 @@ const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	localStaticTypeInfo.derivedTypes.push_back(SUBCLASS_TYPE##Info); \
 	const_cast<Mirror::TypeInfo*>(SUBCLASS_TYPE##Info)->superTypeInfo = &localStaticTypeInfo; \
 
+// #TODO Produces wrong ids: Mirror::InfoForType<decltype(ClassType::MEMBER_NAME)>()
 #define MIRROR_CLASS_MEMBER(MEMBER_NAME) \
 	enum { MEMBER_NAME##Index = __COUNTER__ - BASE - 1 }; \
 	Mirror::Field MEMBER_NAME##field; \

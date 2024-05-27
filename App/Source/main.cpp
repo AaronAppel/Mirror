@@ -26,7 +26,7 @@ MIRROR_CLASS_MEMBER(floatD);
 MIRROR_CLASS_MEMBER(doubleE);
 MIRROR_CLASS_MEMBER(constCharPtrF);
 MIRROR_CLASS_MEMBER(stdStringG);
-MIRROR_CLASS_MEMBER(exampleMap);
+MIRROR_CLASS_MEMBER(exampleMapH);
 MIRROR_CLASS_END(ExampleStruct)
 
 MIRROR_CLASS_START(ExampleDerivedClass)
@@ -44,44 +44,24 @@ MIRROR_CLASS_MEMBER(exStruct)
 MIRROR_CLASS_MEMBER(exClass)
 MIRROR_CLASS_END(ExampleNestedCutomTypes)
 
-typedef int newInt;
-
-struct TestClass
-{
-	newInt newInt;
-};
-
 int main()
 {
-	decltype(TestClass::newInt) newInt;
-	auto newIntInfo = Mirror::InfoForType(newInt);
-
-	auto isSame = std::is_same_v<double, long double>;
-
-	auto charInfo = Mirror::InfoForType<char*>();
-	auto constCharInfo = Mirror::InfoForType<const char>();
+	auto stringId = MIRROR_TYPE_ID(std::string);
+	auto stringId2 = MIRROR_TYPE_ID(decltype(ExampleStruct::stdStringG));
+	// auto mapId = MIRROR_TYPE_ID(std::unordered_map<int, bool>);
 
 	const Mirror::TypeInfo* uint8_tInfo = Mirror::InfoForType<uint8_t>();
+
 	auto uChar8TypeId = MIRROR_TYPE_ID(unsigned char);
 	auto uint8TypeId = MIRROR_TYPE_ID(uint8_t);
-	uint8_t a = 0;
+
+	ExampleStruct a;
+	// Serialize::FromFile("file.txt", a);
 	Serialize::ToFile(a, "file.txt");
-
-	const Mirror::TypeInfo* vecIntInfo = Mirror::InfoForType<std::vector<int>>();
-	const Mirror::TypeInfo* mapIntCharInfo = Mirror::InfoForType<std::map<int, char>>();
-
-	const Mirror::TypeInfo* intArrayInfo = Mirror::InfoForType<int[1]>();
-
-	const Mirror::TypeInfo* intInfo = Mirror::InfoForType<int>();
-	const Mirror::TypeInfo* int8Info = Mirror::InfoForType<int8_t>();
-	const Mirror::TypeInfo* uint32Info = Mirror::InfoForType<uint32_t>();
-
-	const Mirror::TypeInfo* boolInfo = Mirror::InfoForType<bool>();
-
 	// #TODO Have a switch statement to check uniqueness of all generated type ids
 
 	auto result = MIRROR_TYPE_ID(int);
-	switch (intInfo->id)
+	switch (uint8_tInfo->id)
 	{
 	case MIRROR_TYPE_ID(int32_t):
 		break;
