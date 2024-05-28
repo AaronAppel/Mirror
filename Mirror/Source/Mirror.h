@@ -6,8 +6,8 @@
 #include <typeinfo>
 // #include <type_traits>
 
-#include "MirrorUtils.h"
 #include "TypeDeduction.h"
+#include "ConstexprCounter.h"
 
 #define MIRROR_TO_STR(x) #x
 
@@ -23,8 +23,6 @@
 #define MIRROR_TYPE_SIZE uint16_t
 #define MIRROR_FIELD_ID_SIZE std::size_t
 #define MIRROR_TYPE_SIZE_MAX UINT16_MAX
-
-#define MIRROR_TYPE_ID(x) HashFromString<x>(#x)
 
 // #TODO Configure build system to enable/disable testing asserts
 #ifndef MIRROR_TESTING
@@ -173,6 +171,12 @@ struct Mirror
 
 	template<typename... T>
 	struct MirrorTemplateArgumentList { };
+
+	template<typename T>
+	static constexpr size_t TypeId()
+	{
+		return next();
+	}
 };
 
 template <typename T>
@@ -350,14 +354,16 @@ static const Mirror::TypeInfo* Mirror::InfoForType()
 
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; }
 	localStaticTypeInfo.category = GetCategory<T>();
+
+	// #TODO Format type name string
 	localStaticTypeInfo.stringName = typeid(T).name();
-	// localStaticTypeInfo.stringName = #T;
 	size_t index = localStaticTypeInfo.stringName.find_last_of(':');
 	if (index != localStaticTypeInfo.stringName.npos)
 	{
 		// localStaticTypeInfo.stringName = localStaticTypeInfo.stringName.substr(index + 1); // "class NameSpace::Mesh" -> "Mesh"
 	}
-	localStaticTypeInfo.id = HashFromString<T>(localStaticTypeInfo.stringName.c_str());
+	// localStaticTypeInfo.id = HashFromString<T>(localStaticTypeInfo.stringName.c_str());
+	localStaticTypeInfo.id = Mirror::TypeId<T>();
 	// #NOTE remove_all_extents for the case of arrays
 	// #TODO Review size for arrays is correct
 	localStaticTypeInfo.size = sizeof(T);
@@ -387,7 +393,7 @@ template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static TypeInfo localStaticTypeInfo; \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
-	localStaticTypeInfo.id = HashFromString(localStaticTypeInfo.stringName.c_str()); \
+	localStaticTypeInfo.id = TypeId<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<TYPE>();	\
 	localStaticTypeInfo.stringName = #TYPE; \
 	localStaticTypeInfo.size = sizeof(TYPE); \
@@ -399,7 +405,7 @@ template <> \
 const Mirror::TypeInfo* Mirror::InfoForType<COLLECTION_TYPE>() { \
 	static TypeInfo localStaticTypeInfo; \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
-	localStaticTypeInfo.id = HashFromString(localStaticTypeInfo.stringName.c_str()); \
+	localStaticTypeInfo.id = TypeId<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<COLLECTION_TYPE>();	\
 	localStaticTypeInfo.stringName = #COLLECTION_TYPE; \
 	localStaticTypeInfo.size = sizeof(COLLECTION_TYPE); \
@@ -413,7 +419,7 @@ template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static Mirror::TypeInfo localStaticTypeInfo; \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
-	localStaticTypeInfo.id = HashFromString(localStaticTypeInfo.stringName.c_str()); \
+	localStaticTypeInfo.id = TypeId<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<TYPE>();	\
 	localStaticTypeInfo.stringName = #TYPE; \
 	localStaticTypeInfo.size = sizeof(TYPE); \
@@ -452,7 +458,7 @@ const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static TypeInfo localStaticTypeInfo; \
 	localStaticTypeInfo.stringName = #TYPE; \
 	localStaticTypeInfo.size = sizeof(TYPE); \
-	localStaticTypeInfo.id = HashFromString(localStaticTypeInfo.stringName.c_str()); \
+	localStaticTypeInfo.id = TypeId<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<TYPE>();	\
 	localStaticTypeInfo.collectionTypeInfo = Mirror::InfoForType<COLLECTIONTYPE>(); \
 	return &localStaticTypeInfo; \

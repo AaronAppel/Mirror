@@ -12,7 +12,7 @@
     <ClInclude Include="Source\TypeDeduction.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MirrorUtils.h">
+    <ClInclude Include="Source\ConstexprCounter.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>

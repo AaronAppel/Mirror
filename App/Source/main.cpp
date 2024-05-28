@@ -26,7 +26,7 @@ MIRROR_CLASS_MEMBER(floatD);
 MIRROR_CLASS_MEMBER(doubleE);
 MIRROR_CLASS_MEMBER(constCharPtrF);
 MIRROR_CLASS_MEMBER(stdStringG);
-MIRROR_CLASS_MEMBER(exampleMapH);
+// #TODO MIRROR_CLASS_MEMBER(exampleMapH);
 MIRROR_CLASS_END(ExampleStruct)
 
 MIRROR_CLASS_START(ExampleDerivedClass)
@@ -46,86 +46,60 @@ MIRROR_CLASS_END(ExampleNestedCutomTypes)
 
 int main()
 {
-	auto stringId = MIRROR_TYPE_ID(std::string);
-	auto stringId2 = MIRROR_TYPE_ID(decltype(ExampleStruct::stdStringG));
-	// auto mapId = MIRROR_TYPE_ID(std::unordered_map<int, bool>);
+	// Func();
+	auto result = Mirror::TypeId<float>();
+	const Mirror::TypeInfo* typeInfo = Mirror::InfoForType<float>();
 
-	const Mirror::TypeInfo* uint8_tInfo = Mirror::InfoForType<uint8_t>();
+	result = Mirror::TypeId<int64_t>();
+	typeInfo = Mirror::InfoForType<int64_t>();
 
-	auto uChar8TypeId = MIRROR_TYPE_ID(unsigned char);
-	auto uint8TypeId = MIRROR_TYPE_ID(uint8_t);
+	result = Mirror::TypeId<long long>();
+	typeInfo = Mirror::InfoForType<long long>();
 
+	result = Mirror::TypeId<bool>();
+	typeInfo = Mirror::InfoForType<bool>();
+
+	result = Mirror::TypeId<int>();
+	typeInfo = Mirror::InfoForType<int>();
+
+	result = Mirror::TypeId<std::string>();
+	typeInfo = Mirror::InfoForType<std::string>();
+
+	const ExampleStruct comparison;
 	ExampleStruct a;
-	// Serialize::FromFile("file.txt", a);
 	Serialize::ToFile(a, "file.txt");
+
+	assert(comparison.floatD == a.floatD && "Mismatched floats!");
+
+	Serialize::FromFile("file.txt", a);
 	// #TODO Have a switch statement to check uniqueness of all generated type ids
 
-	auto result = MIRROR_TYPE_ID(int);
-	switch (uint8_tInfo->id)
+	auto id = Mirror::TypeId<ExampleClass>();
+
+	// template <typename T>
+	// using TypeCase<T> = Mirror::TypeId<T>();
+	// case TypeCase<uint8_t>: break;
+
+	switch (typeInfo->id)
 	{
-	case MIRROR_TYPE_ID(int32_t):
+	case Mirror::TypeId<uint8_t>():
 		break;
 
-	case MIRROR_TYPE_ID(uint8_t):
+	case Mirror::TypeId<ExampleClass>():
 		break;
 
-	case MIRROR_TYPE_ID(uint16_t):
+	case Mirror::TypeId<int32_t>():
 		break;
 
-	case MIRROR_TYPE_ID(uint32_t):
+	case Mirror::TypeId<uint16_t>():
+		break;
+
+	case Mirror::TypeId<uint32_t>():
 		break;
 
 	default:
 		break;
 	}
-
-	std::map<int, char> map1;
-	std::vector<int> vec1;
-
-	std::map<int, char>::iterator mapIt;
-	mapIt = map1.begin();
-
-	std::map<int, char>* p = (std::map<int, char>*)&map1;
-
-	mapIt = p->begin();
-	auto count = p->size();
-
-	const Mirror::TypeInfo* mapTypeInfo = Mirror::InfoForType<std::map<int, char>>();
-
-	mapIt++;
-
-	std::vector<int>::iterator vecIt;
-
-	char* str = new char[sizeof(std::string)];
-
-	new (str) std::string();
-	*(std::string*)str = "ABC";
-	std::string* strPtr = (std::string*)str;
-	*(std::string*)str = std::string();
-
-	strPtr = (std::string*)str;
-
-	const Mirror::TypeInfo* baseClass = Mirror::InfoForType<ExampleClass>();
-	const Mirror::TypeInfo* derived = Mirror::InfoForType<ExampleDerivedClass>();
-
-	ExampleClass exampleClass;
-	const Mirror::TypeInfo* classObjectReferenceTypeInfo = Mirror::InfoForType(exampleClass);
-
-	ExampleStruct exampleStruct;
-	const Mirror::TypeInfo* structObjectReferenceTypeInfo = Mirror::InfoForType(exampleStruct);
-
-	int breakPoint = 0;
-}
-
-bool FileExists(const char* const filePath)
-{
-	FILE* file;
-	if (fopen_s(&file, filePath, "r") == 0)
-	{
-		fclose(file);
-		return true;
-	}
-	return false;
 }
 
 #endif

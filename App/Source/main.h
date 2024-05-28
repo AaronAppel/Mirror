@@ -42,4 +42,6 @@ struct ExampleNestedCutomTypes
 	ExampleClass exClass;
 };
 
+void Func();
+
 #endif
