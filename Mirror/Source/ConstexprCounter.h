@@ -16,7 +16,7 @@ struct writer {
     static constexpr int value = N;
 };
 
-template<int N, class = char[noexcept(adl_flag(flag<N>())) ? +1 : -1]>
+template<int N, class = char[noexcept(adl_flag(flag<N>())) ? + 1 : - 1]>
 int constexpr reader(int, flag<N>) {
     return N;
 }

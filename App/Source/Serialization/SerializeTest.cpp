@@ -84,16 +84,16 @@ static void MirrorSubClassUserTypes(Mirror::MirrorTemplateArgumentList<T...>, Mi
 
 MIRROR_CLASS_START(Derived1)
 MIRROR_CLASS_MEMBER(derivedZ)
-MIRROR_CLASS_END(Derived1)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(Derived2)
 MIRROR_CLASS_MEMBER(derivedY)
-MIRROR_CLASS_END(Derived2)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(Base)
 MIRROR_CLASS_MEMBER(baseX)
 MirrorSubClassUserTypes<Base>(Mirror::MirrorTemplateArgumentList<Derived1, Derived2>{}, localStaticTypeInfo, 0);
-MIRROR_CLASS_END(Base)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(TestStruct)
 MIRROR_CLASS_MEMBER(m_BasePtrDerived)
@@ -119,5 +119,5 @@ MIRROR_CLASS_MEMBER(m_FloatArray10)
 MIRROR_CLASS_MEMBER(m_CharVector)
 MIRROR_CLASS_MEMBER(m_UmapStringInt32)
 MIRROR_CLASS_MEMBER(m_Int32Ptr)
-MIRROR_CLASS_END(TestStruct);
+MIRROR_CLASS_END
 

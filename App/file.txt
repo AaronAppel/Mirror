@@ -3,9 +3,19 @@
 		"intA":	17,
 		"boolB":	false,
 		"charC":	"S",
-		"floatD":	1067282596,
+		"floatD":	1.230000,
 		"doubleE":	23.560700,
 		"constCharPtrF":	"Mirror",
-		"stdStringG":	"Example"
+		"stdStringG":	"Example",
+		"exampleMapH":	{
+			"struct std::pair<int const ,bool>":	{
+				"int":	{
+					"int":	0
+				},
+				"bool":	{
+					"bool":	true
+				}
+			}
+		}
 	}
 }

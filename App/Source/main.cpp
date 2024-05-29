@@ -16,8 +16,6 @@
 
 const char* const g_filePath = "Mirror.json";
 
-bool FileExists();
-
 MIRROR_CLASS_START(ExampleStruct)
 MIRROR_CLASS_MEMBER(intA);
 MIRROR_CLASS_MEMBER(boolB);
@@ -26,23 +24,23 @@ MIRROR_CLASS_MEMBER(floatD);
 MIRROR_CLASS_MEMBER(doubleE);
 MIRROR_CLASS_MEMBER(constCharPtrF);
 MIRROR_CLASS_MEMBER(stdStringG);
-// #TODO MIRROR_CLASS_MEMBER(exampleMapH);
-MIRROR_CLASS_END(ExampleStruct)
+MIRROR_CLASS_MEMBER(exampleMapH);
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(ExampleDerivedClass)
 MIRROR_CLASS_MEMBER(intZ)
-MIRROR_CLASS_END(ExampleDerivedClass)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(ExampleClass)
 MIRROR_CLASS_SUBCLASS(ExampleDerivedClass)
 MIRROR_CLASS_MEMBER(intX)
 MIRROR_CLASS_MEMBER(intY)
-MIRROR_CLASS_END(ExampleClass)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(ExampleNestedCutomTypes)
 MIRROR_CLASS_MEMBER(exStruct)
 MIRROR_CLASS_MEMBER(exClass)
-MIRROR_CLASS_END(ExampleNestedCutomTypes)
+MIRROR_CLASS_END
 
 int main()
 {
@@ -72,34 +70,8 @@ int main()
 	assert(comparison.floatD == a.floatD && "Mismatched floats!");
 
 	Serialize::FromFile("file.txt", a);
-	// #TODO Have a switch statement to check uniqueness of all generated type ids
 
 	auto id = Mirror::TypeId<ExampleClass>();
-
-	// template <typename T>
-	// using TypeCase<T> = Mirror::TypeId<T>();
-	// case TypeCase<uint8_t>: break;
-
-	switch (typeInfo->id)
-	{
-	case Mirror::TypeId<uint8_t>():
-		break;
-
-	case Mirror::TypeId<ExampleClass>():
-		break;
-
-	case Mirror::TypeId<int32_t>():
-		break;
-
-	case Mirror::TypeId<uint16_t>():
-		break;
-
-	case Mirror::TypeId<uint32_t>():
-		break;
-
-	default:
-		break;
-	}
 }
 
 #endif
