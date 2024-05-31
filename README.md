@@ -16,6 +16,7 @@ To build a Visual Studio 2022 solution on Windows, run the Scripts/Setup-Windows
 1. Create your custom class/struct :
 
 ```
+#include "Mirror.h"
 class ExampleClass
 {
 public:
