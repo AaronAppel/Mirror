@@ -7,7 +7,6 @@
 // #include <type_traits>
 
 #include "TypeDeduction.h"
-#include "ConstexprCounter.h"
 
 #define MIRROR_TO_STR(x) #x
 
@@ -172,22 +171,21 @@ struct Mirror
 	template<typename... T>
 	struct MirrorTemplateArgumentList { };
 
-	template<typename T>
-	static size_t TypeId();
-
-	// template<typename T>
-	// static constexpr size_t TypeId()
+	// #NOTE Not constexpr
+	// template <typename T>
+	// static size_t TypeId()
 	// {
-	// 	return next();
+	// 	return typeid(T).hash_code();
 	// }
-};
 
-#define TYPE_ID(TYPE) \
-template <> \
-size_t Mirror::TypeId<TYPE>() \
-{ \
-	return __COUNTER__; \
-}
+	template<typename T>
+	static constexpr size_t TypeIdConstexpr()
+	{
+		// #TODO Fail if default implementation is used
+		// static_assert(false);
+		return 0; // #TODO Find a constexpr way to generate type ids
+	}
+};
 
 template <typename T>
 constexpr Mirror::TypeInfoCategories GetCategory()
@@ -355,12 +353,6 @@ static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::true_type
 	SetCollectionLambdasMap<T>(typeInfo, is_stl_map_impl::is_stl_map<T>::type());
 }
 
-template <typename T>
-static size_t Mirror::TypeId()
-{
-	return typeid(T).hash_code();
-}
-
 template<typename T>
 static const Mirror::TypeInfo* Mirror::InfoForType()
 {
@@ -381,7 +373,7 @@ static const Mirror::TypeInfo* Mirror::InfoForType()
 	// localStaticTypeInfo.id = HashFromString<T>(localStaticTypeInfo.stringName.c_str());
 
 	// #TODO Fix type Id linker errors
-	localStaticTypeInfo.id = Mirror::TypeId<T>();
+	localStaticTypeInfo.id = Mirror::TypeIdConstexpr<T>();
 
 	// #NOTE remove_all_extents for the case of arrays
 	// #TODO Review size for arrays is correct
@@ -409,24 +401,119 @@ static const Mirror::TypeInfo* Mirror::InfoForType()
 	return &localStaticTypeInfo;
 }
 
-//  localStaticTypeInfo.id = TypeId<TYPE>();
+// #NOTE Hash 0 reserved for now
+// #NOTE Hard coding instead of using something like __COUNTER__ to avoid id collisions with classes
+
+// Mutable
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed char>() { return 1; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed short>() { return 2; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed int>() { return 3; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed long long>() { return 4; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned char>() { return 5; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned short>() { return 6; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned int>() { return 7; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned long long>() { return 8; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<float>() { return 9; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<double>() { return 10; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<long double>() { return 11; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<char>() { return 12; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<bool>() { return 13; }
+
+// Const
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed char>() { return 14; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed short>() { return 15; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed int>() { return 16; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed long long>() { return 17; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned char>() { return 18; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned short>() { return 19; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned int>() { return 20; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned long long>() { return 21; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const float>() { return 22; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const double>() { return 23; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const long double>() { return 14; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const char>() { return 25; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const bool>() { return 26; }
+
+// Mutable pointers
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed char*>() { return 27; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed short*>() { return 28; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed int*>() { return 29; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<signed long long*>() { return 30; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned char*>() { return 31; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned short*>() { return 32; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned int*>() { return 33; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<unsigned long long*>() { return 34; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<float*>() { return 35; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<double*>() { return 36; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<long double*>() { return 37; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<char*>() { return 38; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<bool*>() { return 39; }
+
+// Const pointers
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed char*>() { return 40; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed short*>() { return 41; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed int*>() { return 42; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const signed long long*>() { return 43; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned char*>() { return 44; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned short*>() { return 45; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned int*>() { return 46; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const unsigned long long*>() { return 47; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const float*>() { return 48; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const double*>() { return 49; }
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const long double*>() { return 50; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const char*>() { return 51; }
+
+template <> constexpr std::size_t Mirror::TypeIdConstexpr<const bool*>() { return 52; }
+
+// #TODO Incorporate a static assert with PREDEFINED_ID_MAX
+#define PREDEFINED_ID_MAX 60
+constexpr std::size_t HashFromString(const char* type_name)
+{
+	// #TODO Improve naive pseudo-unique output implementation
+	std::size_t result{ PREDEFINED_ID_MAX + 1 };
+	const char* charPtr = type_name;
+	while (*charPtr != '\0')
+	{
+		result += *charPtr;
+		charPtr += 1;
+	}
+
+	return result;
+}
+
 #define MIRROR_TYPE(TYPE) \
 template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static TypeInfo localStaticTypeInfo; \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
+	localStaticTypeInfo.id = Mirror::TypeIdConstexpr<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<TYPE>();	\
 	localStaticTypeInfo.stringName = #TYPE; \
 	localStaticTypeInfo.size = sizeof(TYPE); \
 	return &localStaticTypeInfo; \
 }
 
-//  localStaticTypeInfo.id = TypeId<TYPE>();
 #define MIRROR_MAP(COLLECTION_TYPE, FIRST_TYPE, SECOND_TYPE) \
 template <> \
 const Mirror::TypeInfo* Mirror::InfoForType<COLLECTION_TYPE>() { \
 	static TypeInfo localStaticTypeInfo; \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
+	localStaticTypeInfo.id = Mirror::TypeIdConstexpr<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<COLLECTION_TYPE>();	\
 	localStaticTypeInfo.stringName = #COLLECTION_TYPE; \
 	localStaticTypeInfo.size = sizeof(COLLECTION_TYPE); \
@@ -434,15 +521,18 @@ const Mirror::TypeInfo* Mirror::InfoForType<COLLECTION_TYPE>() { \
 	return &localStaticTypeInfo; \
 }
 
-//  localStaticTypeInfo.id = TypeId<TYPE>();
 #define MIRROR_CLASS_START(TYPE) MIRROR_CLASS_STARTN(TYPE, MIRROR_MEMBER_FIELDS_DEFAULT)
 #define MIRROR_CLASS_STARTN(TYPE, FIELDCOUNT) \
-TYPE_ID(TYPE) \
- \
+template <> \
+static constexpr size_t Mirror::TypeIdConstexpr<TYPE>() \
+{ \
+	return HashFromString(#TYPE); \
+} \
 template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static Mirror::TypeInfo localStaticTypeInfo; \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
+	localStaticTypeInfo.id = Mirror::TypeIdConstexpr<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<TYPE>();	\
 	localStaticTypeInfo.stringName = #TYPE; \
 	localStaticTypeInfo.size = sizeof(TYPE); \
@@ -458,7 +548,6 @@ const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	localStaticTypeInfo.derivedTypes.push_back(SUBCLASS_TYPE##Info); \
 	const_cast<Mirror::TypeInfo*>(SUBCLASS_TYPE##Info)->superTypeInfo = &localStaticTypeInfo; \
 
-// #TODO Produces wrong ids: Mirror::InfoForType<decltype(ClassType::MEMBER_NAME)>()
 #define MIRROR_CLASS_MEMBER(MEMBER_NAME) \
 	enum { MEMBER_NAME##Index = __COUNTER__ - BASE - 1 }; \
 	Mirror::Field MEMBER_NAME##field; \
@@ -471,12 +560,12 @@ const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	return &localStaticTypeInfo; \
 }
 
-//  localStaticTypeInfo.id = TypeId<TYPE>();
 // #NOTE Experimental collection type macro (currently unused)
 #define MIRROR_COLLECTION(TYPE, COLLECTIONTYPE) \
 template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static TypeInfo localStaticTypeInfo; \
+	localStaticTypeInfo.id = Mirror::TypeIdConstexpr<TYPE>(); \
 	localStaticTypeInfo.stringName = #TYPE; \
 	localStaticTypeInfo.size = sizeof(TYPE); \
 	localStaticTypeInfo.category = GetCategory<TYPE>();	\

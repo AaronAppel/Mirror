@@ -44,23 +44,55 @@ MIRROR_CLASS_END
 
 int main()
 {
+	auto resultExperimental = Mirror::TypeIdConstexpr<float>();
+	resultExperimental = Mirror::TypeIdConstexpr<int>();
+	resultExperimental = Mirror::TypeIdConstexpr<ExampleClass>();
+
+	ExampleClass thing;
+	Serialize::ToFile(thing, "file.txt");
+	Serialize::FromFile("file.txt", thing);
+
+	switch (resultExperimental)
+	{
+	case Mirror::TypeIdConstexpr<float>():
+		{
+			int bp = 0;
+		}
+		break;
+
+	case Mirror::TypeIdConstexpr<int>():
+		{
+			int bp = 0;
+		}
+		break;
+
+	case Mirror::TypeIdConstexpr<ExampleClass>():
+		{
+			int bp = 0;
+		}
+		break;
+
+	default:
+		break;
+	}
+
 	// Func();
-	auto result = Mirror::TypeId<float>();
+	auto result = Mirror::TypeIdConstexpr<float>();
 	const Mirror::TypeInfo* typeInfo = Mirror::InfoForType<float>();
 
-	result = Mirror::TypeId<int64_t>();
+	result = Mirror::TypeIdConstexpr<int64_t>();
 	typeInfo = Mirror::InfoForType<int64_t>();
 
-	result = Mirror::TypeId<long long>();
+	result = Mirror::TypeIdConstexpr<long long>();
 	typeInfo = Mirror::InfoForType<long long>();
 
-	result = Mirror::TypeId<bool>();
+	result = Mirror::TypeIdConstexpr<bool>();
 	typeInfo = Mirror::InfoForType<bool>();
 
-	result = Mirror::TypeId<int>();
+	result = Mirror::TypeIdConstexpr<int>();
 	typeInfo = Mirror::InfoForType<int>();
 
-	result = Mirror::TypeId<std::string>();
+	result = Mirror::TypeIdConstexpr<std::string>();
 	typeInfo = Mirror::InfoForType<std::string>();
 
 	const ExampleStruct comparison;
@@ -69,9 +101,10 @@ int main()
 
 	assert(comparison.floatD == a.floatD && "Mismatched floats!");
 
-	Serialize::FromFile("file.txt", a);
+	// #TODO Debug this line
+	// Serialize::FromFile("file.txt", a);
 
-	auto id = Mirror::TypeId<ExampleClass>();
+	auto id = Mirror::TypeIdConstexpr<ExampleClass>();
 }
 
 #endif

@@ -20,9 +20,9 @@ void SerializeTest()
     }
     for (size_t i = 0; i < 10; i++)
     {
-        testStructSerialize.m_FloatArray10[i] = i + (.1 * i);
+        testStructSerialize.m_FloatArray10[i] = i + (.1f * i);
     }
-    for (size_t i = 0; i < 5; i++)
+    for (char i = 0; i < 5; i++)
     {
         testStructSerialize.m_CharVector.push_back(66 + i);
     }

@@ -67,30 +67,30 @@ namespace Serialize {
         }
 
         // #TODO Switch statement treats input of 1, as 1st case statement, 2 as 2nd, and so on...
-        if (Mirror::TypeId<std::string>() == objTypeInfo->id)
+        if (Mirror::TypeIdConstexpr<std::string>() == objTypeInfo->id)
         {
             // #TODO Handles when obj is pair.first better. This will break if key and value are both string/char*
             objTypeInfo->typeConstructorFunc(obj); // #NOTE String must be constructed before assigned to
             *(std::string*)obj = objJson->valuestring ? objJson->valuestring : objJson->string;
         }
-        else if (Mirror::TypeId<char>() == objTypeInfo->id)
+        else if (Mirror::TypeIdConstexpr<char>() == objTypeInfo->id)
         {
             memcpy(obj, objJson->valuestring, 1);
         }
-        else if (Mirror::TypeId<char*>() == objTypeInfo->id || Mirror::TypeId<const char*>() == objTypeInfo->id)
+        else if (Mirror::TypeIdConstexpr<char*>() == objTypeInfo->id || Mirror::TypeIdConstexpr<const char*>() == objTypeInfo->id)
         {
             *(const char**)obj = _strdup(objJson->valuestring);
         }
-        else if (Mirror::TypeId<int64_t>() == objTypeInfo->id)  // #NOTE Storing uint64 as string
+        else if (Mirror::TypeIdConstexpr<int64_t>() == objTypeInfo->id)  // #NOTE Storing uint64 as string
         {
-            auto result = Mirror::TypeId<int64_t>();
+            auto result = Mirror::TypeIdConstexpr<int64_t>();
             *(int64_t*)obj = std::stoll(objJson->valuestring);
         }
-        else if (Mirror::TypeId<uint64_t>() == objTypeInfo->id) // #NOTE Storing uint64 as string
+        else if (Mirror::TypeIdConstexpr<uint64_t>() == objTypeInfo->id) // #NOTE Storing uint64 as string
         {
             *(uint64_t*)obj = std::stoull(objJson->valuestring);
         }
-        else if (Mirror::TypeId<float>() == objTypeInfo->id)
+        else if (Mirror::TypeIdConstexpr<float>() == objTypeInfo->id)
         {
             *(float*)obj = (float)objJson->valuedouble;
         }

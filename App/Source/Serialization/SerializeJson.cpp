@@ -75,78 +75,78 @@ namespace Serialize {
 
         cJSON* cJsonItem = nullptr;
 
-        // #TODO Switch statement treats input of 1, as 1st case statement, 2 as 2nd, and so on...
-        if (Mirror::TypeId<std::string>() == objTypeInfo->id)
+        switch (objTypeInfo->id)
         {
-            auto result = Mirror::TypeId<std::string>();
-            const std::string* fieldAddress = (std::string*)obj;
-            cJsonItem = CreateJsonString<const char>(name, fieldAddress->data()); // #TODO Requires ->data() so can't work with CreateJsonString()
-        }
-        else if (Mirror::TypeId<char>() == objTypeInfo->id)
-        {
-            auto result = Mirror::TypeId<char>();
-            char charArr[2] = { '\0', '\0' };
-            charArr[0] = *(char*)obj;
-            cJsonItem = cJSON_CreateString(charArr);
-            cJsonItem->string = _strdup(name.c_str());
-        }
-        else if (Mirror::TypeId<char*>() == objTypeInfo->id || Mirror::TypeId<const char*>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonString<const char>(name, *(void**)obj);
-        }
-        else if (Mirror::TypeId<bool>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonBool<bool>(name, obj);
-        }
-        else if (Mirror::TypeId<uint8_t>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<uint8_t>(name, obj);
-        }
-        else if (Mirror::TypeId<uint16_t>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<uint16_t>(name, obj);
-        }
-        else if (Mirror::TypeId<uint32_t>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<uint32_t>(name, obj);
-        }
-        else if (Mirror::TypeId<int8_t>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<int8_t>(name, obj);
-        }
-        else if (Mirror::TypeId<int16_t>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<int16_t>(name, obj);;
-        }
-        else if (Mirror::TypeId<int32_t>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<int32_t>(name, obj);
-        }
-        else if (Mirror::TypeId<int64_t>() == objTypeInfo->id) // #NOTE Special case of conversion on 64 bit types
-        {
-            // Use string instead of a double to avoid conversion issues
-            int64_t* numberAddress = (int64_t*)obj;
-            cJsonItem = CreateJsonString<const char>(name, std::to_string(*numberAddress).c_str());
-            // #TODO Try using objJson->valuedouble and a memcpy to see if that works
-        }
-        else if (Mirror::TypeId<uint64_t>() == objTypeInfo->id) // #NOTE Special case of conversion on 64 bit types
+        case Mirror::TypeIdConstexpr<std::string>():
+            {
+                auto result = Mirror::TypeIdConstexpr<std::string>();
+                const std::string* fieldAddress = (std::string*)obj;
+                cJsonItem = CreateJsonString<const char>(name, fieldAddress->data()); // #TODO Requires ->data() so can't work with CreateJsonString()
+            }
+            break;
+
+        case Mirror::TypeIdConstexpr<char>():
+            {
+                auto result = Mirror::TypeIdConstexpr<char>();
+                char charArr[2] = { '\0', '\0' };
+                charArr[0] = *(char*)obj;
+                cJsonItem = cJSON_CreateString(charArr);
+                cJsonItem->string = _strdup(name.c_str());
+            }
+            break;
+
+        case Mirror::TypeIdConstexpr<char*>():
+        case Mirror::TypeIdConstexpr<const char*>():
+            cJsonItem = CreateJsonString<const char>(name, *(void**)obj); break;
+
+        case Mirror::TypeIdConstexpr<bool>():
+            cJsonItem = CreateJsonBool<bool>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<uint8_t>():
+            cJsonItem = CreateJsonBool<uint8_t>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<uint16_t>():
+            cJsonItem = CreateJsonBool<uint16_t>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<uint32_t>():
+            cJsonItem = CreateJsonBool<uint32_t>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<int8_t>():
+            cJsonItem = CreateJsonBool<int8_t>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<int16_t>():
+            cJsonItem = CreateJsonBool<int16_t>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<int32_t>():
+            cJsonItem = CreateJsonBool<int32_t>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<int64_t>(): // #NOTE Special case of conversion on 64 bit types
+            {
+                // Use string instead of a double to avoid conversion issues
+                int64_t* numberAddress = (int64_t*)obj;
+                cJsonItem = CreateJsonString<const char>(name, std::to_string(*numberAddress).c_str());
+                // #TODO Try using objJson->valuedouble and a memcpy to see if that works
+            }
+            break;
+
+        case Mirror::TypeIdConstexpr<uint64_t>(): // #NOTE Special case of conversion on 64 bit types
         {
             // Use string instead of a double to avoid conversion issues
             uint64_t* numberAddress = (uint64_t*)obj;
             cJsonItem = CreateJsonString<const char>(name, std::to_string(*numberAddress).c_str());
             // #TODO Try using objJson->valuedouble and a memcpy to see if that works
         }
-        else if (Mirror::TypeId<float>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<float>(name, obj);
-        }
-        else if (Mirror::TypeId<double>() == objTypeInfo->id)
-        {
-            cJsonItem = CreateJsonNumber<double>(name, obj);
-        }
-        else
-        {
+        break;
+
+        case Mirror::TypeIdConstexpr<float>():
+            cJsonItem = CreateJsonNumber<float>(name, obj); break;
+
+        case Mirror::TypeIdConstexpr<double>():
+            cJsonItem = CreateJsonNumber<double>(name, obj); break;
+
+        default:
             // LOG_ERROR("{0} Unsupported user defined field type {1} {2}({3}) for serialization!", __FUNCTION__, name.c_str(), objTypeInfo->stringName.c_str(), (int)objTypeInfo->enumType);
+            break;
         }
 
         if (cJsonItem)

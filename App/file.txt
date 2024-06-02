@@ -1,6 +1,6 @@
 {
 	"ExampleStruct":	{
-		"intA":	17,
+		"intA":	true,
 		"boolB":	false,
 		"charC":	"S",
 		"floatD":	1.230000,
@@ -10,8 +10,7 @@
 		"exampleMapH":	{
 			"struct std::pair<int const ,bool>":	{
 				"int":	{
-					"int":	0
-				},
+			},
 				"bool":	{
 					"bool":	true
 				}
