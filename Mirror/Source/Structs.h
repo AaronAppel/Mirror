@@ -150,8 +150,8 @@ struct Mirror
 	struct MirrorTemplateArgumentList { };
 
 	template<typename T>
-	static constexpr size_t TypeIdConstexpr() {
-		static_assert(false && "Specialization of TypeIdConstexpr() missing!");
+	static constexpr size_t TypeId() {
+		static_assert(false && "Specialization of TypeId() missing!");
 		return 0;
 	}
 };

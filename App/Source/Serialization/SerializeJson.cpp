@@ -77,17 +77,17 @@ namespace Serialize {
 
         switch (objTypeInfo->id)
         {
-        case Mirror::TypeIdConstexpr<std::string>():
+        case Mirror::TypeId<std::string>():
             {
-                auto result = Mirror::TypeIdConstexpr<std::string>();
+                auto result = Mirror::TypeId<std::string>();
                 const std::string* fieldAddress = (std::string*)obj;
                 cJsonItem = CreateJsonString<const char>(name, fieldAddress->data()); // #TODO Requires ->data() so can't work with CreateJsonString()
             }
             break;
 
-        case Mirror::TypeIdConstexpr<char>():
+        case Mirror::TypeId<char>():
             {
-                auto result = Mirror::TypeIdConstexpr<char>();
+                auto result = Mirror::TypeId<char>();
                 char charArr[2] = { '\0', '\0' };
                 charArr[0] = *(char*)obj;
                 cJsonItem = cJSON_CreateString(charArr);
@@ -95,32 +95,32 @@ namespace Serialize {
             }
             break;
 
-        case Mirror::TypeIdConstexpr<char*>():
-        case Mirror::TypeIdConstexpr<const char*>():
+        case Mirror::TypeId<char*>():
+        case Mirror::TypeId<const char*>():
             cJsonItem = CreateJsonString<const char>(name, *(void**)obj); break;
 
-        case Mirror::TypeIdConstexpr<bool>():
+        case Mirror::TypeId<bool>():
             cJsonItem = CreateJsonBool<bool>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<uint8_t>():
+        case Mirror::TypeId<uint8_t>():
             cJsonItem = CreateJsonBool<uint8_t>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<uint16_t>():
+        case Mirror::TypeId<uint16_t>():
             cJsonItem = CreateJsonBool<uint16_t>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<uint32_t>():
+        case Mirror::TypeId<uint32_t>():
             cJsonItem = CreateJsonBool<uint32_t>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<int8_t>():
+        case Mirror::TypeId<int8_t>():
             cJsonItem = CreateJsonBool<int8_t>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<int16_t>():
+        case Mirror::TypeId<int16_t>():
             cJsonItem = CreateJsonBool<int16_t>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<int32_t>():
+        case Mirror::TypeId<int32_t>():
             cJsonItem = CreateJsonBool<int32_t>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<int64_t>(): // #NOTE Special case of conversion on 64 bit types
+        case Mirror::TypeId<int64_t>(): // #NOTE Special case of conversion on 64 bit types
             {
                 // Use string instead of a double to avoid conversion issues
                 int64_t* numberAddress = (int64_t*)obj;
@@ -129,7 +129,7 @@ namespace Serialize {
             }
             break;
 
-        case Mirror::TypeIdConstexpr<uint64_t>(): // #NOTE Special case of conversion on 64 bit types
+        case Mirror::TypeId<uint64_t>(): // #NOTE Special case of conversion on 64 bit types
         {
             // Use string instead of a double to avoid conversion issues
             uint64_t* numberAddress = (uint64_t*)obj;
@@ -138,10 +138,10 @@ namespace Serialize {
         }
         break;
 
-        case Mirror::TypeIdConstexpr<float>():
+        case Mirror::TypeId<float>():
             cJsonItem = CreateJsonNumber<float>(name, obj); break;
 
-        case Mirror::TypeIdConstexpr<double>():
+        case Mirror::TypeId<double>():
             cJsonItem = CreateJsonNumber<double>(name, obj); break;
 
         default:

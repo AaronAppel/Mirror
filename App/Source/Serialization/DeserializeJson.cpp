@@ -68,26 +68,26 @@ namespace Serialize {
 
         switch (objTypeInfo->id)
         {
-        case Mirror::TypeIdConstexpr<std::string>():
+        case Mirror::TypeId<std::string>():
             // #TODO Handles when obj is pair.first better. This will break if key and value are both string/char*
             objTypeInfo->typeConstructorFunc(obj); // #NOTE String must be constructed before assigned to
             *(std::string*)obj = objJson->valuestring ? objJson->valuestring : objJson->string;
             break;
 
-        case Mirror::TypeIdConstexpr<char>():
+        case Mirror::TypeId<char>():
             memcpy(obj, objJson->valuestring, 1); break;
 
-        case Mirror::TypeIdConstexpr<char*>():
-        case Mirror::TypeIdConstexpr<const char*>():
+        case Mirror::TypeId<char*>():
+        case Mirror::TypeId<const char*>():
             *(const char**)obj = _strdup(objJson->valuestring); break;
 
-        case Mirror::TypeIdConstexpr<int64_t>(): // #NOTE Storing uint64 as string
+        case Mirror::TypeId<int64_t>(): // #NOTE Storing uint64 as string
             *(int64_t*)obj = std::stoll(objJson->valuestring); break;
 
-        case Mirror::TypeIdConstexpr<uint64_t>(): // #NOTE Storing uint64 as string
+        case Mirror::TypeId<uint64_t>(): // #NOTE Storing uint64 as string
             *(uint64_t*)obj = std::stoull(objJson->valuestring); break;
 
-        case Mirror::TypeIdConstexpr<float>():
+        case Mirror::TypeId<float>():
             *(float*)obj = (float)objJson->valuedouble; break;
 
         default:
