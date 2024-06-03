@@ -231,8 +231,8 @@ namespace Serialize {
         const Mirror::TypeInfo* const objTypeInfoFirst = objTypeInfo->collectionTypeInfoFirst;
         const Mirror::TypeInfo* const objTypeInfoSecond = objTypeInfo->collectionTypeInfoSecond;
 
-        const void* const firstAddress = objTypeInfo->collectionFirstSecondFunc(obj, true);
-        const void* const secondAddress = objTypeInfo->collectionFirstSecondFunc(obj, false);
+        const void* const firstAddress = objTypeInfo->collectionAddressOfPairObjectFunc(obj, true);
+        const void* const secondAddress = objTypeInfo->collectionAddressOfPairObjectFunc(obj, false);
 
         if (objTypeInfo->collectionTypeInfoFirst->category == Mirror::TypeInfoCategory_Primitive)
         {
@@ -308,11 +308,12 @@ namespace Serialize {
 
     bool local_TypeInfoHasOverride(const void* obj, const Mirror::TypeInfo* objTypeInfo, cJSON* objJson)
     {
-        // switch (objTypeInfo->id)
-        // {
-        // default:
-        //     break;
-        // }
+        switch (objTypeInfo->id)
+        {
+        case 0: // Avoid empty switch warning
+        default:
+            break;
+        }
         return false;
     }
 

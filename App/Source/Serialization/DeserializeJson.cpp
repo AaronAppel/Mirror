@@ -66,36 +66,31 @@ namespace Serialize {
             return;
         }
 
-        // #TODO Switch statement treats input of 1, as 1st case statement, 2 as 2nd, and so on...
-        if (Mirror::TypeIdConstexpr<std::string>() == objTypeInfo->id)
+        switch (objTypeInfo->id)
         {
+        case Mirror::TypeIdConstexpr<std::string>():
             // #TODO Handles when obj is pair.first better. This will break if key and value are both string/char*
             objTypeInfo->typeConstructorFunc(obj); // #NOTE String must be constructed before assigned to
             *(std::string*)obj = objJson->valuestring ? objJson->valuestring : objJson->string;
-        }
-        else if (Mirror::TypeIdConstexpr<char>() == objTypeInfo->id)
-        {
-            memcpy(obj, objJson->valuestring, 1);
-        }
-        else if (Mirror::TypeIdConstexpr<char*>() == objTypeInfo->id || Mirror::TypeIdConstexpr<const char*>() == objTypeInfo->id)
-        {
-            *(const char**)obj = _strdup(objJson->valuestring);
-        }
-        else if (Mirror::TypeIdConstexpr<int64_t>() == objTypeInfo->id)  // #NOTE Storing uint64 as string
-        {
-            auto result = Mirror::TypeIdConstexpr<int64_t>();
-            *(int64_t*)obj = std::stoll(objJson->valuestring);
-        }
-        else if (Mirror::TypeIdConstexpr<uint64_t>() == objTypeInfo->id) // #NOTE Storing uint64 as string
-        {
-            *(uint64_t*)obj = std::stoull(objJson->valuestring);
-        }
-        else if (Mirror::TypeIdConstexpr<float>() == objTypeInfo->id)
-        {
-            *(float*)obj = (float)objJson->valuedouble;
-        }
-        else
-        {
+            break;
+
+        case Mirror::TypeIdConstexpr<char>():
+            memcpy(obj, objJson->valuestring, 1); break;
+
+        case Mirror::TypeIdConstexpr<char*>():
+        case Mirror::TypeIdConstexpr<const char*>():
+            *(const char**)obj = _strdup(objJson->valuestring); break;
+
+        case Mirror::TypeIdConstexpr<int64_t>(): // #NOTE Storing uint64 as string
+            *(int64_t*)obj = std::stoll(objJson->valuestring); break;
+
+        case Mirror::TypeIdConstexpr<uint64_t>(): // #NOTE Storing uint64 as string
+            *(uint64_t*)obj = std::stoull(objJson->valuestring); break;
+
+        case Mirror::TypeIdConstexpr<float>():
+            *(float*)obj = (float)objJson->valuedouble; break;
+
+        default:
             if (objJson->type | cJSON_Number | cJSON_True | cJSON_False)
             {   // #TODO Potential bug writing to fieldAddress with size less than objJson->valueint
                 void* fieldAddress = ((char*)obj);
@@ -111,6 +106,7 @@ namespace Serialize {
             {
                 // LOG_WARN("{0} Unsupported json object type!", __FUNCTION__);
             }
+            break;
         }
     }
 
@@ -220,11 +216,12 @@ namespace Serialize {
 
     bool local_TypeInfoHasOverride(const cJSON* objJson, const Mirror::TypeInfo* objTypeInfo, const void* obj)
     {
-        // switch (objTypeInfo->id)
-        // {
-        // default:
-        //     break;
-        // }
+        switch (objTypeInfo->id)
+        {
+        case 0: // Avoid empty switch warning
+        default:
+            break;
+        }
         return false;
     }
 

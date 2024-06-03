@@ -19,3 +19,8 @@ project "App"
 		"cJSON",
 		"Mirror",
 	}
+
+	defines
+	{
+		"MIRROR_TESTING=1"
+	}

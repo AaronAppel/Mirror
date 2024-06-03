@@ -11,5 +11,5 @@ project "Mirror"
 	defines
 	{
 		-- #TODO Enable asserts
-		"MIRROR_TESTING"
+		"MIRROR_TESTING=1"
 	}

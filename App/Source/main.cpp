@@ -2,6 +2,7 @@
 #ifdef MIRROR_EXAMPLES
 #include "main.h"
 
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <stdio.h>
@@ -101,8 +102,7 @@ int main()
 
 	assert(comparison.floatD == a.floatD && "Mismatched floats!");
 
-	// #TODO Debug this line
-	// Serialize::FromFile("file.txt", a);
+	Serialize::FromFile("file.txt", a);
 
 	auto id = Mirror::TypeIdConstexpr<ExampleClass>();
 }
