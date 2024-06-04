@@ -7,9 +7,3 @@ project "Mirror"
 		"**.h",
 		"**.cpp",
 	}
-
-	defines
-	{
-		-- #TODO Enable asserts
-		"MIRROR_TESTING=1"
-	}

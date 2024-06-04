@@ -1,6 +1,7 @@
 
 #include "Mirror.h"
 #include "MirrorTesting.h"
+#include "../TypeIdsForMirror.h"
 
 #include "Serialize.h"
 
@@ -57,67 +58,3 @@ void SerializeTest()
     Serialize::FromFile("TestStruct", testStructDeserialize);
     testStructDeserialize.m_BasePtrDerived;
 }
-
-template <typename Super, typename... SubClass>
-void MirrorSubClassUserType(Mirror::TypeInfo& localStaticTypeInfo, uint16_t enumStartOffset)
-{
-    uint16_t enumValue = enumStartOffset;
-    ([&]()
-    {
-        const Mirror::TypeInfo* subclassTypeInfo = Mirror::InfoForType<SubClass>();
-        localStaticTypeInfo.derivedTypes.push_back(subclassTypeInfo);
-        const_cast<Mirror::TypeInfo*>(subclassTypeInfo)->superTypeInfo = &localStaticTypeInfo;
-        const_cast<Mirror::TypeInfo*>(subclassTypeInfo)->typeDynamicCastFunc =
-            [](const void* pointerToInstance) -> bool {
-            SubClass* subClass = (SubClass*)pointerToInstance;
-            return dynamic_cast<SubClass*>(*(Super**)pointerToInstance) != nullptr;
-            };
-        ++enumValue;
-    }(), ...);
-}
-
-template<typename Super, typename... T>
-static void MirrorSubClassUserTypes(Mirror::MirrorTemplateArgumentList<T...>, Mirror::TypeInfo& localStaticTypeInfo, uint16_t enumStartOffset = 0)
-{
-    MirrorSubClassUserType<Super, T...>(localStaticTypeInfo, enumStartOffset);
-}
-
-MIRROR_CLASS_START(Derived1)
-MIRROR_CLASS_MEMBER(derivedZ)
-MIRROR_CLASS_END
-
-MIRROR_CLASS_START(Derived2)
-MIRROR_CLASS_MEMBER(derivedY)
-MIRROR_CLASS_END
-
-MIRROR_CLASS_START(Base)
-MIRROR_CLASS_MEMBER(baseX)
-MirrorSubClassUserTypes<Base>(Mirror::MirrorTemplateArgumentList<Derived1, Derived2>{}, localStaticTypeInfo, 0);
-MIRROR_CLASS_END
-
-MIRROR_CLASS_START(TestStruct)
-MIRROR_CLASS_MEMBER(m_BasePtrDerived)
-MIRROR_CLASS_MEMBER(m_Derived1Ptr)
-MIRROR_CLASS_MEMBER(m_Derived2Ptr)
-MIRROR_CLASS_MEMBER(m_Base)
-MIRROR_CLASS_MEMBER(m_Derived1)
-MIRROR_CLASS_MEMBER(m_Derived2)
-MIRROR_CLASS_MEMBER(m_Bool)
-MIRROR_CLASS_MEMBER(m_U8)
-MIRROR_CLASS_MEMBER(m_U16)
-MIRROR_CLASS_MEMBER(m_U32)
-MIRROR_CLASS_MEMBER(m_U64)
-MIRROR_CLASS_MEMBER(m_S8)
-MIRROR_CLASS_MEMBER(m_S16)
-MIRROR_CLASS_MEMBER(m_S32)
-MIRROR_CLASS_MEMBER(m_S64)
-MIRROR_CLASS_MEMBER(m_Float)
-MIRROR_CLASS_MEMBER(m_Double)
-MIRROR_CLASS_MEMBER(m_String)
-MIRROR_CLASS_MEMBER(m_ConstCharPtr)
-MIRROR_CLASS_MEMBER(m_FloatArray10)
-MIRROR_CLASS_MEMBER(m_CharVector)
-MIRROR_CLASS_MEMBER(m_UmapStringInt32)
-MIRROR_CLASS_MEMBER(m_Int32Ptr)
-MIRROR_CLASS_END
-

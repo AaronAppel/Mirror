@@ -21,6 +21,9 @@
     <ClInclude Include="Source\main.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\TypeIdsForMirror.h">
+      <Filter>Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Serialization\DeserializeJson.cpp">
@@ -35,10 +38,10 @@
     <ClCompile Include="Source\Serialization\Utilities.cpp">
       <Filter>Source\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Testing.cpp">
+    <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\main.cpp">
+    <ClCompile Include="Source\MirrorTypes.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

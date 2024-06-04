@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-#define MIRROR_MEMBER_FIELDS_DEFAULT 3
 #define MIRROR_PRIVATE_MEMBERS friend struct Mirror;
 
 #define MIRROR_FIELD_FLAG_SIZE uint8_t
@@ -18,6 +17,12 @@
 #else
 #define MIRROR_ASSERT(x)
 #endif
+
+#include "ConstexprCounter.h"
+template<int N = 1, int C = reader(0, flag<128>())> // #NOTE 0 reserved for invalid value, up to max value of 128(+1)
+int constexpr NextTypeId(int R = writer<C + N>::value) {
+	return R;
+}
 
 struct Mirror
 {
@@ -52,13 +57,6 @@ struct Mirror
 	using Func_voidPtr_constVoidPtr_bool = void* (*)(const void*, bool);
 	using Func_charPtr_constVoidPtr_sizet = char* (*)(const void*, size_t);
 	using Func_bool_constVoidPtr = bool (*)(const void*);
-
-	// struct PointersUnion
-	// {
-	// 	const TypeInfo* collectionTypeInfoFirst = nullptr;
-	// 	const TypeInfo* superTypeInfo = nullptr;
-	// 	const TypeInfo* pointerDereferencedTypeInfo = nullptr;
-	// };
 
 	struct TypeInfo
 	{
@@ -146,12 +144,15 @@ struct Mirror
 	template<typename T>
 	static const TypeInfo* InfoForType();
 
+	template<typename T>
+	static constexpr size_t TypeId();
+
+	// #NOTE Defining type ids through templated functions aims to avoid id collisions with generated class ids
+	// #NOTE TypeIds are defined in headers so all compile units have the same id value
+#define MIRROR_TYPE_ID_IMPL(TYPE) \
+template <> constexpr std::size_t Mirror::TypeId<TYPE>() { return NextTypeId(); }
+#define MIRROR_TYPE_ID(...) MIRROR_TYPE_ID_IMPL(__VA_ARGS__)
+
 	template<typename... T>
 	struct MirrorTemplateArgumentList { };
-
-	template<typename T>
-	static constexpr size_t TypeId() {
-		static_assert(false && "Specialization of TypeId() missing!");
-		return 0;
-	}
 };

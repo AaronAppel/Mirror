@@ -15,6 +15,8 @@
 
 #include "Serialization/Serialize.h"
 
+#include "ConstexprCounter.h"
+
 const char* const g_filePath = "Mirror.json";
 
 MIRROR_CLASS_START(ExampleStruct)
@@ -26,22 +28,22 @@ MIRROR_CLASS_MEMBER(doubleE);
 MIRROR_CLASS_MEMBER(constCharPtrF);
 MIRROR_CLASS_MEMBER(stdStringG);
 MIRROR_CLASS_MEMBER(exampleMapH);
-MIRROR_CLASS_END
+MIRROR_CLASS_END(ExampleStruct)
 
 MIRROR_CLASS_START(ExampleDerivedClass)
 MIRROR_CLASS_MEMBER(intZ)
-MIRROR_CLASS_END
+MIRROR_CLASS_END(ExampleDerivedClass)
 
 MIRROR_CLASS_START(ExampleClass)
 MIRROR_CLASS_SUBCLASS(ExampleDerivedClass)
 MIRROR_CLASS_MEMBER(intX)
 MIRROR_CLASS_MEMBER(intY)
-MIRROR_CLASS_END
+MIRROR_CLASS_END(ExampleClass)
 
 MIRROR_CLASS_START(ExampleNestedCutomTypes)
 MIRROR_CLASS_MEMBER(exStruct)
 MIRROR_CLASS_MEMBER(exClass)
-MIRROR_CLASS_END
+MIRROR_CLASS_END(ExampleNestedCutomTypes)
 
 int main()
 {
@@ -53,8 +55,28 @@ int main()
 	Serialize::ToFile(thing, "file.txt");
 	Serialize::FromFile("file.txt", thing);
 
+	resultExperimental = 1;
+	resultExperimental = Mirror::TypeId<void>();
+
 	switch (resultExperimental)
 	{
+	case Mirror::TypeId<std::string>():
+	case Mirror::TypeId<char*>():
+	case Mirror::TypeId<const char*>():
+	 	break;
+
+	case Mirror::TypeId<void>():
+		{
+			int bp = 0;
+		}
+		break;
+
+	case Mirror::TypeId<void*>():
+		{
+			int bp = 0;
+		}
+		break;
+
 	case Mirror::TypeId<float>():
 		{
 			int bp = 0;

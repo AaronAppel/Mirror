@@ -15,10 +15,10 @@
     <ClInclude Include="Source\Structs.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ExtendedTypeIds.h">
+    <ClInclude Include="Source\TypeIds.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\BaseTypeIds.h">
+    <ClInclude Include="Source\ConstexprCounter.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
