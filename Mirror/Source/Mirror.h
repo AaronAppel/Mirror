@@ -201,8 +201,8 @@ constexpr std::size_t HashFromString(const char* type_name) {
 }
 
 // #NOTE Using __VA_ARGS__ to handle macro calls with commas like MIRROR_INFO_FOR_TYPE(std::map<int, bool>)
-#define MIRROR_INFO_FOR_TYPE(...) TypeInfo(__VA_ARGS__)
-#define TypeInfo(T) \
+#define MIRROR_INFO_FOR_TYPE(...) MIRROR_INFO_FOR_TYPE_IMPL(__VA_ARGS__)
+#define MIRROR_INFO_FOR_TYPE_IMPL(T) \
 template<> \
 static const Mirror::TypeInfo* Mirror::InfoForType<T>() { \
 	static_assert(sizeof(T) <= MIRROR_TYPE_SIZE_MAX, "Size is larger than member can hold!"); \
@@ -238,10 +238,6 @@ static const Mirror::TypeInfo* Mirror::InfoForType<T>() { \
 }
 
 #define MIRROR_TYPE(TYPE) \
-template <> \
-static constexpr size_t Mirror::TypeId<TYPE>() { \
-	return HashFromString(#TYPE); \
-} \
 template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static TypeInfo localStaticTypeInfo; \
@@ -301,15 +297,24 @@ const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	localStaticTypeInfo.derivedTypes.push_back(SUBCLASS_TYPE##Info); \
 	const_cast<Mirror::TypeInfo*>(SUBCLASS_TYPE##Info)->superTypeInfo = &localStaticTypeInfo; \
 
-#define MIRROR_CLASS_MEMBER(MEMBER_NAME) \
+#define MIRROR_CLASS_MEMBER(MEMBER_NAME)  MIRROR_CLASS_MEMBER_FLAGS(MEMBER_NAME, 0)
+#define MIRROR_CLASS_MEMBER_FLAGS(MEMBER_NAME, FLAGS) \
 	enum { MEMBER_NAME##Index = __COUNTER__ - BASE - 1 }; \
 	Mirror::Field MEMBER_NAME##field; \
 	localStaticTypeInfo.fields.push_back(MEMBER_NAME##field); \
 	localStaticTypeInfo.fields[MEMBER_NAME##Index].typeInfo = Mirror::InfoForType<decltype(ClassType::MEMBER_NAME)>(); \
 	localStaticTypeInfo.fields[MEMBER_NAME##Index].name = #MEMBER_NAME; \
-	localStaticTypeInfo.fields[MEMBER_NAME##Index].offset = offsetof(ClassType, MEMBER_NAME);
+	localStaticTypeInfo.fields[MEMBER_NAME##Index].offset = offsetof(ClassType, MEMBER_NAME); \
+	localStaticTypeInfo.fields[MEMBER_NAME##Index].flags = FLAGS;
+
+#define MIRROR_CONSTRUCT_USING_MEMBER(MEMBER_NAME) \
+	localStaticTypeInfo.typeConstructorFunc = [](void* instanceAddress) { \
+		using MemberType = decltype(ClassType::MEMBER_NAME); \
+		char* memberAddress = (char*)instanceAddress + offsetof(ClassType, MEMBER_NAME); \
+		new(instanceAddress) ClassType(*(MemberType*)memberAddress); \
+	};
 
 #define MIRROR_CLASS_END(TYPE) \
 	return &localStaticTypeInfo; \
 } \
-TypeInfo(TYPE*)
+MIRROR_INFO_FOR_TYPE(TYPE*)

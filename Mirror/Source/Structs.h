@@ -48,7 +48,7 @@ struct Mirror
 #endif
 
 #ifndef MIRROR_FIELD_FLAGS_UNUSED
-		MIRROR_FIELD_FLAG_SIZE serializationFlags = 0;
+		MIRROR_FIELD_FLAG_SIZE flags = 0;
 #endif
 	};
 
@@ -150,8 +150,36 @@ struct Mirror
 	// #NOTE Defining type ids through templated functions aims to avoid id collisions with generated class ids
 	// #NOTE TypeIds are defined in headers so all compile units have the same id value
 #define MIRROR_TYPE_ID_IMPL(TYPE) \
-template <> constexpr std::size_t Mirror::TypeId<TYPE>() { return NextTypeId(); }
+	template <> constexpr std::size_t Mirror::TypeId<TYPE>() { return NextTypeId(); }
 #define MIRROR_TYPE_ID(...) MIRROR_TYPE_ID_IMPL(__VA_ARGS__)
+
+#define MIRROR_TYPE_ID_CLASS(...) MIRROR_TYPE_ID_CLASS_IMPL(__VA_ARGS__)
+#define MIRROR_TYPE_ID_CLASS_IMPL(TYPE) \
+	template <> \
+	static constexpr size_t Mirror::TypeId<TYPE>() { \
+		auto result = HashFromString(#TYPE); \
+		assert(result > PREDEFINED_ID_MAX); \
+		return result; \
+	}
+
+// template <> \
+// static constexpr size_t Mirror::TypeId<TYPE*>() { \
+// 	auto result = HashFromString(#TYPE "*"); \
+// 	assert(result > PREDEFINED_ID_MAX); \
+// 	return result; \
+// } \
+// template <> \
+// static constexpr size_t Mirror::TypeId<const TYPE>() { \
+// 	auto result = HashFromString("const " #TYPE); \
+// 	assert(result > PREDEFINED_ID_MAX); \
+// 	return result; \
+// } \
+// template <> \
+// static constexpr size_t Mirror::TypeId<const TYPE*>() { \
+// 	auto result = HashFromString("const " #TYPE "*"); \
+// 	assert(result > PREDEFINED_ID_MAX); \
+// 	return result; \
+// }
 
 	template<typename... T>
 	struct MirrorTemplateArgumentList { };
