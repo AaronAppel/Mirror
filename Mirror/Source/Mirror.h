@@ -57,11 +57,12 @@ static void SetCollectionLambdasVector(Mirror::TypeInfo* constTypeInfo, std::fal
 template<typename T>
 static void SetCollectionLambdasVector(Mirror::TypeInfo* constTypeInfo, std::true_type) {
 	static_assert(is_stl_vector_impl::is_stl_vector<T>::type());
+
 	Mirror::TypeInfo* typeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 
 	typeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>(); // #TODO Same as Map
 
-	typeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, void* elementFirst, void* /*elementSecond*/) {
+	typeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
 		((T*)collectionAddress)->push_back(*(T::value_type*)elementFirst); // #TODO Similar to Map
 	};
 	typeInfo->collectionClearFunction = [](void* collectionAddress) {
@@ -85,10 +86,9 @@ static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::true_t
 	static_assert(is_stl_map<T>::value);
 
 	Mirror::TypeInfo* typeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
-
 	typeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>(); // #TODO Same as Vector
 
-	typeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, void* elementFirst, void* /*elementSecond*/) {
+	typeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
 		((T*)collectionAddress)->insert(*(T::value_type*)elementFirst); // #TODO Similar to Vector
 	};
 	typeInfo->collectionClearFunction = [](void* collectionAddress) {
@@ -117,28 +117,15 @@ static void SetCollectionLambdasPair(Mirror::TypeInfo* constTypeInfo, std::false
 template<typename T>
 static void SetCollectionLambdasPair(Mirror::TypeInfo* constTypeInfo, std::true_type) {
 	static_assert(is_stl_pair<T>::value);
-	// #TODO static_assert(is_stl_vector_impl::is_stl_vector<T>::type());
 	Mirror::TypeInfo* typeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 
 	typeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::first_type>();
 	typeInfo->collectionTypeInfoSecond = Mirror::InfoForType<T::second_type>();
 
-	typeInfo->collectionAddFunc = [](void* pairObjAddress, size_t /*index*/, void* elementFirst, void* elementSecond) {
+	typeInfo->collectionAddFunc = [](void* pairObjAddress, size_t /*index*/, const void* elementFirst, const void* elementSecond) {
 		T* pair = (T*)pairObjAddress;
-
-		const Mirror::TypeInfo* firstTypeInfo = Mirror::InfoForType<T::first_type>();
-		if (Mirror::TypeInfoCategory_Primitive != firstTypeInfo->category &&
-			Mirror::TypeInfoCategory_Pointer != firstTypeInfo->category)
-		{
-			firstTypeInfo->Construct((void*)&pair->first);
-		}
-
-		const Mirror::TypeInfo* secondTypeInfo = Mirror::InfoForType<T::second_type>();
-		if (Mirror::TypeInfoCategory_Primitive != secondTypeInfo->category &&
-			Mirror::TypeInfoCategory_Pointer != secondTypeInfo->category)
-		{
-			secondTypeInfo->Construct((void*)&pair->second);
-		}
+		memcpy((void*)&pair->first, elementFirst, sizeof(T::first_type));
+		memcpy((void*)&pair->second, elementSecond, sizeof(T::second_type));
 	};
 	typeInfo->typeConstructorFunc = [](void* preallocatedMemoryAddress) { new(preallocatedMemoryAddress) T; };
 	typeInfo->collectionAddressOfPairObjectFunc = [](const void* pairObjAddress, bool isFirst) -> void* {
@@ -155,7 +142,7 @@ static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::false_typ
 	{
 		typedef typename std::remove_all_extents<T>::type ArrayElementType;
 		typeInfo->collectionTypeInfoFirst = Mirror::InfoForType<ArrayElementType>();
-		typeInfo->collectionAddFunc = [](void* collectionAddress, size_t index, void* elementFirst, void* /*elementSecond*/) {
+		typeInfo->collectionAddFunc = [](void* collectionAddress, size_t index, const void* elementFirst, const void* /*elementSecond*/) {
 			memcpy((char*)collectionAddress + (sizeof(ArrayElementType) * index), elementFirst, sizeof(ArrayElementType));
 		};
 		typeInfo->collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
@@ -186,57 +173,57 @@ static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::true_type
 	SetCollectionLambdasMap<T>(typeInfo, is_stl_map_impl::is_stl_map<T>::type());
 }
 
-#define PREDEFINED_ID_MAX 100
+#define PREDEFINED_ID_MAX 128
 constexpr std::size_t HashFromString(const char* type_name) {
 	// #TODO Improve naive pseudo-unique output implementation
-	std::size_t result{ PREDEFINED_ID_MAX + 1 };
+	std::size_t result = PREDEFINED_ID_MAX + 1;
 	const char* charPtr = type_name;
 	while (*charPtr != '\0')
 	{
 		result += *charPtr;
 		charPtr += 1;
 	}
-
 	return result;
 }
 
 // #NOTE Using __VA_ARGS__ to handle macro calls with commas like MIRROR_INFO_FOR_TYPE(std::map<int, bool>)
 #define MIRROR_INFO_FOR_TYPE(...) MIRROR_INFO_FOR_TYPE_IMPL(__VA_ARGS__)
-#define MIRROR_INFO_FOR_TYPE_IMPL(T) \
+#define MIRROR_INFO_FOR_TYPE_IMPL(TYPE) \
 template<> \
-static const Mirror::TypeInfo* Mirror::InfoForType<T>() { \
-	static_assert(sizeof(T) <= MIRROR_TYPE_SIZE_MAX, "Size is larger than member can hold!"); \
+static const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
+	static_assert(sizeof(TYPE) <= MIRROR_TYPE_SIZE_MAX, "Size is larger than member can hold!"); \
 	static Mirror::TypeInfo localStaticTypeInfo; \
 	 \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
 	 \
-	localStaticTypeInfo.category = GetCategory<T>(); \
-	localStaticTypeInfo.id = Mirror::TypeId<T>(); \
+	localStaticTypeInfo.category = GetCategory<TYPE>(); \
+	localStaticTypeInfo.stringName = #TYPE; \
+	localStaticTypeInfo.id = Mirror::TypeId<TYPE>(); \
 	 \
-	localStaticTypeInfo.stringName = typeid(T).name(); \
-	localStaticTypeInfo.size = sizeof(T); \
+	localStaticTypeInfo.size = sizeof(TYPE); \
 	 \
 	switch (localStaticTypeInfo.category) \
 	{ \
 	case TypeInfoCategory_Collection: \
 	case TypeInfoCategory_Pair: \
-		SetCollectionLambdas<T>(&localStaticTypeInfo, is_stl_container_impl::is_stl_container<T>::type()); \
+		SetCollectionLambdas<TYPE>(&localStaticTypeInfo, is_stl_container_impl::is_stl_container<TYPE>::type()); \
 	case TypeInfoCategory_Class: \
-		SetConstructionLambda<T>(&localStaticTypeInfo, std::is_class<T>::type()); \
+		SetConstructionLambda<TYPE>(&localStaticTypeInfo, std::is_class<TYPE>::type()); \
 		break; \
 		 \
 	case TypeInfoCategory_Pointer: \
-		localStaticTypeInfo.pointerDereferencedTypeInfo = Mirror::InfoForType<std::remove_pointer_t<T>>(); \
+		localStaticTypeInfo.pointerDereferencedTypeInfo = Mirror::InfoForType<std::remove_pointer_t<TYPE>>(); \
 		break; \
 		 \
 	case TypeInfoCategory_Primitive: \
-		SetConstructionLambda<T>(&localStaticTypeInfo, std::is_same<T, std::string>::type()); \
+		SetConstructionLambda<TYPE>(&localStaticTypeInfo, std::is_same<TYPE, std::string>::type()); \
 		break; \
 	} \
 	 \
 	return &localStaticTypeInfo; \
 }
 
+// #TODO Review for deprecation
 #define MIRROR_TYPE(TYPE) \
 template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
@@ -253,38 +240,14 @@ const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 
 #define MIRROR_CLASS_START(TYPE) MIRROR_CLASS_STARTN(TYPE, MIRROR_MEMBER_FIELDS_DEFAULT)
 #define MIRROR_CLASS_STARTN(TYPE, FIELDCOUNT) \
-template <> \
-static constexpr size_t Mirror::TypeId<TYPE>() { \
-	auto result = HashFromString(#TYPE); \
-	assert(result > PREDEFINED_ID_MAX); \
-	return result; \
-} \
-template <> \
-static constexpr size_t Mirror::TypeId<TYPE*>() { \
-	auto result = HashFromString(#TYPE "*"); \
-	assert(result > PREDEFINED_ID_MAX); \
-	return result; \
-} \
-template <> \
-static constexpr size_t Mirror::TypeId<const TYPE>() { \
-	auto result = HashFromString("const " #TYPE); \
-	assert(result > PREDEFINED_ID_MAX); \
-	return result; \
-} \
-template <> \
-static constexpr size_t Mirror::TypeId<const TYPE*>() { \
-	auto result = HashFromString("const " #TYPE "*"); \
-	assert(result > PREDEFINED_ID_MAX); \
-	return result; \
-} \
 template<> \
 const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	static Mirror::TypeInfo localStaticTypeInfo; \
 	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
-	localStaticTypeInfo.id = Mirror::TypeId<TYPE>(); \
 	localStaticTypeInfo.category = GetCategory<TYPE>();	\
-	localStaticTypeInfo.stringName = #TYPE; \
 	localStaticTypeInfo.size = sizeof(TYPE); \
+	localStaticTypeInfo.stringName = #TYPE; \
+	localStaticTypeInfo.id = Mirror::TypeId<TYPE>(); \
     if (localStaticTypeInfo.fields.size() > 0) { return &localStaticTypeInfo; } \
 	const int fieldsCount = FIELDCOUNT; \
 	localStaticTypeInfo.fields.reserve(fieldsCount); \
@@ -314,7 +277,6 @@ const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 		new(instanceAddress) ClassType(*(MemberType*)memberAddress); \
 	};
 
-#define MIRROR_CLASS_END(TYPE) \
+#define MIRROR_CLASS_END \
 	return &localStaticTypeInfo; \
-} \
-MIRROR_INFO_FOR_TYPE(TYPE*)
+}

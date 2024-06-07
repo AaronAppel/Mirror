@@ -52,7 +52,7 @@ struct Mirror
 #endif
 	};
 
-	using Func_void_voidPtr_sizet_voidPtr_voidPtr = void (*)(void*, size_t, void*, void*);
+	using Func_void_voidPtr_sizet_constvoidPtr_constvoidPtr = void (*)(void*, size_t, const void*, const void*);
 	using Func_void_voidPtr = void (*)(void*);
 	using Func_voidPtr_constVoidPtr_bool = void* (*)(const void*, bool);
 	using Func_charPtr_constVoidPtr_sizet = char* (*)(const void*, size_t);
@@ -129,7 +129,7 @@ struct Mirror
 		const TypeInfo* superTypeInfo = nullptr;
 		const TypeInfo* pointerDereferencedTypeInfo = nullptr;
 
-		Func_void_voidPtr_sizet_voidPtr_voidPtr collectionAddFunc = nullptr;
+		Func_void_voidPtr_sizet_constvoidPtr_constvoidPtr collectionAddFunc = nullptr;
 		Func_voidPtr_constVoidPtr_bool collectionAddressOfPairObjectFunc = nullptr;
 		Func_void_voidPtr collectionClearFunction = nullptr;
 		Func_charPtr_constVoidPtr_sizet collectionIterateCurrentFunc = nullptr;

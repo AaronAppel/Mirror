@@ -28,22 +28,76 @@ MIRROR_CLASS_MEMBER(doubleE);
 MIRROR_CLASS_MEMBER(constCharPtrF);
 MIRROR_CLASS_MEMBER(stdStringG);
 MIRROR_CLASS_MEMBER(exampleMapH);
-MIRROR_CLASS_END(ExampleStruct)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(ExampleDerivedClass)
 MIRROR_CLASS_MEMBER(intZ)
-MIRROR_CLASS_END(ExampleDerivedClass)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(ExampleClass)
 MIRROR_CLASS_SUBCLASS(ExampleDerivedClass)
 MIRROR_CLASS_MEMBER(intX)
 MIRROR_CLASS_MEMBER(intY)
-MIRROR_CLASS_END(ExampleClass)
+MIRROR_CLASS_END
 
 MIRROR_CLASS_START(ExampleNestedCutomTypes)
 MIRROR_CLASS_MEMBER(exStruct)
 MIRROR_CLASS_MEMBER(exClass)
-MIRROR_CLASS_END(ExampleNestedCutomTypes)
+MIRROR_CLASS_END
+
+// #TODO Simplify mirroring derived types
+// #TODO Find a way to accept templated arguments in a type-agnostic way
+template<typename... T>
+struct TemplateArgumentList { };
+
+using List = TemplateArgumentList<bool>;
+
+using ComponentScriptsList = TemplateArgumentList <
+	bool,
+	int
+>;
+
+template<typename... SubClass>
+static void TemplateArgs()
+{
+	int bp = 0;
+	Mirror::MirrorTemplateArgumentList<SubClass...> list;
+}
+
+template<typename... SubClass>
+static void TemplateArgs(TemplateArgumentList<SubClass...>)
+{
+	int bp = 0;
+	Mirror::MirrorTemplateArgumentList<SubClass...> list;
+}
+
+using MirrorList = Mirror::MirrorTemplateArgumentList<
+	bool,
+	int
+>;
+
+template <typename SuperClass, typename... SubClass>
+static void MirrorSubClass(void* localStaticTypeInfo, uint16_t enumStartOffset)
+{
+	uint16_t enumValue = enumStartOffset;
+	([&]()
+	{
+		++enumValue;
+	}(), ...);
+}
+
+template <typename... SubClass>
+static void MirrorSubClass()
+{
+	uint16_t enumValue = 0;
+	// ([](){}(), ...);
+
+	// ([&]()
+	// {
+	// 	std::cout << enumValue;
+	// 	++enumValue;
+	// }(), ...);
+}
 
 int main()
 {
@@ -89,11 +143,12 @@ int main()
 		}
 		break;
 
-	case Mirror::TypeId<ExampleClass>():
-		{
-			int bp = 0;
-		}
-		break;
+	// #TODO Fix
+	// case Mirror::TypeId<ExampleClass>():
+	// 	{
+	// 		int bp = 0;
+	// 	}
+	// 	break;
 
 	default:
 		break;
