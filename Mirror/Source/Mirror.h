@@ -223,19 +223,6 @@ static const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
 	return &localStaticTypeInfo; \
 }
 
-// #TODO Review for deprecation
-#define MIRROR_TYPE(TYPE) \
-template<> \
-const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() { \
-	static TypeInfo localStaticTypeInfo; \
-	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } \
-	localStaticTypeInfo.id = Mirror::TypeId<TYPE>(); \
-	localStaticTypeInfo.category = GetCategory<TYPE>();	\
-	localStaticTypeInfo.stringName = #TYPE; \
-	localStaticTypeInfo.size = sizeof(TYPE); \
-	return &localStaticTypeInfo; \
-}
-
 #define MIRROR_MEMBER_FIELDS_DEFAULT 3
 
 #define MIRROR_CLASS_START(TYPE) MIRROR_CLASS_STARTN(TYPE, MIRROR_MEMBER_FIELDS_DEFAULT)

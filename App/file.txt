@@ -8,8 +8,8 @@
 		"constCharPtrF":	"Mirror",
 		"stdStringG":	"Example",
 		"exampleMapH":	{
-			"struct std::pair<int const ,bool>":	{
-				"int":	{
+			"std::pair<const int, bool>":	{
+				"const signed int":	{
 			},
 				"bool":	{
 					"bool":	true
