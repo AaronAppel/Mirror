@@ -5,7 +5,6 @@
 #include <string>
 
 #include "Mirror.h"
-#include "TypeIdsForMirror.h"
 
 struct ExampleStruct
 {

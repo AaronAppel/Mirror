@@ -12,6 +12,7 @@
 #include "../../cJSON/Source/cJSON.h"
 
 #include "Mirror.h"
+#include "TypeIdsForMirror.h"
 
 #include "Serialization/Serialize.h"
 
@@ -143,12 +144,11 @@ int main()
 		}
 		break;
 
-	// #TODO Fix
-	// case Mirror::TypeId<ExampleClass>():
-	// 	{
-	// 		int bp = 0;
-	// 	}
-	// 	break;
+	case Mirror::TypeId<ExampleClass>():
+		{
+			int bp = 0;
+		}
+		break;
 
 	default:
 		break;
