@@ -198,8 +198,8 @@ static const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() {																				
 	localStaticTypeInfo.size = sizeof(TYPE);																								\
 
 // #NOTE Using __VA_ARGS__ to handle macro calls with commas like MIRROR_INFO_FOR_TYPE(std::map<int, bool>)
-#define MIRROR_INFO_TYPE(...) MIRROR_INFO_TYPE_IMPL(__VA_ARGS__)
-#define MIRROR_INFO_TYPE_IMPL(TYPE)																											\
+#define MIRROR_TYPE(...) MIRROR_TYPE_IMPL(__VA_ARGS__)
+#define MIRROR_TYPE_IMPL(TYPE)																												\
 MIRROR_COMMON(TYPE)																															\
 																																			\
 	switch (localStaticTypeInfo.category)																									\

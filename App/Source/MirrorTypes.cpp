@@ -14,13 +14,13 @@
 // Define implementation of Mirror::InfoForType<TYPE>() for each user created class, or type(s) unsupported by Mirror as default
 
 // TypeId Collections
-MIRROR_INFO_TYPE(std::pair<const int, bool>)
-MIRROR_INFO_TYPE(std::map<int, bool>)
-MIRROR_INFO_TYPE(float[10])
-MIRROR_INFO_TYPE(std::vector<char>)
-MIRROR_INFO_TYPE(std::pair<std::string, int32_t>)
-MIRROR_INFO_TYPE(std::unordered_map<std::string, int32_t>)
-MIRROR_INFO_TYPE(std::pair<const std::string, int32_t>)
+MIRROR_TYPE(std::pair<const int, bool>)
+MIRROR_TYPE(std::map<int, bool>)
+MIRROR_TYPE(float[10])
+MIRROR_TYPE(std::vector<char>)
+MIRROR_TYPE(std::pair<std::string, int32_t>)
+MIRROR_TYPE(std::unordered_map<std::string, int32_t>)
+MIRROR_TYPE(std::pair<const std::string, int32_t>)
 
 // Classes
 template <typename Super, typename... SubClass>
@@ -48,19 +48,19 @@ static void MirrorSubClassUserTypes(Mirror::MirrorTemplateArgumentList<T...>, Mi
 MIRROR_CLASS(Derived1)
 MIRROR_CLASS_MEMBER(derivedZ)
 MIRROR_CLASS_END
-MIRROR_INFO_TYPE(Derived1*)
+MIRROR_TYPE(Derived1*)
 
 MIRROR_CLASS(Derived2)
 MIRROR_CLASS_MEMBER(derivedY)
 MIRROR_CONSTRUCT_USING_MEMBER(derivedY) // #TODO Test constructing derived type
 MIRROR_CLASS_END
-MIRROR_INFO_TYPE(Derived2*)
+MIRROR_TYPE(Derived2*)
 
 MIRROR_CLASS(Base)
 MIRROR_CLASS_MEMBER(baseX)
 MirrorSubClassUserTypes<Base>(Mirror::MirrorTemplateArgumentList<Derived1, Derived2>{}, localStaticTypeInfo, 0);
 MIRROR_CLASS_END
-MIRROR_INFO_TYPE(Base*)
+MIRROR_TYPE(Base*)
 
 MIRROR_CLASS(TestStruct)
 MIRROR_CLASS_MEMBER(m_BasePtrDerived)
@@ -87,4 +87,4 @@ MIRROR_CLASS_MEMBER(m_CharVector)
 MIRROR_CLASS_MEMBER(m_UmapStringInt32)
 MIRROR_CLASS_MEMBER(m_Int32Ptr)
 MIRROR_CLASS_END
-MIRROR_INFO_TYPE(TestStruct*)
+MIRROR_TYPE(TestStruct*)
