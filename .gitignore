@@ -1,9 +1,5 @@
 .vs/
 *bin/
-*x64/
-*x86/
-*Debug/
-*Release/
 
 *.tlog
 *.log
@@ -23,16 +19,5 @@
 *.sln
 **.vcxproj
 **.user
-
-*.dll
-
-*❗*
-
-Projects/Examples/Mirror.json
-Projects/Examples/cache.json
-Projects/Testing/Mirror.json
-Projects/Testing/cache.json
-
-.vs/
 
 .obsidian/
