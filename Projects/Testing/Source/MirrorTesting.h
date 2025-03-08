@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "Mirror.h"
+#include "MIR_Mirror.h"
 
 // #TODO Add inheritance structure
 

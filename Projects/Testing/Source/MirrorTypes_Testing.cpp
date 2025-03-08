@@ -1,25 +1,26 @@
 
-#include "map"
-#include "string"
-#include "unordered_map"
-#include "vector"
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#include "Mirror.h"
+#include "MIR_Mirror.h"
 
-#include "TypeIdsForMirror.h"
-#include "Serialization/MirrorTesting.h"
+#include "main_testing.h"
 
-#include "ConstexprCounter.h"
+#include "MirrorTypeIds_Testing.h"
+#include "MirrorTesting.h"
 
 // Define implementation of Mirror::InfoForType<TYPE>() for each user created class, or type(s) unsupported by Mirror as default
 
-// TypeId Collections
+// Type collections
 MIRROR_TYPE(std::pair<const int, bool>)
 MIRROR_TYPE(std::map<int, bool>)
 MIRROR_TYPE(float[10])
 MIRROR_TYPE(std::vector<char>)
 MIRROR_TYPE(std::pair<std::string, int32_t>)
 MIRROR_TYPE(std::unordered_map<std::string, int32_t>)
+// #TODO Problems in SetConstructionLambda() MIRROR_TYPE(std::unordered_map<const std::string, int32_t>)
 MIRROR_TYPE(std::pair<const std::string, int32_t>)
 
 // Classes
@@ -33,7 +34,7 @@ void MirrorSubClassUserType(Mirror::TypeInfo& localStaticTypeInfo, uint16_t enum
         localStaticTypeInfo.derivedTypes.push_back(subclassTypeInfo);
         const_cast<Mirror::TypeInfo*>(subclassTypeInfo)->superTypeInfo = &localStaticTypeInfo;
         const_cast<Mirror::TypeInfo*>(subclassTypeInfo)->typeDynamicCastFunc = [](const void* pointerToInstance) -> bool {
-            return dynamic_cast<SubClass*>(*(Super**)pointerToInstance) != nullptr;
+            return dynamic_cast<SubClass*>(*(Super**)pointerToInstance) != nullptr; // #TODO Fix warning C4541 "'dynamic_cast' used on polymorphic type 'Base' with /GR-; unpredictable behavior may result"
         };
         ++enumValue;
     }(), ...);
@@ -44,6 +45,31 @@ static void MirrorSubClassUserTypes(Mirror::MirrorTemplateArgumentList<T...>, Mi
 {
     MirrorSubClassUserType<Super, T...>(localStaticTypeInfo, enumStartOffset);
 }
+
+MIRROR_CLASS(ExampleStruct)
+MIRROR_CLASS_MEMBER(intA);
+MIRROR_CLASS_MEMBER(boolB);
+MIRROR_CLASS_MEMBER(charC);
+MIRROR_CLASS_MEMBER(floatD);
+MIRROR_CLASS_MEMBER(doubleE);
+MIRROR_CLASS_MEMBER(constCharPtrF);
+MIRROR_CLASS_MEMBER(stdStringG);
+MIRROR_CLASS_MEMBER(exampleMapH);
+MIRROR_CLASS_END
+
+MIRROR_CLASS(ExampleDerivedClass)
+MIRROR_CLASS_MEMBER(intZ)
+MIRROR_CLASS_END
+
+MIRROR_CLASS(ExampleClass)
+MIRROR_CLASS_SUBCLASS(ExampleDerivedClass)
+MIRROR_CLASS_MEMBER(intX);
+MIRROR_CLASS_MEMBER(intY);
+MIRROR_CLASS_END
+
+MIRROR_CLASS(ExampleNestedCustomTypes)
+MIRROR_CLASS_MEMBER(exClass)
+MIRROR_CLASS_END
 
 MIRROR_CLASS(Derived1)
 MIRROR_CLASS_MEMBER(derivedZ)

@@ -1,10 +1,9 @@
 #pragma once
 
-#ifdef MIRROR_EXAMPLES
 #include <map>
 #include <string>
 
-#include "Mirror.h"
+#define MIRROR_PRIVATE_MEMBERS friend struct Mirror;
 
 struct ExampleStruct
 {
@@ -35,13 +34,10 @@ private:
 		int intZ = 7;
 };
 
-// TODO Serialization layouts. Design the user implementation example for Mirror
-struct ExampleNestedCutomTypes
+// #TODO Serialization layouts. Design the user implementation example for Mirror
+struct ExampleNestedCustomTypes
 {
 	ExampleStruct exStruct;
 	ExampleClass exClass;
+	ExampleDerivedClass exDerivedClass;
 };
-
-void Func();
-
-#endif

@@ -28,6 +28,11 @@
 
 *❗*
 
-Setup-Windows-Vs2022.bat - Shortcut.lnk
-Cleanup.bat - Shortcut.lnk
-App/Mirror.json
+Projects/Examples/Mirror.json
+Projects/Examples/cache.json
+Projects/Testing/Mirror.json
+Projects/Testing/cache.json
+
+.vs/
+
+.obsidian/

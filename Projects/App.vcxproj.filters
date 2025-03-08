@@ -7,22 +7,28 @@
     <Filter Include="Source\Serialization">
       <UniqueIdentifier>{6362925B-4FF1-1B25-F80F-3020E47D2CCB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Utils">
+      <UniqueIdentifier>{2126652b-be4b-4679-9ae3-5c12438c33d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ForMirror">
+      <UniqueIdentifier>{0e18a335-d5f5-4bfd-b3a3-aa77ce027fa4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Serialization\MirrorTesting.h">
       <Filter>Source\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Serialization\Serialize.h">
-      <Filter>Source\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Serialization\Utilities.h">
+    <ClInclude Include="Source\Serialization\Serialization.h">
       <Filter>Source\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="Source\main.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Serialization\FileUtilities.h">
+      <Filter>Source\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="Source\TypeIdsForMirror.h">
-      <Filter>Source</Filter>
+      <Filter>Source\ForMirror</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -35,14 +41,14 @@
     <ClCompile Include="Source\Serialization\SerializeTest.cpp">
       <Filter>Source\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Serialization\Utilities.cpp">
-      <Filter>Source\Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="Source\main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Serialization\FileUtilities.cpp">
+      <Filter>Source\Utils</Filter>
+    </ClCompile>
     <ClCompile Include="Source\MirrorTypes.cpp">
-      <Filter>Source</Filter>
+      <Filter>Source\ForMirror</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

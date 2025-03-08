@@ -1,7 +1,7 @@
 workspace "Mirror"
 
 	-- Workspace specific settings
-	startproject "App"
+	startproject "Examples"
 	location "../"
 
 	-- Solution wide shared settings
@@ -19,12 +19,13 @@ workspace "Mirror"
 		architecture "x64"
 
 	OutputDir = "%{cfg.system}-%{cfg.architecture}-%{cfg.buildcfg}"
-
-	filter "system:*"
-		defines { "MIRROR_EXAMPLES", }
 		
-	filter "system:windows"
-		systemversion "latest"
+	filter "configurations:*"
+		-- buildoptions { "/permissive-" } -- Strict conformance
+		buildoptions { "/permissive" } -- No conformance
+	
+	filter "configurations:*"
+		buildoptions { "" }
 		
 	filter "configurations:Debug"
 		targetdir ("%{wks.location}/bin/" .. OutputDir .. "/%{prj.name}")
@@ -40,7 +41,8 @@ workspace "Mirror"
 		symbols "off"
 		optimize "on"
 	
-	include "../App/Build-App.lua"
-	include "../cJSON/Build-cJSON.lua"
+	include "../Projects/cJSON/Build-cJSON.lua"
+	include "../Projects/Examples/Build-Examples.lua"
+	include "../Projects/Testing/Build-Testing.lua"
 	include "../Mirror/Build-Mirror.lua"
 	

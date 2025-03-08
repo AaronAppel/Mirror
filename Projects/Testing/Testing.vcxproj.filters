@@ -6,24 +6,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\MIR_Mirror.h">
+    <ClInclude Include="Source\MirrorTesting.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MIR_Structs.h">
+    <ClInclude Include="Source\MirrorTypeIds_Testing.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MIR_TypeDeduction.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\MIR_TypeIds.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\MIR_ConstexprCounter.h">
+    <ClInclude Include="Source\main_Testing.h">
       <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\MIR_InfoForTypes.cpp">
+    <ClCompile Include="Source\MirrorTypes_Testing.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\main_Testing.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,12 +1,14 @@
-project "App"
+project "Testing"
 	kind "ConsoleApp"
 	location ""
-	
+	rtti "On" -- Enabled for Mirror derived type checks at runtime
+		
 	files
 	{
 		"**.h",
 		"**.cpp",
 		"**.txt",
+		"**.json",
 	}
 
 	includedirs
@@ -16,7 +18,6 @@ project "App"
 
 	links
 	{
-		"cJSON",
 		"Mirror",
 	}
 
