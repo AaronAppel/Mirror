@@ -1,3 +1,5 @@
+⚠️ Refactor in progress. Documentation out of date ⚠️
+
 # Mirror
 A super simple C++ reflection library I made to enable serializing fields in my game engine [QwerkE](https://github.com/AaronAppel/QwerkE)
 
