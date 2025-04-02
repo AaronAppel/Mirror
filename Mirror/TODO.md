@@ -7,6 +7,8 @@ The macros MIRROR_TYPE_SIZE_UNUSED and MIRROR_FIELD_FLAGS_UNUSED are declared at
 3. Fix any additional logic errors or considerations
 4. Add/update documentation as needed
 
+## Primitive Type ID values
+Could look at giving users values starting at 0, and use MIRROR_FIELD_ID_SIZE_MAX - 0, -1, etc instead for pre-defined primitive type IDs.
 ### Debugging Logic
 Error handling/checking and user error message output should be consistent. Go through all asserts, log statements, and error handling logic to ensure consistency and validity.
 Review MIRROR_ASSERT for usage.
@@ -22,3 +24,6 @@ Consider removing most comments in the source and replacing them with references
 
 # Serialization example
 #TODO Serialization was removed for simplicity, at least on next submit of major changes. Look at bringing back a simple serialization example in the future for users to reference.
+
+# VS project filter files
+#TODO Setup VS folder or file view in build settings so new repos have a good file structure. Ignore .filters files so users aren't forced to use, delete, or override mine. They shouldn't be important enough to commit to Git.

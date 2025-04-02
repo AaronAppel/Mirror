@@ -7,8 +7,6 @@ project "Testing"
 	{
 		"**.h",
 		"**.cpp",
-		"**.txt",
-		"**.json",
 	}
 
 	includedirs

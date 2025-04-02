@@ -11,9 +11,9 @@ Hopefully someone finds Mirror helpful.
 Thanks for stopping by :)
 
 # Building
-Currently, the build system I use is premake5, which is included inside of the Scripts/ folder.
-To build a Visual Studio 2022 solution on Windows, run the Scripts/Setup-Windows-Vs2022.bat file.
-See [[#Known Working Compiler Versions]] for tested compiler versions.
+Currently, the build system I use is premake5, which is included inside of the Premake/ folder.
+To build a Visual Studio 2022 solution on Windows, run the Setup-Windows-Vs2022.bat file found in the repo root.
+See [Known Working Compiler Versions](https://github.com/AaronAppel/Mirror?tab=readme-ov-file#known-working-compiler-versions) for tested compiler versions.
 # Usage
 1. Create your custom class/struct :
 
@@ -109,12 +109,14 @@ MIRROR_MEMBER_FIELDS_COUNT_DEFAULT
 ### Compiler Considerations
 Mirror is currently developed using MSVC compiler. No efforts have been made to compile on GCC, Clang, or other compilers, at this time.
 MSVC compiler versions have been known to change critical features that prevent Mirror from compiling.
-Use with caution, and see [[#Known Working Compiler Versions]] as outlined below.
+Use with caution, and see [Known Working Compiler Versions](https://github.com/AaronAppel/Mirror?tab=readme-ov-file#known-working-compiler-versions) as outlined below.
 ### Unsupported Types:
 • References
 • Multi-dimensional pointers
 • Multi-dimensional containers
 • STL containers (excluding vector, map, pair)
+
+• Also, multiple inheritance is not currently supported
 
 # Known Working Compiler Versions
 

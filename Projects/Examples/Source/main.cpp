@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include <vector>
 
 #include "cJSON.h"
 #include "MIR_Mirror.h"
@@ -20,32 +21,48 @@ int main()
 {
 	// #TODO Example description
 	{
-		const Mirror::TypeInfo* intTypeInfo = Mirror::InfoForType<std::string>(); // User provides type (less error prone on changes)
+		// #TODO Initialization order bug. InfoForType<ExampleClass>() has not been called yet, so derived->superTypeInfo is null.
+		// Could require something like MIRROR_CLASS_PARENTCLASS(Parent) in child classes, as well as parent's MIRROR_CLASS_SUBCLASS(Child)
+		const Mirror::TypeInfo* intTypeInfo = Mirror::InfoForType<ExampleDerivedClass>(); // User provides type (less error prone on changes)
 
 		// #TODO Example: Handling simple type info get and read/print (primitives, classes, inheritance, collections, pointers)
 		// Getting and reading type information
 		std::cout << "Printing info for type: " << intTypeInfo->stringName << "\n";
 		std::cout << "Size: " << intTypeInfo->size << "\n";
 		std::cout << "Id: " << intTypeInfo->id << "\n";
-
-		std::cout << "Category: ";
-		switch (intTypeInfo->category)
+		std::cout << "# of fields: " << intTypeInfo->fields.size() << "\n";
+		if (intTypeInfo->superTypeInfo)
 		{
-		case Mirror::TypeInfoCategory_Primitive:
-			std::cout << "primitive" << "\n";
-			break;
-		case Mirror::TypeInfoCategory_Class:
-			std::cout << "class" << "\n";
-			break;
-		case Mirror::TypeInfoCategory_Collection:
-			std::cout << "collection" << "\n";
-			break;
-		case Mirror::TypeInfoCategory_Pair:
-			std::cout << "pair" << "\n";
-			break;
-		case Mirror::TypeInfoCategory_Pointer:
-			std::cout << "pointer" << "\n";
-			break;
+			std::cout << "Inherits from parent class: " << intTypeInfo->superTypeInfo->stringName << "\n";
+		}
+
+		std::vector<const Mirror::TypeInfo*> typeInfos = {
+			Mirror::InfoForType<int>(),
+			Mirror::InfoForType<char*>(),
+			Mirror::InfoForType<std::string>(),
+		};
+
+		std::cout << "Categories:\n";
+		for (size_t i = 0; i < typeInfos.size(); i++)
+		{
+			switch (intTypeInfo->category)
+			{
+			case Mirror::TypeInfoCategory_Primitive:
+				std::cout << typeInfos[i]->stringName << " is a primitive" << "\n";
+				break;
+			case Mirror::TypeInfoCategory_Class:
+				std::cout << " is a class" << "\n";
+				break;
+			case Mirror::TypeInfoCategory_Collection:
+				std::cout << " is a collection" << "\n";
+				break;
+			case Mirror::TypeInfoCategory_Pair:
+				std::cout << " is a pair" << "\n";
+				break;
+			case Mirror::TypeInfoCategory_Pointer:
+				std::cout << " is a pointer" << "\n";
+				break;
+			}
 		}
 	}
 

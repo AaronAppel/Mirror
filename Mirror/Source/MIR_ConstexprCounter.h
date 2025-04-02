@@ -1,5 +1,10 @@
 #pragma once
 
+// #NOTE Functionality macros. See Macros section in README.md for more info.
+// #define MIRROR_NONCONFORMING // #NOTE See "Known Working Compiler Versions" section in README.md
+// #define MIRROR_GENERATE_TYPE_IDS
+
+#if defined(MIRROR_NONCONFORMING) && defined(MIRROR_GENERATE_TYPE_IDS)
 namespace ConstexprCounter // ConstexprCounter
 {
     // Taken from : https://b.atch.se/posts/constexpr-counter/
@@ -61,3 +66,5 @@ namespace ConstexprCounter // ConstexprCounter
 
 #endif
 }
+
+#endif // #if defined(MIRROR_NONCONFORMING) && defined(MIRROR_GENERATE_TYPE_IDS)

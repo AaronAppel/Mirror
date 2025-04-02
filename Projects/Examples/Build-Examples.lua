@@ -7,8 +7,6 @@ project "Examples"
 	{
 		"**.h",
 		"**.cpp",
-		"**.txt",
-		"**.json",
 	}
 
 	includedirs
