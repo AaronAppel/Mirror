@@ -14,13 +14,9 @@ constexpr Mirror::TypeInfoCategories GetCategory() {
 	static_assert(!std::is_reference_v<T>, "Reference(s) currently unsupported");
 	static_assert(!std::is_function_v<T> || !std::is_function_v<std::remove_pointer_t<T>>,  "Function object(s) and pointer(s) currently unsupported");
 
-	if (std::is_same_v<T, std::string>) return Mirror::TypeInfoCategory_Primitive;
-	if (std::is_same_v<T, const char*>) return Mirror::TypeInfoCategory_Primitive;
 	if (std::is_enum_v<T>) return Mirror::TypeInfoCategory_Primitive;
-
 	if (std::is_array_v<T>) return Mirror::TypeInfoCategory_Collection;
 	if (std::is_pointer_v<T>) return Mirror::TypeInfoCategory_Pointer;
-
 	if (is_stl_pair<T>::value) return Mirror::TypeInfoCategory_Pair;
 	if (is_stl_container<T>::value) return Mirror::TypeInfoCategory_Collection;
 	if (std::is_class_v<T>) return Mirror::TypeInfoCategory_Class;

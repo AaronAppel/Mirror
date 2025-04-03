@@ -5,10 +5,11 @@
 #include <vector>
 
 #include "cJSON.h"
+
 #include "MIR_Mirror.h"
 #include "MIR_ConstexprCounter.h"
 
-#include "main.h"
+#include "Main.h"
 #include "MirrorTypes.h"
 
 // #NOTE Currently unused. To enable experimental (unsafe) mirror examples
@@ -45,10 +46,11 @@ int main()
 		std::cout << "Categories:\n";
 		for (size_t i = 0; i < typeInfos.size(); i++)
 		{
-			switch (intTypeInfo->category)
+			std::cout << typeInfos[i]->stringName;
+			switch (typeInfos[i]->category)
 			{
 			case Mirror::TypeInfoCategory_Primitive:
-				std::cout << typeInfos[i]->stringName << " is a primitive" << "\n";
+				std::cout << " is a primitive" << "\n";
 				break;
 			case Mirror::TypeInfoCategory_Class:
 				std::cout << " is a class" << "\n";
