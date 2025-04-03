@@ -4,27 +4,30 @@
     <Filter Include="Source">
       <UniqueIdentifier>{56EB95D1-428D-C0A7-2B48-D4FB178947F8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cJSON">
+      <UniqueIdentifier>{A279280F-0E8E-50C0-D70F-F41F43E34CF1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\MIR_Mirror.h">
+    <ClInclude Include="Source\MirrorTypes.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MIR_Structs.h">
+    <ClInclude Include="Source\main.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MIR_TypeDeduction.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\MIR_TypeIds.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\MIR_ConstexprCounter.h">
-      <Filter>Source</Filter>
+    <ClInclude Include="cJSON\cJSON.h">
+      <Filter>cJSON</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\MIR_InfoForTypes.cpp">
+    <ClCompile Include="Source\MirrorTypes.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="cJSON\cJSON.cpp">
+      <Filter>cJSON</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

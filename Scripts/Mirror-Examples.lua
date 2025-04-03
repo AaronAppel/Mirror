@@ -1,4 +1,4 @@
-workspace "Mirror"
+workspace "Examples"
 
 	-- Workspace specific settings
 	startproject "Examples"
@@ -8,7 +8,6 @@ workspace "Mirror"
 	configurations { "Debug", "Release", }
 	flags { "MultiProcessorCompile" }
 	rtti "Off"
-	staticruntime "off" -- https://premake.github.io/docs/staticruntime
 	language "C++"
 	cppdialect "C++17"
 
@@ -41,8 +40,37 @@ workspace "Mirror"
 		symbols "off"
 		optimize "on"
 	
-	include "../Projects/cJSON/Build-cJSON.lua"
-	include "../Projects/Examples/Build-Examples.lua"
-	include "../Projects/Testing/Build-Testing.lua"
-	include "../Mirror/Build-Mirror.lua"
+project "Mirror"
+	kind "StaticLib"
+	location "%{wks.location}/Examples"
 	
+	files
+	{
+		"%{wks.location}/Source/**.h",
+		"%{wks.location}/Source/**.cpp"
+	}
+
+project "Examples"
+	kind "ConsoleApp"
+	location "%{wks.location}/Examples"
+	rtti "On" -- Enabled for Mirror derived type checks at runtime
+	
+	files
+	{
+		"%{wks.location}/Examples/Source/**.h",
+		"%{wks.location}/Examples/Source/**.cpp",
+		
+		"%{wks.location}/Examples/cJSON/**.h",
+		"%{wks.location}/Examples/cJSON/**.cpp"
+	}
+	
+	includedirs
+	{
+		"%{wks.location}/Source",
+		"%{wks.location}/Examples/cJSON",
+	}
+
+	links
+	{
+		"Mirror"
+	}
