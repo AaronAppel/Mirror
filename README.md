@@ -3,7 +3,7 @@
 # Mirror
 A super simple C++ reflection library I made to enable serializing fields in my game engine [QwerkE](https://github.com/AaronAppel/QwerkE)
 
-The implementation was inspired by work from the GitHub user danbar0, and their repo : https://github.com/danbar0/StaticJsonReflection
+The implementation was initially inspired by work from the GitHub user danbar0, and their repo : https://github.com/danbar0/StaticJsonReflection
 
 The code isn't extensively tested, so just be aware.
 
@@ -13,10 +13,6 @@ Thanks for stopping by :)
 #TODO 
 - Decide on opening '{' placement in all files for consistency.
 - \#endif comments
-# Building
-Currently, the build system I use is premake5, which is included inside of the Premake/ folder.
-To build a Visual Studio 2022 solution on Windows, run the Setup-Windows-Vs2022.bat file found in the repo root.
-See [Known Working Compiler Versions](https://github.com/AaronAppel/Mirror?tab=readme-ov-file#known-working-compiler-versions) for tested compiler versions.
 # Usage
 1. Create your custom class/struct :
 
@@ -33,39 +29,45 @@ private:
 };
 ```
 
-Here, the MIRROR_PRIVATE_MEMBERS exposes the private value intY to the Mirror struct for visibility. Only required for private or protected members.
+Here, MIRROR_PRIVATE_MEMBERS exposes the private value intY to the Mirror struct for visibility. Only required for private or protected class fields.
 
 2. Mirror the type info (tell Mirror what your type looks like) :
 
 ```
 MIRROR_CLASS_START(ExampleClass)
-// Not serialized MIRROR_CLASS_MEMBER(intX)
-MIRROR_CLASS_MEMBER(intY)
+// MIRROR_CLASS_MEMBER(intX) // Not currently mirrored by default
+MIRROR_CLASS_MEMBER(intY) // Explicitly mirrored
 MIRROR_CLASS_END(ExampleClass)
+
+MIRROR_TYPE(float[10]) // Example for non-class
 ```
 
-We can omit/ignore values we don't need exposed (not serialized for example).
+We can omit/ignore class fields we don't need exposed (not serialized for example).
 
-3. Add an entry into the MirrorTypes.h enum :
+3. Mirror the type ID (tell Mirror what value to use in switch statements, etc) :
 ```
-// MirrorTypes.h
-enum class MirrorTypes
-{
-//	...
-	ExampleClass,
-//	...
-}
+MIRROR_TYPE_ID(1, ExampleClass)
 ```
-Type names can collide, so be sure to watch case sensitivity and avoid primitives and keywords like int.
+Notes for mirroring type IDs:
+- Organizing type by categories can help manage growth over time, but ordering does not matter
+- Be sure to manage serialized type IDs so their values stay synced between code and data
+- At this time Mirror cannot check that an ID value is already in use, so try to avoid duplication or copy/paste errors
+- MIRROR_TYPE_ID_SIZE_MAX is the largest value an ID can be
 
-4. Get type info at runtime for the type :
+4. Get type info and type ID at runtime for the type :
 ```
+ExampleClass exampleClass;
+
 const Mirror::TypeInfo* exampleClassTypeInfo = Mirror::InfoForType<ExampleClass>();
 // or by object reference
-
-ExampleClass exampleClass;
 const Mirror::TypeInfo* exampleClassTypeInfo = Mirror::InfoForType(exampleClass);
+
+MIRROR_TYPE_ID_TYPE exampleClassTypeID = Mirror::TypeId<ExampleClass>();
+// or by object reference
+MIRROR_TYPE_ID_TYPE exampleClassTypeID = Mirror::TypeId<>(exampleClass);
 ```
+MIRROR_TYPE_ID_TYPE is currently a uint8_t, but can always change.
+You can change the type at the top of MIR_Structs.h, as you wish.
 
 5. Use type info to serialize type info fields :
 ```
@@ -84,22 +86,23 @@ for (size_t i = 0; i < exampleClassTypeInfo->fields.size(); i++)
 	}
 }
 ```
-In [QwerkE](https://github.com/AaronAppel/QwerkE), I also use this reflection and serialization technique in object inspectors for viewing and editing values using UI like [dear imgui](https://github.com/ocornut/imgui)
+In [QwerkE](https://github.com/AaronAppel/QwerkE), I also use this reflection and serialization technique in object inspectors for viewing and editing object values using UI like [dear imgui](https://github.com/ocornut/imgui)
 
 # Usage (Updated)
-
 MIRROR_TYPE_ID(0, MyClass)
 MIRROR_TYPE_ID(1, MyStruct)
 ... etc
 
 \#NOTE Serialized types
 If you are going to serialize type IDs by saving them in a file or persistent data, it is recommended that you choose static IDs that will not change over time. A simple way to do this is to use the MIRROR_TYPE_ID_IMPL(ID, TYPE) macro and supply a fixed ID value, and mirror this value before all non-serialized type IDs. This is also recommended when using MIRROR_NONCONFORMING and MIRROR_GENERATE_TYPE_IDS options.
+
+# Building the examples project
+Run Generate-Win-Vs2022.bat to generate a Visual Studio 2022 solution using Premake5.
+See # FAQ and Common Errors section below for more info
 # Macros
 #### User Macros
 #TODO Add information for each macro
-MIRROR_TESTING
-MIRROR_NONCONFORMING
-MIRROR_GENERATE_TYPE_IDS // \#TODO Remove Testing branch features
+MIRROR_DEBUG
 MIRROR_TYPE_SIZE_UNUSED
 MIRROR_FIELD_FLAGS_UNUSED
 
@@ -120,28 +123,14 @@ MIRROR_USER_TYPE_ID_MAX (MIRROR_FIELD_ID_SIZE_MAX - 58)
 # Limitations
 ### Compiler Considerations
 Mirror is currently developed using MSVC compiler. No efforts have been made to compile on GCC, Clang, or other compilers, at this time.
-MSVC compiler versions have been known to change critical features that prevent Mirror from compiling.
-Use with caution, and see [Known Working Compiler Versions](https://github.com/AaronAppel/Mirror?tab=readme-ov-file#known-working-compiler-versions) as outlined below.
+Builds with strict conformance (/permissive-) fail due to template compiler Error C2672 in multiple MIR_Mirror.h functions.
 ### Unsupported Types:
-• References
+• Object references
 • Multi-dimensional pointers
 • Multi-dimensional containers
-• STL containers (excluding vector, map, pair)
+• STL containers (excluding vector, map, pair, and other types included in MIR_TypeDeduction.h)
 
 • Also, multiple inheritance is not currently supported
-
-# Known Working Compiler Versions
-
-| Compiler | Version | Strict Conformance |
-| -------- | ------- | ------------------ |
-| MSVC     | 1938    | No                 |
-| MSVC     | 1942    | Yes                |
-| MSVC     | 1943    | Yes                |
-
-#TODO Add more info about compiler conformance considerations.
-Compiler standard conformance mode, or "/permissive(-)" command line argument.
-
-See "ConstexprCounter.h" for non-conforming code section.
 
 # FAQ and Common Errors
 #TODO List expected/common errors and their solutions
