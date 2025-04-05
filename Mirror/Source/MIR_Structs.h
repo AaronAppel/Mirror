@@ -4,13 +4,13 @@
 #include <vector>
 
 // #NOTE Functionality macros. See Macros section in README.md for more info.
-// #define MIRROR_TESTING
+// #define MIRROR_DEBUG
 // #define MIRROR_TYPE_SIZE_UNUSED
 // #define MIRROR_FIELD_FLAGS_UNUSED
 
 #include "MIR_ConstexprCounter.h"
 
-#ifdef MIRROR_TESTING
+#ifdef MIRROR_DEBUG
 #include <cassert>
 #define MIRROR_ASSERT(x) assert(x)
 #else
