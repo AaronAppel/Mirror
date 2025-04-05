@@ -93,6 +93,8 @@ MIRROR_TYPE_ID(0, MyClass)
 MIRROR_TYPE_ID(1, MyStruct)
 ... etc
 
+Auto-generated TypeIDs are a potential feature to be added in the future and is under development in the [Experimental](https://github.com/AaronAppel/Mirror/tree/Experimental) branch if you are curious.
+
 \#NOTE Serialized types
 If you are going to serialize type IDs by saving them in a file or persistent data, it is recommended that you choose static IDs that will not change over time. A simple way to do this is to use the MIRROR_TYPE_ID_IMPL(ID, TYPE) macro and supply a fixed ID value, and mirror this value before all non-serialized type IDs. This is also recommended when using MIRROR_NONCONFORMING and MIRROR_GENERATE_TYPE_IDS options.
 
