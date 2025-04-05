@@ -1,3 +1,4 @@
+#include <bitset>
 #include <cassert>
 #include <iostream>
 #include <stdio.h>
@@ -7,19 +8,63 @@
 #include "cJSON.h"
 
 #include "MIR_Mirror.h"
-#include "MIR_ConstexprCounter.h"
 
 #include "Main.h"
-#include "MirrorTypes.h"
-
-// #NOTE Currently unused. To enable experimental (unsafe) mirror examples
-// #define MIRROR_DEV_EXPERIMENTAL
+#include "ForMirror.h"
 
 template <typename T>
 void PrintClassStructure(const T& typeObj, unsigned char numTabs = 0);
 
+template<typename... T>
+struct TypesList {};
+
+template <typename... Type>
+void priv_Single()
+{
+	([] {
+		const Mirror::TypeInfo* typeInfo = Mirror::InfoForType<Type>();
+
+		if (Mirror::TypeInfoCategory_Class == typeInfo->category)
+		{
+			std::cout << "Found a class\n";
+			for (int i = 0; i < typeInfo->fields.size(); i++)
+			{
+				std::cout << "Flag: " << std::bitset<8>(typeInfo->fields[i].flags) << "\n";
+			}
+			std::cout << "\n";
+		}
+
+	}(), ...);
+}
+
+template<typename... Types>
+void priv_Multiple(TypesList<Types...>)
+{
+	priv_Single<Types...>();
+}
+
 int main()
 {
+	// #TODO Simple file I/O example
+	// #include <fstream>
+	// #include <iostream>
+	// std::ofstream myfile;
+	// myfile.open("example.txt");
+	// myfile << "Writing this to a file.\n";
+	// myfile.close();
+
+	uint8_t idStrings = Mirror::TypeId<std::string[10]>();
+
+	uint8_t idFloats = Mirror::TypeId<float[10]>();
+	uint8_t idVectorChars = Mirror::TypeId<std::vector<char>>();
+	uint8_t idPairIntBool = Mirror::TypeId<std::pair<const int, bool>>();
+	uint8_t idMapIntBool = Mirror::TypeId<std::map<int, bool>>();
+	uint8_t idExampleClass = Mirror::TypeId<ExampleClass>();
+	uint8_t idExampleDerivedClass = Mirror::TypeId<ExampleDerivedClass>();
+	uint8_t idExampleNextedCustomTypes = Mirror::TypeId<ExampleNestedCustomTypes>();
+
+	assert(idStrings != idFloats);
+
 	// #TODO Example description
 	{
 		// #TODO Initialization order bug. InfoForType<ExampleClass>() has not been called yet, so derived->superTypeInfo is null.
@@ -95,13 +140,37 @@ int main()
 			std::cout << "Found a float array\n";
 			break;
 
-		case Mirror::TypeId<ExampleDerivedClass>():
+		case Mirror::TypeId<std::vector<char>>():
+			break;
+
+		case Mirror::TypeId<std::pair<const int, bool>>():
+			break;
+
+		case Mirror::TypeId<std::map<int, bool>>():
+			break;
+
 		case Mirror::TypeId<ExampleClass>():
+		case Mirror::TypeId<ExampleDerivedClass>():
 			std::cout << "Found an ExampleClass\n";
 			std::cout << ((ExampleClass*)&exampleObject)->intA;
+			for (int i = 0; i < typeInfo->fields.size(); i++)
+			{
+				std::cout << "Flag " << i << ": " << typeInfo->fields[i].flags << ", ";
+			}
 			std::cout << "\n";
 			break;
 		}
+	}
+
+	// #TODO Example description
+	{
+		using Types = TypesList <
+			int,
+			ExampleClass,
+			ExampleDerivedClass
+		>;
+
+		priv_Multiple(Types{});
 	}
 
 	// #TODO Example description
@@ -134,7 +203,9 @@ void PrintClassStructure(const void* typeObj, unsigned char numTabs, const Mirro
 
 		std::cout << typeInfo->fields[i].name;
 
-		if (typeInfo->fields[i].typeInfo->category == Mirror::TypeInfoCategory_Class)
+		// #TODO std::string type not a class
+		if (Mirror::TypeId<std::string>() != typeInfo->fields[i].typeInfo->id &&
+			typeInfo->fields[i].typeInfo->category == Mirror::TypeInfoCategory_Class)
 		{
 			std::cout << ": " << typeInfo->fields[i].typeInfo->stringName << "\n";
 			PrintClassStructure(((char*)typeObj) + typeInfo->fields[i].offset, numTabs + 1, typeInfo->fields[i].typeInfo);

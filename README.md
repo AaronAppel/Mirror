@@ -10,6 +10,9 @@ The code isn't extensively tested, so just be aware.
 Hopefully someone finds Mirror helpful.
 Thanks for stopping by :)
 
+#TODO 
+- Decide on opening '{' placement in all files for consistency.
+- \#endif comments
 # Building
 Currently, the build system I use is premake5, which is included inside of the Premake/ folder.
 To build a Visual Studio 2022 solution on Windows, run the Setup-Windows-Vs2022.bat file found in the repo root.
@@ -83,12 +86,20 @@ for (size_t i = 0; i < exampleClassTypeInfo->fields.size(); i++)
 ```
 In [QwerkE](https://github.com/AaronAppel/QwerkE), I also use this reflection and serialization technique in object inspectors for viewing and editing values using UI like [dear imgui](https://github.com/ocornut/imgui)
 
+# Usage (Updated)
+
+MIRROR_TYPE_ID(0, MyClass)
+MIRROR_TYPE_ID(1, MyStruct)
+... etc
+
+\#NOTE Serialized types
+If you are going to serialize type IDs by saving them in a file or persistent data, it is recommended that you choose static IDs that will not change over time. A simple way to do this is to use the MIRROR_TYPE_ID_IMPL(ID, TYPE) macro and supply a fixed ID value, and mirror this value before all non-serialized type IDs. This is also recommended when using MIRROR_NONCONFORMING and MIRROR_GENERATE_TYPE_IDS options.
 # Macros
 #### User Macros
 #TODO Add information for each macro
 MIRROR_TESTING
 MIRROR_NONCONFORMING
-MIRROR_GENERATE_TYPE_IDS
+MIRROR_GENERATE_TYPE_IDS // \#TODO Remove Testing branch features
 MIRROR_TYPE_SIZE_UNUSED
 MIRROR_FIELD_FLAGS_UNUSED
 
@@ -105,6 +116,7 @@ MIRROR_TYPE_CATEGORY_SIZE
 MIRROR_TYPE_CATEGORY_SIZE_MAX
 MIRROR_MEMBER_FIELDS_COUNT_DEFAULT
 
+MIRROR_USER_TYPE_ID_MAX (MIRROR_FIELD_ID_SIZE_MAX - 58)
 # Limitations
 ### Compiler Considerations
 Mirror is currently developed using MSVC compiler. No efforts have been made to compile on GCC, Clang, or other compilers, at this time.

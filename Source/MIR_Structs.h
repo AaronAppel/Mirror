@@ -4,13 +4,9 @@
 #include <vector>
 
 // #NOTE Functionality macros. See Macros section in README.md for more info.
-// #define MIRROR_TESTING
-// #define MIRROR_TYPE_SIZE_UNUSED
-// #define MIRROR_FIELD_FLAGS_UNUSED
+// #define MIRROR_DEBUG
 
-#include "MIR_ConstexprCounter.h"
-
-#ifdef MIRROR_TESTING
+#ifdef MIRROR_DEBUG
 #include <cassert>
 #define MIRROR_ASSERT(x) assert(x)
 #else
@@ -44,16 +40,11 @@ struct Mirror
 	struct Field
 	{
 		const TypeInfo* typeInfo = nullptr;
+
 		std::string name = "";
 		std::size_t offset = 0;
-
-#ifndef MIRROR_TYPE_SIZE_UNUSED
 		MIRROR_TYPE_SIZE size = 0;
-#endif
-
-#ifndef MIRROR_FIELD_FLAGS_UNUSED
 		MIRROR_FIELD_FLAG_SIZE flags = 0;
-#endif
 	};
 
 	struct TypeInfo
@@ -94,11 +85,9 @@ struct Mirror
 
 		const TypeInfo* DerivedTypeFromPointer(const void* instanceAddress) const {
 			if (derivedTypes.empty()) return this;
-			for (const auto& derivedType : derivedTypes)
-			{
+			for (const auto& derivedType : derivedTypes) {
 				MIRROR_ASSERT(derivedType->typeDynamicCastFunc && "Null typeDynamicCastFunc!");
-				if (derivedType->typeDynamicCastFunc(instanceAddress))
-				{
+				if (derivedType->typeDynamicCastFunc(instanceAddress)) {
 					return derivedType;
 				}
 			}
@@ -119,24 +108,21 @@ struct Mirror
 
 		void CollectionAppend(void* collectionAddress, size_t index, void* first, void* second = nullptr) const {
 			MIRROR_ASSERT(collectionAddFunc && "Null collectionAddFunc!");
-			if (collectionAddFunc)
-			{
+			if (collectionAddFunc) {
 				collectionAddFunc(collectionAddress, index, first, second);
 			}
 		}
 
 		void Construct(void* instanceAddress) const {
 			MIRROR_ASSERT(collectionAddFunc && "Null typeConstructorFunc!");
-			if (typeConstructorFunc)
-			{
+			if (typeConstructorFunc) {
 				typeConstructorFunc(instanceAddress);
 			}
 		}
 
 		void ClearCollection(void* collectionAddress) const {
 			MIRROR_ASSERT(collectionAddFunc && "Null collectionClearFunction!");
-			if (collectionClearFunction)
-			{
+			if (collectionClearFunction) {
 				collectionClearFunction(collectionAddress);
 			}
 		}
@@ -151,20 +137,10 @@ struct Mirror
 	template<typename T>
 	static constexpr MIRROR_FIELD_ID_SIZE TypeId();
 
-#if defined(MIRROR_NONCONFORMING) && defined(MIRROR_GENERATE_TYPE_IDS)
-	template<int N = 1, int C = ConstexprCounter::reader(0, ConstexprCounter::flag<128>())> // #NOTE 0 reserved for invalid value, up to max value of 128(+1)
-	static int constexpr NextTypeId(int R = ConstexprCounter::writer<C + N>::value) { return R; }
-
-#define MIRROR_TYPE_ID_IMPL(TYPE) \
-	template <> constexpr MIRROR_FIELD_ID_SIZE Mirror::TypeId<TYPE>() { return NextTypeId(); }
-#define MIRROR_TYPE_ID(...) MIRROR_TYPE_ID_IMPL(__VA_ARGS__)
-
-#else
+// #TODO Static time assert to catch ID out of MIRROR_FIELD_ID_SIZE_MAX and 0 range +/-
 #define MIRROR_TYPE_ID_IMPL(ID, TYPE) \
 	template <> constexpr MIRROR_FIELD_ID_SIZE Mirror::TypeId<TYPE>() { return ID; }
 #define MIRROR_TYPE_ID(ID, ...) MIRROR_TYPE_ID_IMPL(ID, __VA_ARGS__)
-
-#endif
 
 	template<typename... T>
 	struct MirrorTemplateArgumentList { };

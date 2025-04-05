@@ -11,22 +11,14 @@ workspace "Examples"
 	language "C++"
 	cppdialect "C++17"
 
-	filter "configurations:*86"
-		architecture "x86"
-		
-	filter "configurations:*64"
-		architecture "x64"
-
 	OutputDir = "%{cfg.system}-%{cfg.architecture}-%{cfg.buildcfg}"
 		
 	filter "configurations:*"
 		-- buildoptions { "/permissive-" } -- Strict conformance
 		buildoptions { "/permissive" } -- No conformance
-	
-	filter "configurations:*"
-		buildoptions { "" }
 		
 	filter "configurations:Debug"
+		architecture "x64"
 		targetdir ("%{wks.location}/bin/" .. OutputDir .. "/%{prj.name}")
 		objdir ("%{wks.location}/bin/int/" .. OutputDir .. "/%{prj.name}")
 		runtime "Debug"
@@ -34,6 +26,7 @@ workspace "Examples"
 		optimize "off"
 		
 	filter "configurations:Release"
+		architecture "x64"
 		targetdir ("%{wks.location}/bin/" .. OutputDir .. "/%{prj.name}")
 		objdir ("%{wks.location}/bin/int/" .. OutputDir .. "/%{prj.name}")
 		runtime "Release"
@@ -74,3 +67,4 @@ project "Examples"
 	{
 		"Mirror"
 	}
+	

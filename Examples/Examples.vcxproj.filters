@@ -9,10 +9,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Main.h">
+    <ClInclude Include="Source\ForMirror.h">
       <Filter>Source</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MirrorTypes.h">
+    <ClInclude Include="Source\Main.h">
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="cJSON\cJSON.h">
@@ -20,10 +20,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Main.cpp">
+    <ClCompile Include="Source\ForMirror.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MirrorTypes.cpp">
+    <ClCompile Include="Source\Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="cJSON\cJSON.cpp">

@@ -85,8 +85,7 @@ static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::true_t
 		static size_t index = 0;
 		T* map = (T*)collectionAddress;
 		static T::iterator iterator = map->begin();
-		if (aIndex < index || map->end() == iterator)
-		{
+		if (aIndex < index || map->end() == iterator) {
 			index = aIndex;
 			iterator = map->begin();
 		}
@@ -127,8 +126,7 @@ template<typename T>
 static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::false_type) {
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 
-	if (std::is_array_v<T>)
-	{
+	if (std::is_array_v<T>) {
 		typedef typename std::remove_all_extents<T>::type ArrayElementType;
 		mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<ArrayElementType>();
 		mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t index, const void* elementFirst, const void* /*elementSecond*/) {
@@ -141,8 +139,7 @@ static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::false_typ
 			return (char*)collectionAddress + (sizeof(ArrayElementType) * index++);
 		};
 	}
-	else if (is_stl_pair<T>::value)
-	{
+	else if (is_stl_pair<T>::value) {
 		SetCollectionLambdasPair<T>(mutableTypeInfo, is_stl_pair_impl::is_stl_pair<T>::type());
 	}
 }
@@ -161,93 +158,92 @@ static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::true_type
 }
 
 // #NOTE Required to avoid sizeof(void) C2070 compiler error
-#define MIRROR_TYPE_NON_VOID(TYPE)																											\
-static_assert(sizeof(TYPE) <= MIRROR_TYPE_SIZE_MAX, "Size is larger than member can hold!");												\
+#define MIRROR_TYPE_NON_VOID(TYPE)																						\
+static_assert(sizeof(TYPE) <= MIRROR_TYPE_SIZE_MAX, "Size is larger than member can hold!");							\
 localStaticTypeInfo.size = sizeof(TYPE);
 
 // #NOTE Must be a macro to avoid default specialization issues causing "multiply defined..." errors dependent on order of compilation.
-#define MIRROR_TYPE_COMMON(TYPE)																											\
-template<>																																	\
-static const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() {																				\
-	static Mirror::TypeInfo localStaticTypeInfo;																							\
-																																			\
-	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; }															\
-																																			\
-	localStaticTypeInfo.category = GetCategory<TYPE>();																						\
-	localStaticTypeInfo.stringName = #TYPE;																									\
-	localStaticTypeInfo.id = Mirror::TypeId<TYPE>();																						\
+#define MIRROR_TYPE_COMMON(TYPE)																						\
+template<>																												\
+static const Mirror::TypeInfo* Mirror::InfoForType<TYPE>() {															\
+	static Mirror::TypeInfo localStaticTypeInfo;																		\
+																														\
+	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; }										\
+																														\
+	localStaticTypeInfo.category = GetCategory<TYPE>();																	\
+	localStaticTypeInfo.stringName = #TYPE;																				\
+	localStaticTypeInfo.id = Mirror::TypeId<TYPE>();																	\
 
 // #NOTE Using __VA_ARGS__ to handle macro calls with comma(s) ',' like MIRROR_INFO_FOR_TYPE(std::map<int, bool>)
 // #NOTE Below switch falthrough compiler warning 26819 cannot be handled within this macro
 #define MIRROR_TYPE(...) MIRROR_TYPE_IMPL(__VA_ARGS__)
-#define MIRROR_TYPE_IMPL(TYPE)																												\
-MIRROR_TYPE_COMMON(TYPE)																													\
-MIRROR_TYPE_NON_VOID(TYPE)																													\
-																																			\
-	switch (localStaticTypeInfo.category)																									\
-	{																																		\
-	case TypeInfoCategory_Collection: /* #NOTE Intentional case fall through */																\
-	case TypeInfoCategory_Pair:																												\
-		SetCollectionLambdas<TYPE>(&localStaticTypeInfo, is_stl_container_impl::is_stl_container<TYPE>::type());							\
-	case TypeInfoCategory_Class:																											\
-		SetConstructionLambda<TYPE>(&localStaticTypeInfo, std::is_class<TYPE>::type());														\
-		break;																																\
-																																			\
-	case TypeInfoCategory_Pointer:																											\
-		localStaticTypeInfo.pointerDereferencedTypeInfo = Mirror::InfoForType<std::remove_pointer_t<TYPE>>();								\
-		break;																																\
-																																			\
-	case TypeInfoCategory_Primitive:																										\
-		SetConstructionLambda<TYPE>(&localStaticTypeInfo, std::is_same<TYPE, std::string>::type());											\
-		break;																																\
-	}																																		\
-																																			\
-	return &localStaticTypeInfo;																											\
+#define MIRROR_TYPE_IMPL(TYPE)																							\
+MIRROR_TYPE_COMMON(TYPE)																								\
+MIRROR_TYPE_NON_VOID(TYPE)																								\
+																														\
+	switch (localStaticTypeInfo.category) {																				\
+	case TypeInfoCategory_Collection: /* #NOTE Intentional case fall through */											\
+	case TypeInfoCategory_Pair:																							\
+		SetCollectionLambdas<TYPE>(&localStaticTypeInfo, is_stl_container_impl::is_stl_container<TYPE>::type());		\
+	case TypeInfoCategory_Class:																						\
+		SetConstructionLambda<TYPE>(&localStaticTypeInfo, std::is_class<TYPE>::type());									\
+		break;																											\
+																														\
+	case TypeInfoCategory_Pointer:																						\
+		localStaticTypeInfo.pointerDereferencedTypeInfo = Mirror::InfoForType<std::remove_pointer_t<TYPE>>();			\
+		break;																											\
+																														\
+	case TypeInfoCategory_Primitive:																					\
+		SetConstructionLambda<TYPE>(&localStaticTypeInfo, std::is_same<TYPE, std::string>::type());						\
+		break;																											\
+	}																													\
+																														\
+	return &localStaticTypeInfo;																						\
 }
 
 // #NOTE Avoids sizeof(void) C2070 compile error
-#define MIRROR_TYPE_VOID(TYPE)																												\
-MIRROR_TYPE_COMMON(TYPE)																													\
-	return &localStaticTypeInfo;																											\
+#define MIRROR_TYPE_VOID(TYPE)																							\
+MIRROR_TYPE_COMMON(TYPE)																								\
+	return &localStaticTypeInfo;																						\
 }
 
 #ifndef MIRROR_MEMBER_FIELDS_COUNT_DEFAULT
 #define MIRROR_MEMBER_FIELDS_COUNT_DEFAULT 3
 #endif
 
-#define MIRROR_CLASS(TYPE)																													\
-MIRROR_TYPE_COMMON(TYPE)																													\
-MIRROR_TYPE_NON_VOID(TYPE)																													\
-																																			\
-    if (localStaticTypeInfo.fields.size() > 0) { return &localStaticTypeInfo; }																\
-	const int fieldsCount = MIRROR_MEMBER_FIELDS_COUNT_DEFAULT;																				\
-	localStaticTypeInfo.fields.reserve(fieldsCount);																						\
-																																			\
-	using ClassType = TYPE;																													\
+#define MIRROR_CLASS(TYPE)																								\
+MIRROR_TYPE_COMMON(TYPE)																								\
+MIRROR_TYPE_NON_VOID(TYPE)																								\
+																														\
+    if (localStaticTypeInfo.fields.size() > 0) { return &localStaticTypeInfo; }											\
+	const int fieldsCount = MIRROR_MEMBER_FIELDS_COUNT_DEFAULT;															\
+	localStaticTypeInfo.fields.reserve(fieldsCount);																	\
+																														\
+	using ClassType = TYPE;																								\
 	enum { BASE = __COUNTER__ };
 
 #define MIRROR_CLASS_MEMBER(MEMBER_NAME)  MIRROR_CLASS_MEMBER_FLAGS(MEMBER_NAME, 0)
-#define MIRROR_CLASS_MEMBER_FLAGS(MEMBER_NAME, FLAGS)																						\
-	enum { MEMBER_NAME##Index = __COUNTER__ - BASE - 1 };																					\
-	Mirror::Field MEMBER_NAME##field;																										\
-	localStaticTypeInfo.fields.push_back(MEMBER_NAME##field);																				\
-	localStaticTypeInfo.fields[MEMBER_NAME##Index].typeInfo = Mirror::InfoForType<decltype(ClassType::MEMBER_NAME)>();						\
-	localStaticTypeInfo.fields[MEMBER_NAME##Index].name = #MEMBER_NAME;																		\
-	localStaticTypeInfo.fields[MEMBER_NAME##Index].offset = offsetof(ClassType, MEMBER_NAME);												\
+#define MIRROR_CLASS_MEMBER_FLAGS(MEMBER_NAME, FLAGS)																	\
+	enum { MEMBER_NAME##Index = __COUNTER__ - BASE - 1 };																\
+	Mirror::Field MEMBER_NAME##field;																					\
+	localStaticTypeInfo.fields.push_back(MEMBER_NAME##field);															\
+	localStaticTypeInfo.fields[MEMBER_NAME##Index].typeInfo = Mirror::InfoForType<decltype(ClassType::MEMBER_NAME)>();	\
+	localStaticTypeInfo.fields[MEMBER_NAME##Index].name = #MEMBER_NAME;													\
+	localStaticTypeInfo.fields[MEMBER_NAME##Index].offset = offsetof(ClassType, MEMBER_NAME);							\
 	localStaticTypeInfo.fields[MEMBER_NAME##Index].flags = FLAGS;
 
-#define MIRROR_CONSTRUCT_USING_MEMBER(MEMBER_NAME)																							\
-	localStaticTypeInfo.typeConstructorFunc = [](void* instanceAddress) {																	\
-		using MemberType = decltype(ClassType::MEMBER_NAME);																				\
-		char* memberAddress = (char*)instanceAddress + offsetof(ClassType, MEMBER_NAME);													\
-		new(instanceAddress) ClassType(*(MemberType*)memberAddress);																		\
+#define MIRROR_CONSTRUCT_USING_MEMBER(MEMBER_NAME)																		\
+	localStaticTypeInfo.typeConstructorFunc = [](void* instanceAddress) {												\
+		using MemberType = decltype(ClassType::MEMBER_NAME);															\
+		char* memberAddress = (char*)instanceAddress + offsetof(ClassType, MEMBER_NAME);								\
+		new(instanceAddress) ClassType(*(MemberType*)memberAddress);													\
 	};
 
-#define MIRROR_CLASS_SUBCLASS(SUBCLASS_TYPE)																								\
-	const Mirror::TypeInfo* SUBCLASS_TYPE##Info = Mirror::InfoForType<SUBCLASS_TYPE>();														\
-	localStaticTypeInfo.derivedTypes.push_back(SUBCLASS_TYPE##Info);																		\
-	const_cast<Mirror::TypeInfo*>(SUBCLASS_TYPE##Info)->superTypeInfo = &localStaticTypeInfo;												\
+#define MIRROR_CLASS_SUBCLASS(SUBCLASS_TYPE)																			\
+	const Mirror::TypeInfo* SUBCLASS_TYPE##Info = Mirror::InfoForType<SUBCLASS_TYPE>();									\
+	localStaticTypeInfo.derivedTypes.push_back(SUBCLASS_TYPE##Info);													\
+	const_cast<Mirror::TypeInfo*>(SUBCLASS_TYPE##Info)->superTypeInfo = &localStaticTypeInfo;							\
 
-#define MIRROR_CLASS_END																													\
-	return &localStaticTypeInfo;																											\
+#define MIRROR_CLASS_END																								\
+	return &localStaticTypeInfo;																						\
 }
