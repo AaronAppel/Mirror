@@ -16,7 +16,7 @@ template <typename T>
 void PrintClassStructure(const T& typeObj, unsigned char numTabs = 0);
 
 template<typename... T>
-struct TypesList {};
+struct MirrorTemplateArgumentList {};
 
 template <typename... Type>
 void priv_Single()
@@ -38,7 +38,7 @@ void priv_Single()
 }
 
 template<typename... Types>
-void priv_Multiple(TypesList<Types...>)
+void priv_Multiple(MirrorTemplateArgumentList<Types...>)
 {
 	priv_Single<Types...>();
 }
@@ -75,7 +75,7 @@ int main()
 		// Getting and reading type information
 		std::cout << "Printing info for type: " << intTypeInfo->stringName << "\n";
 		std::cout << "Size: " << intTypeInfo->size << "\n";
-		std::cout << "Id: " << intTypeInfo->id << "\n";
+		std::cout << "Id: " << intTypeInfo->id << "\n"; // #TODO Doesn't print and plays VS error sound when run or stepped over
 		std::cout << "# of fields: " << intTypeInfo->fields.size() << "\n";
 		if (intTypeInfo->superTypeInfo)
 		{
@@ -164,7 +164,7 @@ int main()
 
 	// #TODO Example description
 	{
-		using Types = TypesList <
+		using Types = MirrorTemplateArgumentList <
 			int,
 			ExampleClass,
 			ExampleDerivedClass

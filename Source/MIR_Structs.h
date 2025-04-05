@@ -5,6 +5,13 @@
 
 // #NOTE Functionality macros. See Macros section in README.md for more info.
 // #define MIRROR_DEBUG
+#define MIRROR_EXPERIMENTAL
+
+// #TODO Support field macros
+// #define MIRROR_FIELD_TYPE_NAME_UNUSED
+// #define MIRROR_FIELD_TYPE_OFFSET_UNUSED
+// #define MIRROR_FIELD_TYPE_SIZE_UNUSED
+// #define MIRROR_FIELD_FLAGS_UNUSED
 
 #ifdef MIRROR_DEBUG
 #include <cassert>
@@ -24,6 +31,8 @@
 #define MIRROR_TYPE_CATEGORY_SIZE uint8_t
 #define MIRROR_TYPE_CATEGORY_SIZE_MAX UINT8_MAX
 
+#include "MIR_ConstexprCounter.h"
+
 struct Mirror
 {
 	enum TypeInfoCategories : uint8_t
@@ -41,10 +50,18 @@ struct Mirror
 	{
 		const TypeInfo* typeInfo = nullptr;
 
+#ifndef MIRROR_FIELD_TYPE_NAME_UNUSED
 		std::string name = "";
+#endif
+#ifndef MIRROR_FIELD_TYPE_OFFSET_UNUSED
 		std::size_t offset = 0;
+#endif
+#ifndef MIRROR_FIELD_TYPE_SIZE_UNUSED
 		MIRROR_TYPE_SIZE size = 0;
+#endif
+#ifndef MIRROR_FIELD_FLAGS_UNUSED
 		MIRROR_FIELD_FLAG_SIZE flags = 0;
+#endif
 	};
 
 	struct TypeInfo
@@ -96,10 +113,8 @@ struct Mirror
 
 		const TypeInfo* DerivedTypeFromTypeName(const std::string& typeName) const {
 			if (derivedTypes.empty()) return this;
-			for (const auto& derivedType : derivedTypes)
-			{
-				if (strcmp(derivedType->stringName.c_str(), typeName.c_str()) == 0)
-				{
+			for (const auto& derivedType : derivedTypes) {
+				if (strcmp(derivedType->stringName.c_str(), typeName.c_str()) == 0) {
 					return derivedType;
 				}
 			}
@@ -137,10 +152,31 @@ struct Mirror
 	template<typename T>
 	static constexpr MIRROR_FIELD_ID_SIZE TypeId();
 
-// #TODO Static time assert to catch ID out of MIRROR_FIELD_ID_SIZE_MAX and 0 range +/-
+#ifdef MIRROR_EXPERIMENTAL
+	// #TODO Wrap?
+#endif // !MIRROR_EXPERIMENTAL
+
+#if defined(MIRROR_NONCONFORMING) && defined(MIRROR_GENERATE_TYPE_IDS)
+	// #NOTE Breaks at flag<198>
+	// #NOTE Won't compile at flag<496 or higher> error C1202 "recursive type or function dependency context too complex"
+	// #NOTE flag<128> error
+	template<int N = 1, int C = ConstexprCounter::reader(0, ConstexprCounter::flag<32>())> // #NOTE 0 reserved for invalid value, up to max value of MIRROR_FIELD_ID_SIZE_MAX(+1)
+	static int constexpr NextTypeId(int R = ConstexprCounter::writer<C + N>::value) { return R; }
+
+#define MIRROR_TYPE_ID_GEN_IMPL(TYPE) \
+	template <> constexpr MIRROR_FIELD_ID_SIZE Mirror::TypeId<TYPE>() { return NextTypeId(); }
+#define MIRROR_TYPE_ID_GEN(...) MIRROR_TYPE_ID_GEN_IMPL(__VA_ARGS__)
+
+#define MIRROR_TYPE_ID_IMPL(ID, TYPE) \
+	template <> constexpr MIRROR_FIELD_ID_SIZE Mirror::TypeId<TYPE>() { return NextTypeId<ID>(); }
+#define MIRROR_TYPE_ID(ID, ...) MIRROR_TYPE_ID_IMPL(ID, __VA_ARGS__)
+
+#else
 #define MIRROR_TYPE_ID_IMPL(ID, TYPE) \
 	template <> constexpr MIRROR_FIELD_ID_SIZE Mirror::TypeId<TYPE>() { return ID; }
 #define MIRROR_TYPE_ID(ID, ...) MIRROR_TYPE_ID_IMPL(ID, __VA_ARGS__)
+
+#endif // !defined(MIRROR_NONCONFORMING) && defined(MIRROR_GENERATE_TYPE_IDS)
 
 	template<typename... T>
 	struct MirrorTemplateArgumentList { };

@@ -40,3 +40,38 @@ MIRROR_CLASS_END
 MIRROR_CLASS(ExampleNestedCustomTypes)
 MIRROR_CLASS_MEMBER(exClass)
 MIRROR_CLASS_END
+
+#ifdef MIRROR_EXPERIMENTAL
+
+// #TODO Find a way to simplify mirroring derived types and accept templated arguments in a type-agnostic way
+template<typename... T>
+struct TemplateArgumentList {};
+// Or
+using MirrorList = Mirror::MirrorTemplateArgumentList<
+    bool,
+    int
+>;
+
+// #TODO Finalize design/API for pre-defined template listed types
+template<typename... SubClass>
+static void TemplateArgs()
+{
+    Mirror::MirrorTemplateArgumentList<SubClass...> list;
+}
+
+template<typename... SubClass>
+static void TemplateArgs(TemplateArgumentList<SubClass...>)
+{
+    Mirror::MirrorTemplateArgumentList<SubClass...> list;
+}
+
+template <typename SuperClass, typename... SubClass>
+static void MirrorSubClass(void* localStaticTypeInfo, uint16_t enumStartOffset)
+{
+    uint16_t enumValue = enumStartOffset;
+    ([&]()
+        {
+            ++enumValue;
+        }(), ...);
+}
+#endif
