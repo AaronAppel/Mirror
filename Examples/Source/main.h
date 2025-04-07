@@ -5,7 +5,17 @@
 
 #define MIRROR_PRIVATE_MEMBERS friend struct Mirror;
 
-class ExampleClass
+void GettingTypeInfo();
+void GettingTypeId();
+void FileIO();
+void RecursiveClassPrint();
+void TypesAsArguments();
+
+class ExampleParentClass
+{
+};
+
+class ExampleClass : public ExampleParentClass
 {
 public:
 	int intA = 17;
@@ -21,7 +31,7 @@ private:
 	std::map<int, bool> exampleMapH = { { 0, true } };
 };
 
-class ExampleDerivedClass : public ExampleClass
+class ExampleChildClass : public ExampleClass
 {
 private:
 	MIRROR_PRIVATE_MEMBERS

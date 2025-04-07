@@ -13,19 +13,20 @@
 #define MIRROR_ASSERT(x)
 #endif
 
-#define MIRROR_PRIVATE_MEMBERS friend struct Mirror;
+#define MIRROR_PRIVATE_MEMBERS friend struct Mir;
 
-#define MIRROR_FIELD_FLAG_SIZE uint8_t
-#define MIRROR_FIELD_FLAG_SIZE_MAX UINT8_MAX
-#define MIRROR_FIELD_ID_SIZE uint8_t
-#define MIRROR_FIELD_ID_SIZE_MAX UINT8_MAX
-#define MIRROR_TYPE_SIZE uint16_t
+#define MIRROR_FIELD_FLAG_TYPE uint8_t
+#define MIRROR_FIELD_FLAG_MAX UINT8_MAX
+#define MIRROR_TYPE_ID_TYPE uint8_t
+#define MIRROR_TYPE_ID_MAX UINT8_MAX
+#define MIRROR_TYPE_SIZE_TYPE uint16_t
 #define MIRROR_TYPE_SIZE_MAX UINT16_MAX
-#define MIRROR_TYPE_CATEGORY_SIZE uint8_t
+#define MIRROR_TYPE_CATEGORY_TYPE uint8_t
 #define MIRROR_TYPE_CATEGORY_SIZE_MAX UINT8_MAX
 
-struct Mirror
+struct Mir
 {
+
 	enum TypeInfoCategories : uint8_t
 	{
 		TypeInfoCategory_Primitive = 0,
@@ -43,17 +44,17 @@ struct Mirror
 
 		std::string name = "";
 		std::size_t offset = 0;
-		MIRROR_TYPE_SIZE size = 0;
-		MIRROR_FIELD_FLAG_SIZE flags = 0;
+		MIRROR_TYPE_SIZE_TYPE size = 0;
+		MIRROR_FIELD_FLAG_TYPE flags = 0;
 	};
 
 	struct TypeInfo
 	{
 		std::string stringName = "";
-		MIRROR_FIELD_ID_SIZE id = 0;
+		MIRROR_TYPE_ID_TYPE id = 0;
 
 #ifndef MIRROR_TYPE_SIZE_UNUSED
-		MIRROR_TYPE_SIZE size = 0;
+		MIRROR_TYPE_SIZE_TYPE size = 0;
 #endif
 		TypeInfoCategories category = TypeInfoCategories::TypeInfoCategory_Primitive;
 
@@ -128,20 +129,24 @@ struct Mirror
 		}
 	};
 
-	template <class T>
-	static const TypeInfo* InfoForType(const T& typeObj);
+	template <typename T>
+	static const TypeInfo* Info(const T& typeObj);
 
-	template<typename T>
-	static const TypeInfo* InfoForType();
+	template <typename T>
+	static const TypeInfo* Info();
 
-	template<typename T>
-	static constexpr MIRROR_FIELD_ID_SIZE TypeId();
+	template <typename T>
+	static constexpr MIRROR_TYPE_ID_TYPE Id(const T& typeObj);
 
-// #TODO Static time assert to catch ID out of MIRROR_FIELD_ID_SIZE_MAX and 0 range +/-
+	template <typename T>
+	static constexpr MIRROR_TYPE_ID_TYPE Id();
+
 #define MIRROR_TYPE_ID_IMPL(ID, TYPE) \
-	template <> constexpr MIRROR_FIELD_ID_SIZE Mirror::TypeId<TYPE>() { return ID; }
+	template <> constexpr MIRROR_TYPE_ID_TYPE Mir::Id<TYPE>() { return ID; }
+
 #define MIRROR_TYPE_ID(ID, ...) MIRROR_TYPE_ID_IMPL(ID, __VA_ARGS__)
 
 	template<typename... T>
-	struct MirrorTemplateArgumentList { };
+	struct TypesList {};
+
 };

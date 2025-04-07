@@ -20,6 +20,18 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Example1.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Example2.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Example3.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Example4.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
     <ClCompile Include="Source\ForMirror.cpp">
       <Filter>Source</Filter>
     </ClCompile>

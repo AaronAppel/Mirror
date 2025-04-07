@@ -14,8 +14,8 @@ workspace "Examples"
 	OutputDir = "%{cfg.system}-%{cfg.architecture}-%{cfg.buildcfg}"
 		
 	filter "configurations:*"
-		-- buildoptions { "/permissive-" } -- Strict conformance
 		buildoptions { "/permissive" } -- No conformance
+		-- buildoptions { "/permissive-" } -- Strict conformance
 		
 	filter "configurations:Debug"
 		architecture "x64"
