@@ -20,15 +20,15 @@ Thanks for stopping by :)
 1. Create your custom class/struct :
 
 ```
-#include "Mirror.h"
+#include "MIR_Mirror.h"
 class ExampleClass
 {
 public:
-	int intX = 9;
+    int intX = 9;
 
 private:
-	MIRROR_PRIVATE_MEMBERS
-	int intY = 4;
+    MIRROR_PRIVATE_MEMBERS
+    int intY = 4;
 };
 ```
 
