@@ -13,6 +13,9 @@ Thanks for stopping by :)
 #TODO 
 - Decide on opening '{' placement in all files for consistency.
 - \#endif comments
+
+# F.A.Q,
+\#TODO Create a FAQ document with common issues: Forgot to mirror type info or ID linker errors, 
 # Usage
 1. Create your custom class/struct :
 
@@ -58,29 +61,29 @@ Notes for mirroring type IDs:
 ```
 ExampleClass exampleClass;
 
-const Mirror::TypeInfo* exampleClassTypeInfo = Mirror::InfoForType<ExampleClass>();
+const Mir::TypeInfo* exampleClassTypeInfo = Mir::Info<ExampleClass>();
 // or by object reference
-const Mirror::TypeInfo* exampleClassTypeInfo = Mirror::InfoForType(exampleClass);
+const Mir::TypeInfo* exampleClassTypeInfo = Mir::Info(exampleClass);
 
-MIRROR_TYPE_ID_TYPE exampleClassTypeID = Mirror::TypeId<ExampleClass>();
+MIRROR_TYPE_ID_TYPE exampleClassTypeID = Mir::Id<ExampleClass>();
 // or by object reference
-MIRROR_TYPE_ID_TYPE exampleClassTypeID = Mirror::TypeId<>(exampleClass);
+MIRROR_TYPE_ID_TYPE exampleClassTypeID = Mir::Id<>(exampleClass);
 ```
 MIRROR_TYPE_ID_TYPE is currently a uint8_t, but can always change.
 You can change the type at the top of MIR_Structs.h, as you wish.
 
 5. Use type info to serialize type info fields :
 ```
-const Mirror::TypeInfo* exampleClassTypeInfo = Mirror::InfoForType<ExampleClass>();
+const Mir::TypeInfo* typeInfo = Mir::Info<ExampleClass>();
 
-std::cout << "ExampleClass Mirrored Fields:\n";
-for (size_t i = 0; i < exampleClassTypeInfo->fields.size(); i++)
+std::cout << typeInfo->stringName << " Mirrored Fields:\n";
+for (int i = 0; i < typeInfo->fields.size(); i++)
 {
-	const Mirror::Field& field = exampleClassTypeInfo->fields[i];
-	switch (field.typeInfo->enumType)
+	const Mir::Field& field = typeInfo->fields[i];
+	switch (field.typeInfo->id)
 	{
-	case MirrorTypes::m_int32_t:
-		std::cout << "m_int32_t" << " : " << field.name.c_str() << "\n";
+	case Mir::Id<m_int32_t>():
+		std::cout << "Member " << field.name << " is of type " << field.typeInfo->name << "\n";
 		break;
 		// ...
 	}
