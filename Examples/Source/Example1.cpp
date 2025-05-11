@@ -2,18 +2,18 @@
 #include <assert.h>
 #include <iostream>
 
-#include "MIR_Mirror.h" // Mirror::TypeInfo, Mirror::Info
+#include "MIR_Mirror.h" // Mir::TypeInfo, Mir::Info
 
 #include "Main.h"
 
 void GettingTypeInfo()
 {
-	const Mirror::TypeInfo* typeInfo = nullptr; // Create pointer to TypeInfo struct
+	const Mir::TypeInfo* typeInfo = nullptr; // Create pointer to TypeInfo struct
 
-	typeInfo = Mirror::Info<ExampleClass>(); // Explicitly specified type
+	typeInfo = Mir::Info<ExampleClass>(); // Explicitly specified type
 	// Or
 	ExampleClass object;
-	typeInfo = Mirror::Info<>(object); // Implicitly specified type using a class object instance
+	typeInfo = Mir::Info<>(object); // Implicitly specified type using a class object instance
 
 	// Simple type info data usage
 	std::cout << "Printing info for type: " << typeInfo->stringName << "\n";
@@ -37,11 +37,11 @@ void GettingTypeInfo()
 	}
 
 	// Iterate over multiple types
-	std::vector<const Mirror::TypeInfo*> typeInfos = {
-		Mirror::Info<int>(),
-		Mirror::Info<char*>(),
-		Mirror::Info<std::string>(),
-		Mirror::Info<ExampleClass>(),
+	std::vector<const Mir::TypeInfo*> typeInfos = {
+		Mir::Info<int>(),
+		Mir::Info<char*>(),
+		Mir::Info<std::string>(),
+		Mir::Info<ExampleClass>(),
 	};
 
 	std::cout << "Categories:\n";
@@ -51,15 +51,15 @@ void GettingTypeInfo()
 
 		switch (typeInfos[i]->category)
 		{
-		case Mirror::TypeInfoCategory_Primitive:
+		case Mir::TypeInfoCategory_Primitive:
 			std::cout << " is a primitive" << "\n";		break;
-		case Mirror::TypeInfoCategory_Class:
+		case Mir::TypeInfoCategory_Class:
 			std::cout << " is a class" << "\n";			break;
-		case Mirror::TypeInfoCategory_Collection:
+		case Mir::TypeInfoCategory_Collection:
 			std::cout << " is a collection" << "\n";	break;
-		case Mirror::TypeInfoCategory_Pair:
+		case Mir::TypeInfoCategory_Pair:
 			std::cout << " is a pair" << "\n";			break;
-		case Mirror::TypeInfoCategory_Pointer:
+		case Mir::TypeInfoCategory_Pointer:
 			std::cout << " is a pointer" << "\n";		break;
 		}
 	}

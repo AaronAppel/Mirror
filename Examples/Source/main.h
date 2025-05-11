@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#define MIRROR_PRIVATE_MEMBERS friend struct Mirror;
+#define MIRROR_PRIVATE_MEMBERS friend struct Mir;
 
 void GettingTypeInfo();
 void GettingTypeId();

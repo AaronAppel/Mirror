@@ -3,10 +3,10 @@
 #include <iostream>
 #include <string>
 
-#include "MIR_Mirror.h" // Mirror::TypeInfo, Mirror::Info, Mirror::Id
+#include "MIR_Mirror.h" // Mir::TypeInfo, Mir::Info, Mir::Id
 
 #include "Main.h"
-#include "ForMirror.h" // For Mirror::Id<>()
+#include "ForMirror.h" // For Mir::Id<>()
 
 void FileIO()
 {
@@ -15,7 +15,7 @@ void FileIO()
 
 	{	// Serialize
 		myfile.open("example.txt");
-		myfile << Mirror::Id<int>();
+		myfile << Mir::Id<int>();
 		myfile << "1234567890";
 		myfile.close();
 	}
@@ -34,21 +34,21 @@ void FileIO()
 				uint8_t id = static_cast<uint8_t>(line[0]);
 				switch (id)
 				{
-				case Mirror::Id<char>():
+				case Mir::Id<char>():
 					{
 						const char a = line[1];
 						std::cout << a << '\n';
 					}
 					break;
 
-				case Mirror::Id<std::string>():
+				case Mir::Id<std::string>():
 					{
 						const std::string a = line.substr(1, line.size() - 1);
 						std::cout << a << '\n';
 					}
 					break;
 
-				case Mirror::Id<int>():
+				case Mir::Id<int>():
 					{
 						const int a = std::stoi(line.substr(1, line.size() - 1));
 						std::cout << a << '\n';

@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "MIR_Mirror.h" // Mirror::TypeInfo, Mirror::Info, Mirror::Id
+#include "MIR_Mirror.h" // Mir::TypeInfo, Mir::Info, Mir::Id
 
 #include "Main.h"
-#include "ForMirror.h" // Mirror::Id for custom types
+#include "ForMirror.h" // Mir::Id for custom types
 
 void GettingTypeId()
 {
@@ -17,23 +17,23 @@ void GettingTypeId()
 	// ExampleClass;
 	// std::string;
 
-	uint8_t typeId = Mirror::Info<TypeAlias>()->id; // Get ID from TypeInfo*
+	uint8_t typeId = Mir::Info<TypeAlias>()->id; // Get ID from TypeInfo*
 	// Or
-	typeId = Mirror::Id<TypeAlias>(); // Explicitly specified type
+	typeId = Mir::Id<TypeAlias>(); // Explicitly specified type
 	// Or
 	TypeAlias object;
-	typeId = Mirror::Id<>(object); // Implicitly specified type using a class object instance
+	typeId = Mir::Id<>(object); // Implicitly specified type using a class object instance
 
 	// Execute different logic depending on type
 	switch (typeId)
 	{
-	case Mirror::Id<int>():
+	case Mir::Id<int>():
 		std::cout << "Found an int";
 		break;
 
-	case Mirror::Id<ExampleClass>():
+	case Mir::Id<ExampleClass>():
 		{
-			const Mirror::TypeInfo* typeInfo = Mirror::Info<ExampleClass>();
+			const Mir::TypeInfo* typeInfo = Mir::Info<ExampleClass>();
 			std::cout << "object.intA == ";
 			std::cout << ((ExampleClass*)&object)->intA;
 			std::cout << "\n";
@@ -46,7 +46,7 @@ void GettingTypeId()
 		}
 		break;
 
-	case Mirror::Id<std::string>():
+	case Mir::Id<std::string>():
 		{
 			std::string* str = reinterpret_cast<std::string*>(&object);
 			str->append("Hello World!");
@@ -54,7 +54,7 @@ void GettingTypeId()
 		}
 		break;
 
-	case Mirror::Id<void>():
+	case Mir::Id<void>():
 		std::cout << "Example Error: void type unexpected!";
 		break;
 	}

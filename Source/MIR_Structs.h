@@ -32,7 +32,7 @@ struct Mir
 		TypeInfoCategory_Primitive = 0,
 		TypeInfoCategory_Class,
 		TypeInfoCategory_Collection,
-		TypeInfoCategory_Pair,
+		TypeInfoCategory_Pair, // #TODO Remove pair as in QwerkE latest Mirror implementation
 		TypeInfoCategory_Pointer,
 	};
 
@@ -63,6 +63,7 @@ struct Mir
 
 		const TypeInfo* collectionTypeInfoFirst = nullptr;
 		const TypeInfo* collectionTypeInfoSecond = nullptr;
+		// #TODO Support tuples and handle collection logic type-agnosticly using a vector of const TypeInfo*s?
 		const TypeInfo* superTypeInfo;
 		const TypeInfo* pointerDereferencedTypeInfo;
 

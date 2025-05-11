@@ -1,0 +1,2 @@
+Setup a dead-simple GLFW + imgui example showing how to serialize/deserialize objects at runtime, and some basic type inspection like in QwerkE.
+Could look at more visual demonstrations on Mirror too.

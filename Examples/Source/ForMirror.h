@@ -9,7 +9,7 @@
 #include "Main.h"
 
 // #MIRROR:
-// Here we declare types we want Mirror to reflect.
+// Here we declare types we want Mir to reflect.
 // Both MIRROR_TYPE_ID() and MIRROR_TYPE/MIRROR_CLASS should be added for each declared type.
 // MIRROR_TYPE_ID has no order dependency.
 // Categories can help with organization.
