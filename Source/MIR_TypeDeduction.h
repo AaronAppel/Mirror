@@ -31,7 +31,7 @@ namespace is_stl_container_impl {
 	template <typename... Args> struct is_stl_container<std::queue             <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_container<std::set               <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_container<std::stack             <Args...>> :std::true_type {};
-	// #TODO Update pair to be a collection template <typename... Args> struct is_stl_container<std::pair			   <Args...>> :std::true_type {};
+	template <typename... Args> struct is_stl_container<std::pair			   <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_container<std::priority_queue    <Args...>> :std::true_type {};
 	// #TODO Support tuples template <typename... Args> struct is_stl_container<std::tuple             <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_container<std::unordered_set     <Args...>> :std::true_type {};

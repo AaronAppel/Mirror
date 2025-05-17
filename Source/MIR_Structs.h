@@ -1,42 +1,69 @@
 #pragma once
 
+#include <stdint.h>
 #include <string>
 #include <vector>
 
 // #NOTE Functionality macros. See Macros section in README.md for more info.
-// #define MIRROR_DEBUG
+// #define MIRROR_TESTING
+// #define MIRROR_OMIT_ALT_API
+// #define MIRROR_OMIT_FLAGS
 
-#ifdef MIRROR_DEBUG
+#ifdef MIRROR_TESTING
 #include <cassert>
 #define MIRROR_ASSERT(x) assert(x)
 #else
 #define MIRROR_ASSERT(x)
 #endif
 
-#define MIRROR_PRIVATE_MEMBERS friend struct Mir;
+#define MIRROR_PRIVATE_MEMBERS friend struct Mirror;
 
 #define MIRROR_FIELD_FLAG_TYPE uint8_t
 #define MIRROR_FIELD_FLAG_MAX UINT8_MAX
-#define MIRROR_TYPE_ID_TYPE uint8_t
-#define MIRROR_TYPE_ID_MAX UINT8_MAX
+#define MIRROR_TYPE_ID_TYPE uint16_t
+#define MIRROR_TYPE_ID_MAX UINT16_MAX
 #define MIRROR_TYPE_SIZE_TYPE uint16_t
 #define MIRROR_TYPE_SIZE_MAX UINT16_MAX
 #define MIRROR_TYPE_CATEGORY_TYPE uint8_t
 #define MIRROR_TYPE_CATEGORY_SIZE_MAX UINT8_MAX
 
-struct Mir
-{
+#ifndef MIRROR_OMIT_ALT_API // #NOTE Optional, alternative API
+struct Mirror;
+using Mir = Mirror;
+#endif // !#define MIRROR_OMIT_ALT_API
 
-	enum TypeInfoCategories : uint8_t
+struct Mirror
+{
+	struct TypeInfo;
+
+#ifndef MIRROR_OMIT_ALT_API // #NOTE Optional, alternative API
+	using Id = MIRROR_TYPE_ID_TYPE;
+	using Info = TypeInfo;
+	template <typename T>
+	static auto GetInfo(const T& typeObj) -> const TypeInfo* {
+		return InfoForType(typeObj);
+	}
+	template <typename T>
+	static auto GetInfo() -> const TypeInfo* {
+		return InfoForType<T>();
+	}
+	template <typename T>
+	static auto GetId(const T& typeObj) -> MIRROR_TYPE_ID_TYPE {
+		return IdForType(typeObj);
+	}
+	template <typename T>
+	static auto GetId() -> MIRROR_TYPE_ID_TYPE {
+		return IdForType<T>();
+	}
+#endif // !#define MIRROR_OMIT_ALT_API
+
+	enum TypeInfoCategories : MIRROR_TYPE_CATEGORY_TYPE
 	{
-		TypeInfoCategory_Primitive = 0,
+		TypeInfoCategory_Primitive = 0, // #TODO Review maintaining order in Mirror.h and everywhere else (class after collection)
 		TypeInfoCategory_Class,
 		TypeInfoCategory_Collection,
-		TypeInfoCategory_Pair, // #TODO Remove pair as in QwerkE latest Mirror implementation
-		TypeInfoCategory_Pointer,
+		TypeInfoCategory_Pointer
 	};
-
-	struct TypeInfo;
 
 	struct Field
 	{
@@ -45,17 +72,16 @@ struct Mir
 		std::string name = "";
 		std::size_t offset = 0;
 		MIRROR_TYPE_SIZE_TYPE size = 0;
+#ifndef MIRROR_OMIT_FLAGS
 		MIRROR_FIELD_FLAG_TYPE flags = 0;
+#endif // !MIRROR_OMIT_FLAGS
 	};
 
 	struct TypeInfo
 	{
 		std::string stringName = "";
 		MIRROR_TYPE_ID_TYPE id = 0;
-
-#ifndef MIRROR_TYPE_SIZE_UNUSED
 		MIRROR_TYPE_SIZE_TYPE size = 0;
-#endif
 		TypeInfoCategories category = TypeInfoCategories::TypeInfoCategory_Primitive;
 
 		std::vector<Field> fields = { };
@@ -69,13 +95,10 @@ struct Mir
 
 		using FuncPtr_void_voidPtr_sizet_constvoidPtr_constvoidPtr = void (*)(void*, size_t, const void*, const void*);
 		using FuncPtr_void_voidPtr = void (*)(void*);
-		using FuncPtr_voidPtr_constVoidPtr_bool = void* (*)(const void*, bool);
 		using FuncPtr_charPtr_constVoidPtr_sizet = char* (*)(const void*, size_t);
 		using FuncPtr_bool_constVoidPtr = bool (*)(const void*);
 
 		FuncPtr_void_voidPtr_sizet_constvoidPtr_constvoidPtr collectionAddFunc = nullptr;
-		FuncPtr_voidPtr_constVoidPtr_bool collectionAddressOfPairObjectFunc = nullptr;
-		FuncPtr_void_voidPtr collectionClearFunction = nullptr;
 		FuncPtr_charPtr_constVoidPtr_sizet collectionIterateCurrentFunc = nullptr;
 
 		FuncPtr_void_voidPtr typeConstructorFunc = nullptr;
@@ -98,10 +121,8 @@ struct Mir
 
 		const TypeInfo* DerivedTypeFromTypeName(const std::string& typeName) const {
 			if (derivedTypes.empty()) return this;
-			for (const auto& derivedType : derivedTypes)
-			{
-				if (strcmp(derivedType->stringName.c_str(), typeName.c_str()) == 0)
-				{
+			for (const auto& derivedType : derivedTypes) {
+				if (strcmp(derivedType->stringName.c_str(), typeName.c_str()) == 0) {
 					return derivedType;
 				}
 			}
@@ -121,33 +142,26 @@ struct Mir
 				typeConstructorFunc(instanceAddress);
 			}
 		}
-
-		void ClearCollection(void* collectionAddress) const {
-			MIRROR_ASSERT(collectionAddFunc && "Null collectionClearFunction!");
-			if (collectionClearFunction) {
-				collectionClearFunction(collectionAddress);
-			}
-		}
 	};
 
 	template <typename T>
-	static const TypeInfo* Info(const T& typeObj);
+	static const TypeInfo* InfoForType(const T& typeObj);
 
 	template <typename T>
-	static const TypeInfo* Info();
+	static const TypeInfo* InfoForType();
 
 	template <typename T>
-	static constexpr MIRROR_TYPE_ID_TYPE Id(const T& typeObj);
+	static constexpr MIRROR_TYPE_ID_TYPE IdForType(const T& typeObj);
 
 	template <typename T>
-	static constexpr MIRROR_TYPE_ID_TYPE Id();
+	static constexpr MIRROR_TYPE_ID_TYPE IdForType();
 
 #define MIRROR_TYPE_ID_IMPL(ID, TYPE) \
-	template <> constexpr MIRROR_TYPE_ID_TYPE Mir::Id<TYPE>() { return ID; }
+	template <> constexpr MIRROR_TYPE_ID_TYPE Mirror::IdForType<TYPE>() { return ID; }
 
 #define MIRROR_TYPE_ID(ID, ...) MIRROR_TYPE_ID_IMPL(ID, __VA_ARGS__)
 
 	template<typename... T>
-	struct TypesList {};
+	struct TypesList { };
 
 };

@@ -6,7 +6,7 @@
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 0, void)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 1, void*)
 
-// Mutable
+// Mutable primitives
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 2, signed char)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 3, signed short)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 4, signed int)
@@ -21,7 +21,7 @@ MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 12, long double)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 13, char)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 14, bool)
 
-// Const
+// Const primitives
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 15, const signed char)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 16, const signed short)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 17, const signed int)
@@ -66,7 +66,7 @@ MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 51, const long double*)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 52, const char*)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 53, const bool*)
 
-// String
+// std::string
 #include <string>
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 54, std::string)
 MIRROR_TYPE_ID(MIRROR_TYPE_ID_MAX - 55, std::string*)
