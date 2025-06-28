@@ -10,10 +10,10 @@ void GettingTypeInfo()
 {
 	const Mir::TypeInfo* typeInfo = nullptr; // Create pointer to TypeInfo struct
 
-	typeInfo = Mir::Info<ExampleClass>(); // Explicitly specified type
+	typeInfo = Mir::GetInfo<ExampleClass>(); // Explicitly specified type
 	// Or
 	ExampleClass object;
-	typeInfo = Mir::Info<>(object); // Implicitly specified type using a class object instance
+	typeInfo = Mir::GetInfo<>(object); // Implicitly specified type using a class object instance
 
 	// Simple type info data usage
 	std::cout << "Printing info for type: " << typeInfo->stringName << "\n";
@@ -38,10 +38,10 @@ void GettingTypeInfo()
 
 	// Iterate over multiple types
 	std::vector<const Mir::TypeInfo*> typeInfos = {
-		Mir::Info<int>(),
-		Mir::Info<char*>(),
-		Mir::Info<std::string>(),
-		Mir::Info<ExampleClass>(),
+		Mir::GetInfo<int>(),
+		Mir::GetInfo<char*>(),
+		Mir::GetInfo<std::string>(),
+		Mir::GetInfo<ExampleClass>(),
 	};
 
 	std::cout << "Categories:\n";
@@ -57,8 +57,6 @@ void GettingTypeInfo()
 			std::cout << " is a class" << "\n";			break;
 		case Mir::TypeInfoCategory_Collection:
 			std::cout << " is a collection" << "\n";	break;
-		case Mir::TypeInfoCategory_Pair:
-			std::cout << " is a pair" << "\n";			break;
 		case Mir::TypeInfoCategory_Pointer:
 			std::cout << " is a pointer" << "\n";		break;
 		}

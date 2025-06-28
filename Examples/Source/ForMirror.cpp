@@ -56,5 +56,6 @@ MIRROR_CLASS(ExampleNestedCustomTypes)
 MIRROR_CLASS_MEMBER(exClass)
 MIRROR_CLASS_END
 
-MIRROR_PARENT_CHILD(ExampleParentClass, ExampleClass)
-MIRROR_PARENT_CHILD(ExampleClass, ExampleChildClass)
+// #TODO Revisit inheritance relational reflection
+// MIRROR_PARENT_CHILD(ExampleParentClass, ExampleClass)
+// MIRROR_PARENT_CHILD(ExampleClass, ExampleChildClass)

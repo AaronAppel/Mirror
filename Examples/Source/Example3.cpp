@@ -15,7 +15,7 @@ void FileIO()
 
 	{	// Serialize
 		myfile.open("example.txt");
-		myfile << Mir::Id<int>();
+		myfile << Mir::GetId<int>();
 		myfile << "1234567890";
 		myfile.close();
 	}
@@ -34,21 +34,21 @@ void FileIO()
 				uint8_t id = static_cast<uint8_t>(line[0]);
 				switch (id)
 				{
-				case Mir::Id<char>():
+				case Mir::GetId<char>():
 					{
 						const char a = line[1];
 						std::cout << a << '\n';
 					}
 					break;
 
-				case Mir::Id<std::string>():
+				case Mir::GetId<std::string>():
 					{
 						const std::string a = line.substr(1, line.size() - 1);
 						std::cout << a << '\n';
 					}
 					break;
 
-				case Mir::Id<int>():
+				case Mir::GetId<int>():
 					{
 						const int a = std::stoi(line.substr(1, line.size() - 1));
 						std::cout << a << '\n';

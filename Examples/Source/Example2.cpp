@@ -17,23 +17,23 @@ void GettingTypeId()
 	// ExampleClass;
 	// std::string;
 
-	uint8_t typeId = Mir::Info<TypeAlias>()->id; // Get ID from TypeInfo*
+	uint8_t typeId = Mir::GetInfo<TypeAlias>()->id; // Get ID from TypeInfo*
 	// Or
-	typeId = Mir::Id<TypeAlias>(); // Explicitly specified type
+	typeId = Mir::GetId<TypeAlias>(); // Explicitly specified type
 	// Or
 	TypeAlias object;
-	typeId = Mir::Id<>(object); // Implicitly specified type using a class object instance
+	typeId = Mir::GetId<>(object); // Implicitly specified type using a class object instance
 
 	// Execute different logic depending on type
 	switch (typeId)
 	{
-	case Mir::Id<int>():
+	case Mir::GetId<int>():
 		std::cout << "Found an int";
 		break;
 
-	case Mir::Id<ExampleClass>():
+	case Mir::GetId<ExampleClass>():
 		{
-			const Mir::TypeInfo* typeInfo = Mir::Info<ExampleClass>();
+			const Mir::TypeInfo* typeInfo = Mir::GetInfo<ExampleClass>();
 			std::cout << "object.intA == ";
 			std::cout << ((ExampleClass*)&object)->intA;
 			std::cout << "\n";
@@ -46,7 +46,7 @@ void GettingTypeId()
 		}
 		break;
 
-	case Mir::Id<std::string>():
+	case Mir::GetId<std::string>():
 		{
 			std::string* str = reinterpret_cast<std::string*>(&object);
 			str->append("Hello World!");
@@ -54,7 +54,7 @@ void GettingTypeId()
 		}
 		break;
 
-	case Mir::Id<void>():
+	case Mir::GetId<void>():
 		std::cout << "Example Error: void type unexpected!";
 		break;
 	}

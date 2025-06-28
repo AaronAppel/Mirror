@@ -10,7 +10,7 @@ void ExecuteOnSingleType()
 {
 	([] {
 		// Execute logic per Type
-		const Mir::TypeInfo* typeInfo = Mir::Info<Type>();
+		const Mir::Info* typeInfo = Mir::GetInfo<Type>();
 
 		std::cout << "Typename: " << typeInfo->stringName << "\n";
 		if (Mir::TypeInfoCategory_Class == typeInfo->category)

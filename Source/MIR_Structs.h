@@ -32,6 +32,23 @@ struct Mirror;
 using Mir = Mirror;
 #endif // !#define MIRROR_OMIT_ALT_API
 
+// #NOTE Support for reflecting std collections enabled if 1, or removed if 0
+									   // Testing vs Final release (TBD)
+#define MIRROR_COLLECTION_STD_ARRAY				1 // 1
+#define MIRROR_COLLECTION_STD_DEQUE				1 // 0
+#define MIRROR_COLLECTION_STD_FORWARD_LIST		1 // 0
+#define MIRROR_COLLECTION_STD_LIST				1 // 0
+#define MIRROR_COLLECTION_STD_MAP				1 // 1
+#define MIRROR_COLLECTION_STD_MULTI_MAP			1 // 0
+#define MIRROR_COLLECTION_STD_MULTI_SET			1 // 0
+#define MIRROR_COLLECTION_STD_QUEUE				1 // 0
+#define MIRROR_COLLECTION_STD_SET				1 // 0
+#define MIRROR_COLLECTION_STD_STACK				1 // 0
+#define MIRROR_COLLECTION_STD_PAIR				1 // 1
+#define MIRROR_COLLECTION_STD_PRIORITY_QUEUE	1 // 0
+#define MIRROR_COLLECTION_STD_TUPLE				1 // 0
+#define MIRROR_COLLECTION_STD_VECTOR			1 // 1
+
 struct Mirror
 {
 	struct TypeInfo;
@@ -48,11 +65,11 @@ struct Mirror
 		return InfoForType<T>();
 	}
 	template <typename T>
-	static auto GetId(const T& typeObj) -> MIRROR_TYPE_ID_TYPE {
-		return IdForType(typeObj);
+	static constexpr auto GetId(const T& typeObj) -> MIRROR_TYPE_ID_TYPE {
+		return IdForType<T>();
 	}
 	template <typename T>
-	static auto GetId() -> MIRROR_TYPE_ID_TYPE {
+	static constexpr auto GetId() -> MIRROR_TYPE_ID_TYPE {
 		return IdForType<T>();
 	}
 #endif // !#define MIRROR_OMIT_ALT_API
@@ -89,6 +106,9 @@ struct Mirror
 
 		const TypeInfo* collectionTypeInfoFirst = nullptr;
 		const TypeInfo* collectionTypeInfoSecond = nullptr;
+
+		std::vector<const TypeInfo*> collectionTypeInfos; // #TODO Review using an array or std::array
+
 		// #TODO Support tuples and handle collection logic type-agnosticly using a vector of const TypeInfo*s?
 		const TypeInfo* superTypeInfo;
 		const TypeInfo* pointerDereferencedTypeInfo;
@@ -100,6 +120,9 @@ struct Mirror
 
 		FuncPtr_void_voidPtr_sizet_constvoidPtr_constvoidPtr collectionAddFunc = nullptr;
 		FuncPtr_charPtr_constVoidPtr_sizet collectionIterateCurrentFunc = nullptr;
+
+		using FuncPtr_constVectorSizetPtr = const std::vector<size_t>* (*)();
+		FuncPtr_constVectorSizetPtr collectionOffsetsVecFunc = nullptr;
 
 		FuncPtr_void_voidPtr typeConstructorFunc = nullptr;
 		FuncPtr_bool_constVoidPtr typeDynamicCastFunc = nullptr;
@@ -145,21 +168,37 @@ struct Mirror
 	};
 
 	template <typename T>
-	static const TypeInfo* InfoForType(const T& typeObj);
+	static const TypeInfo* InfoForType(const T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
 
 	template <typename T>
 	static const TypeInfo* InfoForType();
 
 	template <typename T>
-	static constexpr MIRROR_TYPE_ID_TYPE IdForType(const T& typeObj);
+	static constexpr MIRROR_TYPE_ID_TYPE IdForType(const T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
 
 	template <typename T>
 	static constexpr MIRROR_TYPE_ID_TYPE IdForType();
 
+#define VA_ARGS_STRING(...) #__VA_ARGS__
+#define VA_ARGS(...) __VA_ARGS__
+#define STRIP_PARENTHESES(X) X
+
+#define TYPE_WRAP_STRING(TYPE) STRIP_PARENTHESES( VA_ARGS_STRING TYPE )
+#define TYPE_WRAP(TYPE) STRIP_PARENTHESES(VA_ARGS TYPE)
+
+#if _MSC_VER && (!defined(_MSVC_TRADITIONAL) || _MSVC_TRADITIONAL) // Compile option disabled: /Zc:preprocessor
 #define MIRROR_TYPE_ID_IMPL(ID, TYPE) \
 	template <> constexpr MIRROR_TYPE_ID_TYPE Mirror::IdForType<TYPE>() { return ID; }
 
 #define MIRROR_TYPE_ID(ID, ...) MIRROR_TYPE_ID_IMPL(ID, __VA_ARGS__)
+
+#else // Compile option enabled: /Zc:preprocessor
+#define MIRROR_TYPE_ID_IMPL(ID, TYPE) \
+	template <> constexpr MIRROR_TYPE_ID_TYPE Mirror::IdForType<TYPE_WRAP(TYPE)>() { return ID; }
+
+#define MIRROR_TYPE_ID(ID, ...) MIRROR_TYPE_ID_IMPL(ID, (__VA_ARGS__))
+
+#endif // _MSC_VER && (!defined(_MSVC_TRADITIONAL) || _MSVC_TRADITIONAL)
 
 	template<typename... T>
 	struct TypesList { };
