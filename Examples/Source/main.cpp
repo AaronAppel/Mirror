@@ -63,8 +63,18 @@ void RecursiveClassPrint()
 	std::cout << "\n";
 }
 
+#include <array>
+
 int main()
 {
+	// #TODO Test std::array by de/serializing
+	std::array<int, 10> arr;
+	arr[0] = 0;
+	size_t index = 0;
+	if (index < arr.size())
+	{
+	}
+
 	//* #TODO std::Tuple support in Mirror
 	std::tuple<int, char, bool, int, char, bool> tuple6 = std::make_tuple(0, 1, 0, 0, 0, 0);
 	auto var = &std::get<1>(tuple6);

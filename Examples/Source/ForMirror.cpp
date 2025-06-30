@@ -1,7 +1,3 @@
-#include <map>
-#include <string>
-#include <vector>
-
 #include "MIR_Mirror.h"
 
 #include "Main.h"
@@ -30,6 +26,7 @@ MIRROR_TYPE(std::string[10])
 
 // Non-serialized types
 MIRROR_TYPE(float[10])
+MIRROR_TYPE(std::array<int, 10>)
 MIRROR_TYPE(std::vector<char>)
 MIRROR_TYPE(std::pair<const int, bool>)
 MIRROR_TYPE(std::map<int, bool>)

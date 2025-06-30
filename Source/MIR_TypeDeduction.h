@@ -42,76 +42,76 @@ namespace is_stl_container_impl {
 }
 
 namespace is_stl_array_impl {
-	template <typename T>       struct is_stl_array :std::false_type {};
-	template <typename... Args> struct is_stl_array<std::array <Args...>> :std::true_type {};
+	template <typename T>				 struct is_stl_array:std::false_type {};
+	template <typename T, std::size_t N> struct is_stl_array<std::array <T, N>> :std::true_type {};
 }
 
 namespace is_stl_deque_impl {
-	template <typename T>       struct is_stl_deque :std::false_type {};
+	template <typename T>       struct is_stl_deque:std::false_type {};
 	template <typename... Args> struct is_stl_deque<std::deque <Args...>> :std::true_type {};
 }
 
 namespace is_stl_forward_list_impl {
-	template <typename T>       struct is_stl_forward_list :std::false_type {};
+	template <typename T>       struct is_stl_forward_list:std::false_type {};
 	template <typename... Args> struct is_stl_forward_list<std::forward_list <Args...>> :std::true_type {};
 }
 
 namespace is_stl_list_impl {
-	template <typename T>       struct is_stl_list :std::false_type {};
+	template <typename T>       struct is_stl_list:std::false_type {};
 	template <typename... Args> struct is_stl_list<std::list <Args...>> :std::true_type {};
 }
 
 namespace is_stl_map_impl { // #TODO Review coupling unordered and ordered types
-	template <typename T>       struct is_stl_map :std::false_type {};
+	template <typename T>       struct is_stl_map:std::false_type {};
 	template <typename... Args> struct is_stl_map<std::map <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_map<std::unordered_map <Args...>> :std::true_type {};
 }
 
 namespace is_stl_multi_map_impl { // #TODO Review coupling unordered and ordered types
-	template <typename T>       struct is_stl_multi_map :std::false_type {};
+	template <typename T>       struct is_stl_multi_map:std::false_type {};
 	template <typename... Args> struct is_stl_multi_map<std::multimap <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_multi_map<std::unordered_multimap <Args...>> :std::true_type {};
 }
 
 namespace is_stl_multi_set_impl { // #TODO Review coupling unordered and ordered types
-	template <typename T>       struct is_stl_multi_set :std::false_type {};
+	template <typename T>       struct is_stl_multi_set:std::false_type {};
 	template <typename... Args> struct is_stl_multi_set<std::multiset <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_multi_set<std::unordered_multiset <Args...>> :std::true_type {};
 }
 
 namespace is_stl_queue_impl {
-	template <typename T>       struct is_stl_queue :std::false_type {};
+	template <typename T>       struct is_stl_queue:std::false_type {};
 	template <typename... Args> struct is_stl_queue<std::queue <Args...>> :std::true_type {};
 }
 
 namespace is_stl_set_impl { // #TODO Review coupling unordered and ordered types
-	template <typename T>       struct is_stl_set :std::false_type {};
+	template <typename T>       struct is_stl_set:std::false_type {};
 	template <typename... Args> struct is_stl_set<std::set <Args...>> :std::true_type {};
 	template <typename... Args> struct is_stl_set<std::unordered_set <Args...>> :std::true_type {};
 }
 
 namespace is_stl_stack_impl {
-	template <typename T>       struct is_stl_stack :std::false_type {};
+	template <typename T>       struct is_stl_stack:std::false_type {};
 	template <typename... Args> struct is_stl_stack<std::stack <Args...>> :std::true_type {};
 }
 
 namespace is_stl_pair_impl {
-	template <typename T>       struct is_stl_pair :std::false_type {};
+	template <typename T>       struct is_stl_pair:std::false_type {};
 	template <typename... Args> struct is_stl_pair<std::pair <Args...>> :std::true_type {};
 }
 
 namespace is_stl_priority_queue_impl {
-	template <typename T>       struct is_stl_priority_queue :std::false_type {};
+	template <typename T>       struct is_stl_priority_queue:std::false_type {};
 	template <typename... Args> struct is_stl_priority_queue<std::priority_queue <Args...>> :std::true_type {};
 }
 
 namespace is_stl_tuple_impl {
-	template <typename T>       struct is_stl_tuple :std::false_type {};
+	template <typename T>       struct is_stl_tuple:std::false_type {};
 	template <typename... Args> struct is_stl_tuple<std::tuple <Args...>> :std::true_type {};
 }
 
 namespace is_stl_vector_impl {
-	template <typename T>       struct is_stl_vector :std::false_type {};
+	template <typename T>       struct is_stl_vector:std::false_type {};
 	template <typename... Args> struct is_stl_vector<std::vector <Args...>> :std::true_type {};
 }
 

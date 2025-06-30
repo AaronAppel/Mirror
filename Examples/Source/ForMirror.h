@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
@@ -26,3 +27,4 @@ MIRROR_TYPE_ID(104, ExampleChildClass)
 MIRROR_TYPE_ID(105, ExampleClass)
 MIRROR_TYPE_ID(106, ExampleParentClass)
 MIRROR_TYPE_ID(107, ExampleNestedCustomTypes)
+MIRROR_TYPE_ID(108, std::array<int, 10>)

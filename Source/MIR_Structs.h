@@ -57,7 +57,7 @@ struct Mirror
 	using Id = MIRROR_TYPE_ID_TYPE;
 	using Info = TypeInfo;
 	template <typename T>
-	static auto GetInfo(const T& typeObj) -> const TypeInfo* {
+	static auto GetInfo(T& typeObj) -> const TypeInfo* {
 		return InfoForType(typeObj);
 	}
 	template <typename T>
@@ -65,7 +65,7 @@ struct Mirror
 		return InfoForType<T>();
 	}
 	template <typename T>
-	static constexpr auto GetId(const T& typeObj) -> MIRROR_TYPE_ID_TYPE {
+	static constexpr auto GetId(T& typeObj) -> MIRROR_TYPE_ID_TYPE {
 		return IdForType<T>();
 	}
 	template <typename T>
@@ -168,13 +168,13 @@ struct Mirror
 	};
 
 	template <typename T>
-	static const TypeInfo* InfoForType(const T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
+	static const TypeInfo* InfoForType(T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
 
 	template <typename T>
 	static const TypeInfo* InfoForType();
 
 	template <typename T>
-	static constexpr MIRROR_TYPE_ID_TYPE IdForType(const T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
+	static constexpr MIRROR_TYPE_ID_TYPE IdForType(T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
 
 	template <typename T>
 	static constexpr MIRROR_TYPE_ID_TYPE IdForType();
