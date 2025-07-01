@@ -32,23 +32,6 @@ struct Mirror;
 using Mir = Mirror;
 #endif // !#define MIRROR_OMIT_ALT_API
 
-// #NOTE Support for reflecting std collections enabled if 1, or removed if 0
-									   // Testing vs Final release (TBD)
-#define MIRROR_COLLECTION_STD_ARRAY				1 // 1
-#define MIRROR_COLLECTION_STD_DEQUE				1 // 0
-#define MIRROR_COLLECTION_STD_FORWARD_LIST		1 // 0
-#define MIRROR_COLLECTION_STD_LIST				1 // 0
-#define MIRROR_COLLECTION_STD_MAP				1 // 1
-#define MIRROR_COLLECTION_STD_MULTI_MAP			1 // 0
-#define MIRROR_COLLECTION_STD_MULTI_SET			1 // 0
-#define MIRROR_COLLECTION_STD_QUEUE				1 // 0
-#define MIRROR_COLLECTION_STD_SET				1 // 0
-#define MIRROR_COLLECTION_STD_STACK				1 // 0
-#define MIRROR_COLLECTION_STD_PAIR				1 // 1
-#define MIRROR_COLLECTION_STD_PRIORITY_QUEUE	1 // 0
-#define MIRROR_COLLECTION_STD_TUPLE				1 // 0
-#define MIRROR_COLLECTION_STD_VECTOR			1 // 1
-
 struct Mirror
 {
 	struct TypeInfo;

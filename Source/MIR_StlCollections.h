@@ -4,17 +4,31 @@
 #include "MIR_TypeDeduction.h"
 #include "MIR_Ids.h"
 
+// #NOTE Support for reflecting std collections enabled if 1, or removed if 0
+									   // Testing vs Final release (TBD)
+#define MIRROR_COLLECTION_STD_ARRAY				1 // 1
+#define MIRROR_COLLECTION_STD_DEQUE				1 // 0
+#define MIRROR_COLLECTION_STD_FORWARD_LIST		1 // 0
+#define MIRROR_COLLECTION_STD_LIST				1 // 0
+#define MIRROR_COLLECTION_STD_MAP				1 // 1
+#define MIRROR_COLLECTION_STD_MULTI_MAP			1 // 0
+#define MIRROR_COLLECTION_STD_MULTI_SET			1 // 0
+#define MIRROR_COLLECTION_STD_QUEUE				1 // 0
+#define MIRROR_COLLECTION_STD_SET				1 // 0
+#define MIRROR_COLLECTION_STD_STACK				1 // 0
+#define MIRROR_COLLECTION_STD_PAIR				1 // 1
+#define MIRROR_COLLECTION_STD_PRIORITY_QUEUE	1 // 0
+#define MIRROR_COLLECTION_STD_TUPLE				1 // 0
+#define MIRROR_COLLECTION_STD_VECTOR			1 // 1
+
 // #TODO multimap forced const key type
 #define GENERIC_ITERATE_LAMBDA												\
 	mutableTypeInfo->collectionIterateCurrentFunc =							\
-		[](const void* collectionAddress, size_t aIndex) -> char* {			\
-		T* collection = (T*)collectionAddress;                              \
+		[](const void* collectionObjAddress, size_t aIndex) -> char* {		\
+		T* collection = (T*)collectionObjAddress;                           \
 		static auto iterator = collection->begin();                         \
-		/* May also need to store reference to last collection */			\
-		/* and reset when referencing a different collection */				\
 		static size_t lastIndex = 0;										\
 																			\
-		/* if (aIndex >= collection->size()) */								\
 		if (collection->end() == iterator)									\
 		{																	\
 			return nullptr;													\
@@ -53,6 +67,41 @@
 		return (char*)&(*iterator);											\
 	};
 
+#define DEEP_COPY_ITERATE_FUNC																										\
+mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddress, size_t aIndex) -> char* {						\
+		/* #TODO See if copying the collection can be avoided in order to non-destructively iterate non-random access collection*/	\
+		static T cache;																												\
+		static uint64_t cacheSize = 0;																								\
+		static const void* lastInstanceAddress = nullptr;																			\
+		static uint64_t lastIndex = 0;																								\
+																																	\
+		if (!collectionObjAddress || (!lastInstanceAddress && !collectionObjAddress))												\
+		{																															\
+			return nullptr;																											\
+		}																															\
+																																	\
+		if (collectionObjAddress != lastInstanceAddress || aIndex < lastIndex)														\
+		{																															\
+			cache = *(T*)collectionObjAddress;																						\
+			cacheSize = cache.size();																								\
+			lastInstanceAddress = collectionObjAddress;																				\
+			lastIndex = 0;																											\
+		}																															\
+																																	\
+		if (aIndex >= cacheSize)																									\
+		{																															\
+			return nullptr;																											\
+		}																															\
+																																	\
+		uint64_t range = aIndex - lastIndex;																						\
+																																	\
+		for (size_t i = 0; i < range; i++)																							\
+		{																															\
+			cache.pop();																											\
+		}																															\
+																																	\
+		lastIndex = aIndex;
+
 template <typename T>
 static void SetConstructionLambda(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -75,15 +124,13 @@ static void SetCollectionLambdasArray(Mirror::TypeInfo* constTypeInfo, std::true
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t index, const void* elementFirst, const void* /*elementSecond*/) {
-		T* arr = ((T*)collectionAddress);
-		// #TODO Safety checks: assert(index < arr->size());
-		// arr[index] = (*(typename T::value_type*)elementFirst);
-		arr[index] = (*(typename T::value_type*)elementFirst);
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t aIndex, const void* elementFirst, const void* /*elementSecond*/) {
+		T& arrRef = *(T*)collectionObjAddress;
+		arrRef[aIndex] = (*(typename T::value_type*)elementFirst);
 	};
-	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
+	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddress, size_t aIndex) -> char* {
 		static size_t index = 0; // #TODO Support iterating backwards over a collection, and random access
-		T* vector = ((T*)collectionAddress);
+		T* vector = ((T*)collectionObjAddress);
 		if (aIndex < index) index = aIndex;
 		if (index >= vector->size()) { index = 0; return nullptr; }
 		return (char*)vector->data() + (sizeof(T::value_type) * index++);
@@ -97,20 +144,15 @@ static void SetCollectionLambdasDeque(Mirror::TypeInfo* constTypeInfo, std::fals
 
 template <typename T>
 static void SetCollectionLambdasDeque(Mirror::TypeInfo* constTypeInfo, std::true_type) {
-	// static_assert(false, "Function not yet implemented!");
-
 	static_assert(is_stl_deque<T>::value, "Type T is not of type stl::deque!");
 
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		((T*)collectionAddress)->push_back(*(typename T::value_type*)elementFirst);
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+		((T*)collectionObjAddress)->push_back(*(typename T::value_type*)elementFirst);
 	};
-	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
-		// #TODO Implement
-		return nullptr;
-	};
+	GENERIC_ITERATE_LAMBDA
 }
 #endif // defined(MIRROR_COLLECTION_STD_DEQUE) && MIRROR_COLLECTION_STD_DEQUE
 
@@ -125,10 +167,48 @@ static void SetCollectionLambdasForwardList(Mirror::TypeInfo* constTypeInfo, std
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		// #TODO Add to forward_list
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t aIndex, const void* elementFirst, const void* /*elementSecond*/) {
+		// #NOTE Assumed reversed order on serialize
+		((T*)collectionObjAddress)->emplace_front(*(typename T::value_type*)elementFirst);
 	};
-	GENERIC_ITERATE_LAMBDA
+
+	// #TODO May need to read the entire list into a vector, then return indices in reversed order so deserialize can keep order.
+	// The issue is that the linked list is on directional, or singly linked so push back is not possible
+	// GENERIC_ITERATE_LAMBDA
+
+	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddress, size_t aIndex) -> char* {
+		// #NOTE Must reverse ordering of collection during serialization as deserializing forward_list can only add to front of songly linked list
+		T* collection = (T*)collectionObjAddress;
+		static size_t lastIndex = 0;
+		static std::vector<T::value_type> cacheVector;
+		const void* lastCollectionAddress = nullptr;
+
+		if (!collectionObjAddress || (!collectionObjAddress && lastCollectionAddress))
+		{
+			return nullptr;
+		}
+
+		if (lastCollectionAddress != collectionObjAddress || aIndex < lastIndex)
+		{
+			lastIndex = 0;
+			cacheVector.clear();
+			for (auto& element : *collection)
+			{
+				cacheVector.emplace_back(element); // #TODO Avoid additional dynamic/heap re-allocations and memory copies/moves
+			}
+			// std::reverse(cacheVector.begin(), cacheVector.end()); // #TODO Reverse index instead of moving all elements in vector
+			lastCollectionAddress = collectionObjAddress;
+		}
+
+		if (aIndex >= cacheVector.size())
+		{
+			return nullptr;
+		}
+		lastIndex = aIndex;
+
+		uint64_t reversedIndex = cacheVector.size() - 1 - aIndex; // #NOTE Reverse index to avoid reversing the entire cacheVector after all allocations
+		return (char*)&cacheVector[reversedIndex];
+	};
 }
 #endif // defined(MIRROR_COLLECTION_STD_FORWARD_LIST) && MIRROR_COLLECTION_STD_LIST
 
@@ -143,9 +223,8 @@ static void SetCollectionLambdasList(Mirror::TypeInfo* constTypeInfo, std::true_
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		T* list = (T*)collectionAddress;
-		// #TODO Use iterator: auto iterator = list.begin();
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+		((T*)collectionObjAddress)->emplace_back(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
 }
@@ -162,8 +241,8 @@ static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::true_t
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		((T*)collectionAddress)->insert(*(typename T::value_type*)elementFirst);
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+		((T*)collectionObjAddress)->insert(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
 }
@@ -198,9 +277,8 @@ static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* constTypeInfo, std::t
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		// #TODO multiset
-		// ((T*)collectionAddress)->insert(*(typename T::value_type*)elementFirst);
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+		((T*)collectionObjAddress)->insert(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
 }
@@ -212,20 +290,18 @@ static void SetCollectionLambdasQueue(Mirror::TypeInfo* constTypeInfo, std::fals
 
 template <typename T>
 static void SetCollectionLambdasQueue(Mirror::TypeInfo* constTypeInfo, std::true_type) {
-	// static_assert(false, "Function not yet implemented!");
-
 	static_assert(is_stl_queue<T>::value, "Type T is not of type std::queue!");
 
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		((T*)collectionAddress)->push(*(typename T::value_type*)elementFirst);
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+		((T*)collectionObjAddress)->push(*(typename T::value_type*)elementFirst);
 	};
-	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
-		// #TODO std::queue does not support random read. May be forced to copy the queue to serialize all elements
-		return nullptr;
+	DEEP_COPY_ITERATE_FUNC
+		return (char*)&cache.front();
 	};
+
 }
 #endif // defined(MIRROR_COLLECTION_STD_QUEUE) && MIRROR_COLLECTION_STD_QUEUE
 
@@ -240,9 +316,8 @@ static void SetCollectionLambdasSet(Mirror::TypeInfo* constTypeInfo, std::true_t
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		// #TODO set
-		// ((T*)collectionAddress)->insert(*(typename T::value_type*)elementFirst);
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+		((T*)collectionObjAddress)->insert(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
 }
@@ -257,28 +332,53 @@ static void SetCollectionLambdasStack(Mirror::TypeInfo* constTypeInfo, std::true
 	static_assert(is_stl_stack<T>::value, "Type T is not of type std::stack!");
 
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
-	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
+	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>()); // #TODO Review collectionTypeInfos for non-pair or tuple types
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
-		// #TODO stack
-		// ((T*)collectionAddress)->insert(*(typename T::value_type*)elementFirst);
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+		((T*)collectionObjAddress)->push(*(typename T::value_type*)elementFirst);
 	};
-	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
-		// #TODO stack
-		// static size_t index = 0;
-		// T* map = (T*)collectionAddress;
-		// static T::iterator iterator = map->begin();
-		// if (aIndex < index || map->end() == iterator)
-		// {
-		// 	index = aIndex;
-		// 	iterator = map->begin();
-		// }
-		// if (index >= map->size()) { ++index; return nullptr; }
-		// ++index;
-		// auto result = (char*)&iterator->first;
-		// ++iterator;
-		// return result;
-		return nullptr;
+	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddress, size_t aIndex) -> char* {
+		/* #TODO See if copying the collection can be avoided in order to non-destructively iterate non-random access collection*/
+		static std::vector<T::value_type> cacheVector;
+		static T cache;
+		static uint64_t cacheSize = 0;
+		static const void* lastInstanceAddress = nullptr;
+		static uint64_t lastIndex = 0;
+
+		if (!collectionObjAddress || (!lastInstanceAddress && !collectionObjAddress))
+		{
+			return nullptr;
+		}
+
+		if (collectionObjAddress != lastInstanceAddress || aIndex < lastIndex)
+		{
+			// #TODO Flip ordering to display in text matching RAM ordering, so deserialize logic is similar to other collections
+			cacheVector.clear();
+			while (!cache.empty())
+			{
+				cache.pop();
+			}
+			cache = *(T*)collectionObjAddress;
+			cacheSize = cache.size();
+
+			cacheVector.resize(cacheSize);
+			for (int i = cacheSize - 1; i >= 0; i--)
+			{
+				cacheVector[i] = cache.top();
+				cache.pop();
+			}
+
+			lastInstanceAddress = collectionObjAddress;
+			lastIndex = 0;
+		}
+
+		if (aIndex >= cacheSize)
+		{
+			return nullptr;
+		}
+
+		lastIndex = aIndex;
+		return (char*)&cacheVector[lastIndex];
 	};
 }
 #endif // defined(MIRROR_COLLECTION_STD_STACK) && MIRROR_COLLECTION_STD_STACK
@@ -324,17 +424,12 @@ static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* constTypeInfo, s
 	static_assert(is_stl_priority_queue<T>::value, "Type T is not of type std::priority_queue!");
 
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
-
-	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::first_type>());
-	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::second_type>());
 	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-
-	mutableTypeInfo->collectionAddFunc = [](void* pairObjAddress, size_t /*aIndex*/, const void* elementFirst, const void* elementSecond) {
-		// #TODO priority
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*aIndex*/, const void* elementFirst, const void* elementSecond) {
+		((T*)collectionObjAddress)->push(*(typename T::value_type*)elementFirst);
 	};
-	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* pairObjAddress, size_t aIndex) -> char* {
-		// #TODO priority
-		return nullptr;
+	DEEP_COPY_ITERATE_FUNC
+		return (char*)&cache.top();
 	};
 }
 #endif // defined(MIRROR_COLLECTION_STD_PRIORITY_QUEUE) && MIRROR_COLLECTION_STD_PRIORITY_QUEUE
