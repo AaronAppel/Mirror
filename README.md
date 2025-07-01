@@ -1,5 +1,10 @@
 ⚠️ Refactor in progress. Documentation out of date ⚠️
 
+# TL;DR
+Required files: MIR_Mirror.h, MIR_Structs.h, and MIR_TypeDeduction.h
+Include MIR_Mirror.h in your files.
+Optional (pre-defined types): MIR_Ids.h, MIR_Infos.cpp, MIR_StlCollections.h
+
 # Mirror
 A super simple C++ reflection library I made to enable serializing fields in my game engine [QwerkE](https://github.com/AaronAppel/QwerkE)
 
@@ -15,7 +20,8 @@ Thanks for stopping by :)
 - \#endif comments
 
 # F.A.Q,
-\#TODO Create a FAQ document with common issues: Forgot to mirror type info or ID linker errors, 
+\#TODO Create a FAQ document with common issues: Forgot to mirror type info or ID linker errors, defining user types and expanding existing support, additional TypeInfo flags and values...
+
 # Usage
 1. Create your custom class/struct :
 
@@ -133,8 +139,7 @@ Builds with strict conformance (/permissive-) fail due to template compiler Erro
 • Object references
 • Multi-dimensional pointers
 • Multi-dimensional containers
-• STL containers (excluding vector, map, pair, and other types included in MIR_TypeDeduction.h)
-
+• Tuples, for now...
 • Also, multiple inheritance is not currently supported
 
 # FAQ and Common Errors
