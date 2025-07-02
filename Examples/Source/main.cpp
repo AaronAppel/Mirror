@@ -101,5 +101,7 @@ int main()
 	// #TODO Constructors, and construction using member variables or passing other arguments to constructors
 	// #TODO Class inheritance relational reflection, showing how to connect parent and child class infos, and how to find and use reflected meta data
 
+	// #TODO Mirroring user defined collections
+
 	system("pause");
 }

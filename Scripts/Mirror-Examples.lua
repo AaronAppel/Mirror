@@ -42,6 +42,16 @@ project "Mirror"
 		"%{wks.location}/Source/**.h",
 		"%{wks.location}/Source/**.cpp"
 	}
+	
+project "Serialization"
+	kind "StaticLib"
+	location "%{wks.location}/Examples/Serialization"
+	
+	files
+	{
+		"%{wks.location}/Examples/Serialization/**.h",
+		"%{wks.location}/Examples/Serialization/**.cpp"
+	}
 
 project "Examples"
 	kind "ConsoleApp"

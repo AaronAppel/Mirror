@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Examples\Serialization\SerializeCollections.cpp" />
+    <ClCompile Include="..\Examples\Serialization\SerializeJson.cpp" />
+    <ClCompile Include="..\Examples\Serialization\DeserializeJson.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Examples\Serialization\Serialize.h" />
+  </ItemGroup>
+</Project>

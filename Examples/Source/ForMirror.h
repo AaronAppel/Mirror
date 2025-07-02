@@ -1,11 +1,12 @@
 #pragma once
 
 #include <array>
+#include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "MIR_Structs.h"
+#include "../../Source/MIR_Mirror.h"
 
 #include "Main.h"
 
@@ -28,3 +29,6 @@ MIRROR_TYPE_ID(105, ExampleClass)
 MIRROR_TYPE_ID(106, ExampleParentClass)
 MIRROR_TYPE_ID(107, ExampleNestedCustomTypes)
 MIRROR_TYPE_ID(108, std::array<int, 10>)
+MIRROR_TYPE_ID(109, UserCollection)
+MIRROR_TYPE_ID(110, std::filesystem::path)
+MIRROR_TYPE_ID(111, int[10])

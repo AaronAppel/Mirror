@@ -38,6 +38,9 @@
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\UserDefinedCollection.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
     <ClCompile Include="cJSON\cJSON.cpp">
       <Filter>cJSON</Filter>
     </ClCompile>

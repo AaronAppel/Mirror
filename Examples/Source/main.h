@@ -42,3 +42,44 @@ struct ExampleNestedCustomTypes
 {
 	ExampleClass exClass;
 };
+
+// #TODO Templated collection example
+class UserCollection
+{
+public:
+	UserCollection() = default;
+
+	int* At(int index)
+	{
+		if (index < size)
+		{
+			return &buffer[index];
+		}
+		return nullptr;
+	}
+
+	void Add(int value)
+	{
+		if (nextIndex < size)
+		{
+			buffer[nextIndex] = value;
+		}
+	}
+
+	int* Data()
+	{
+		return &buffer[0];
+	}
+
+	int* End()
+	{
+		return &buffer[0] + size;
+	}
+
+private:
+	MIRROR_PRIVATE_MEMBERS
+
+	static const int size = 10;
+	int buffer[size];
+	int nextIndex = 0;
+};

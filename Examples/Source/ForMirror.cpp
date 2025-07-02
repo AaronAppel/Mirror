@@ -23,6 +23,7 @@ enum ExampleFlags : uint8_t
 
 // Serialized types (.json)
 MIRROR_TYPE(std::string[10])
+MIRROR_TYPE(std::filesystem::path)
 
 // Non-serialized types
 MIRROR_TYPE(float[10])
