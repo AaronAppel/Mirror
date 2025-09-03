@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#define MIRROR_PRIVATE_MEMBERS friend struct Mirror;
+#define MIR_FRIEND friend struct Mirror;
 
 void GettingTypeInfo();
 void GettingTypeId();
@@ -22,8 +22,9 @@ public:
 	bool boolB = false;
 
 private:
-	MIRROR_PRIVATE_MEMBERS
-		char charC = 'S';
+	MIR_FRIEND
+
+	char charC = 'S';
 	float floatD = 1.23f;
 	double doubleE = 23.5607;
 	const char* constCharPtrF = "Mirror";
@@ -34,8 +35,9 @@ private:
 class ExampleChildClass : public ExampleClass
 {
 private:
-	MIRROR_PRIVATE_MEMBERS
-		int intZ = 7;
+	MIR_FRIEND
+
+	int intZ = 7;
 };
 
 struct ExampleNestedCustomTypes
@@ -77,7 +79,7 @@ public:
 	}
 
 private:
-	MIRROR_PRIVATE_MEMBERS
+	MIR_FRIEND
 
 	static const int size = 10;
 	int buffer[size];

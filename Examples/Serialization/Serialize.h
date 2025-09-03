@@ -11,7 +11,7 @@ struct cJSON;
 
 namespace Serialize { // #TODO Rename to Serialization
 
-    enum FieldSerializationFlags : MIRROR_FIELD_FLAG_TYPE
+    enum FieldSerializationFlags : MIR_FIELD_FLAG_TYPE
     {
         _None = 0,
         _SkipDeserialize,

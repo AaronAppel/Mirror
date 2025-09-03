@@ -6,20 +6,20 @@
 
 // #NOTE Support for reflecting std collections enabled if 1, or removed if 0
 									   // Testing vs Final release (TBD)
-#define MIRROR_COLLECTION_STD_ARRAY				1 // 1
-#define MIRROR_COLLECTION_STD_DEQUE				1 // 0
-#define MIRROR_COLLECTION_STD_FORWARD_LIST		1 // 0
-#define MIRROR_COLLECTION_STD_LIST				1 // 0
-#define MIRROR_COLLECTION_STD_MAP				1 // 1
-#define MIRROR_COLLECTION_STD_MULTI_MAP			1 // 0
-#define MIRROR_COLLECTION_STD_MULTI_SET			1 // 0
-#define MIRROR_COLLECTION_STD_QUEUE				1 // 0
-#define MIRROR_COLLECTION_STD_SET				1 // 0
-#define MIRROR_COLLECTION_STD_STACK				1 // 0
-#define MIRROR_COLLECTION_STD_PAIR				1 // 1
-#define MIRROR_COLLECTION_STD_PRIORITY_QUEUE	1 // 0
-#define MIRROR_COLLECTION_STD_TUPLE				1 // 0
-#define MIRROR_COLLECTION_STD_VECTOR			1 // 1
+#define MIR_COLLECTION_STD_ARRAY			1 // 1
+#define MIR_COLLECTION_STD_DEQUE			1 // 0
+#define MIR_COLLECTION_STD_FORWARD_LIST		1 // 0
+#define MIR_COLLECTION_STD_LIST				1 // 0
+#define MIR_COLLECTION_STD_MAP				1 // 1
+#define MIR_COLLECTION_STD_MULTI_MAP		1 // 0
+#define MIR_COLLECTION_STD_MULTI_SET		1 // 0
+#define MIR_COLLECTION_STD_QUEUE			1 // 0
+#define MIR_COLLECTION_STD_SET				1 // 0
+#define MIR_COLLECTION_STD_STACK			1 // 0
+#define MIR_COLLECTION_STD_PAIR				1 // 1
+#define MIR_COLLECTION_STD_PRIORITY_QUEUE	1 // 0
+#define MIR_COLLECTION_STD_TUPLE			1 // 0
+#define MIR_COLLECTION_STD_VECTOR			1 // 1
 
 // #TODO multimap forced const key type
 #define GENERIC_ITERATE_LAMBDA														\
@@ -108,7 +108,7 @@ static void SetConstructionLambda(Mirror::TypeInfo* constTypeInfo, std::true_typ
 	mutableTypeInfo->typeConstructorFunc = [](void* preallocatedMemoryAddress) { new(preallocatedMemoryAddress) T; };
 }
 
-#if defined(MIRROR_COLLECTION_STD_ARRAY) && MIRROR_COLLECTION_STD_ARRAY
+#if defined(MIR_COLLECTION_STD_ARRAY) && MIR_COLLECTION_STD_ARRAY
 template <typename T>
 static void SetCollectionLambdasArray(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -131,9 +131,9 @@ static void SetCollectionLambdasArray(Mirror::TypeInfo* constTypeInfo, std::true
 		return (char*)vector->data() + (sizeof(T::value_type) * index++);
 	};
 }
-#endif // defined(MIRROR_COLLECTION_STD_ARRAY) && MIRROR_COLLECTION_STD_ARRAY
+#endif // defined(MIR_COLLECTION_STD_ARRAY) && MIR_COLLECTION_STD_ARRAY
 
-#if defined(MIRROR_COLLECTION_STD_DEQUE) && MIRROR_COLLECTION_STD_DEQUE
+#if defined(MIR_COLLECTION_STD_DEQUE) && MIR_COLLECTION_STD_DEQUE
 template <typename T>
 static void SetCollectionLambdasDeque(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -149,9 +149,9 @@ static void SetCollectionLambdasDeque(Mirror::TypeInfo* constTypeInfo, std::true
 	};
 	GENERIC_ITERATE_LAMBDA
 }
-#endif // defined(MIRROR_COLLECTION_STD_DEQUE) && MIRROR_COLLECTION_STD_DEQUE
+#endif // defined(MIR_COLLECTION_STD_DEQUE) && MIR_COLLECTION_STD_DEQUE
 
-#if defined(MIRROR_COLLECTION_STD_FORWARD_LIST) && MIRROR_COLLECTION_STD_FORWARD_LIST
+#if defined(MIR_COLLECTION_STD_FORWARD_LIST) && MIR_COLLECTION_STD_FORWARD_LIST
 template <typename T>
 static void SetCollectionLambdasForwardList(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -205,9 +205,9 @@ static void SetCollectionLambdasForwardList(Mirror::TypeInfo* constTypeInfo, std
 		return (char*)&cacheVector[reversedIndex];
 	};
 }
-#endif // defined(MIRROR_COLLECTION_STD_FORWARD_LIST) && MIRROR_COLLECTION_STD_LIST
+#endif // defined(MIR_COLLECTION_STD_FORWARD_LIST) && MIR_COLLECTION_STD_LIST
 
-#if defined(MIRROR_COLLECTION_STD_LIST) && MIRROR_COLLECTION_STD_LIST
+#if defined(MIR_COLLECTION_STD_LIST) && MIR_COLLECTION_STD_LIST
 template <typename T>
 static void SetCollectionLambdasList(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -223,9 +223,9 @@ static void SetCollectionLambdasList(Mirror::TypeInfo* constTypeInfo, std::true_
 	};
 	GENERIC_ITERATE_LAMBDA
 }
-#endif // defined(MIRROR_COLLECTION_STD_LIST) && MIRROR_COLLECTION_STD_LIST
+#endif // defined(MIR_COLLECTION_STD_LIST) && MIR_COLLECTION_STD_LIST
 
-#if defined(MIRROR_COLLECTION_STD_MAP) && MIRROR_COLLECTION_STD_MAP
+#if defined(MIR_COLLECTION_STD_MAP) && MIR_COLLECTION_STD_MAP
 template <typename T>
 static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::false_type) { }
 
@@ -241,9 +241,9 @@ static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::true_t
 	};
 	GENERIC_ITERATE_LAMBDA
 }
-#endif // defined(MIRROR_COLLECTION_STD_MAP) && MIRROR_COLLECTION_STD_MAP
+#endif // defined(MIR_COLLECTION_STD_MAP) && MIR_COLLECTION_STD_MAP
 
-#if defined(MIRROR_COLLECTION_STD_MULTI_MAP) && MIRROR_COLLECTION_STD_MULTI_MAP
+#if defined(MIR_COLLECTION_STD_MULTI_MAP) && MIR_COLLECTION_STD_MULTI_MAP
 template <typename T>
 static void SetCollectionLambdasMultiMap(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -259,9 +259,9 @@ static void SetCollectionLambdasMultiMap(Mirror::TypeInfo* constTypeInfo, std::t
 	};
 	GENERIC_ITERATE_LAMBDA
 }
-#endif // defined(MIRROR_COLLECTION_STD_MULTI_MAP) && MIRROR_COLLECTION_STD_MULTI_MAP
+#endif // defined(MIR_COLLECTION_STD_MULTI_MAP) && MIR_COLLECTION_STD_MULTI_MAP
 
-#if defined(MIRROR_COLLECTION_STD_MULTI_SET) && MIRROR_COLLECTION_STD_MULTI_SET
+#if defined(MIR_COLLECTION_STD_MULTI_SET) && MIR_COLLECTION_STD_MULTI_SET
 template <typename T>
 static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -277,9 +277,9 @@ static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* constTypeInfo, std::t
 	};
 	GENERIC_ITERATE_LAMBDA
 }
-#endif // defined(MIRROR_COLLECTION_STD_MULTI_SET) && MIRROR_COLLECTION_STD_MULTI_SET
+#endif // defined(MIR_COLLECTION_STD_MULTI_SET) && MIR_COLLECTION_STD_MULTI_SET
 
-#if defined(MIRROR_COLLECTION_STD_QUEUE) && MIRROR_COLLECTION_STD_QUEUE
+#if defined(MIR_COLLECTION_STD_QUEUE) && MIR_COLLECTION_STD_QUEUE
 template <typename T>
 static void SetCollectionLambdasQueue(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -298,9 +298,9 @@ static void SetCollectionLambdasQueue(Mirror::TypeInfo* constTypeInfo, std::true
 	};
 
 }
-#endif // defined(MIRROR_COLLECTION_STD_QUEUE) && MIRROR_COLLECTION_STD_QUEUE
+#endif // defined(MIR_COLLECTION_STD_QUEUE) && MIR_COLLECTION_STD_QUEUE
 
-#if defined(MIRROR_COLLECTION_STD_SET) && MIRROR_COLLECTION_STD_SET
+#if defined(MIR_COLLECTION_STD_SET) && MIR_COLLECTION_STD_SET
 template <typename T>
 static void SetCollectionLambdasSet(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -316,9 +316,9 @@ static void SetCollectionLambdasSet(Mirror::TypeInfo* constTypeInfo, std::true_t
 	};
 	GENERIC_ITERATE_LAMBDA
 }
-#endif // defined(MIRROR_COLLECTION_STD_SET) && MIRROR_COLLECTION_STD_SET
+#endif // defined(MIR_COLLECTION_STD_SET) && MIR_COLLECTION_STD_SET
 
-#if defined(MIRROR_COLLECTION_STD_STACK) && MIRROR_COLLECTION_STD_STACK
+#if defined(MIR_COLLECTION_STD_STACK) && MIR_COLLECTION_STD_STACK
 template <typename T>
 static void SetCollectionLambdasStack(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -376,9 +376,9 @@ static void SetCollectionLambdasStack(Mirror::TypeInfo* constTypeInfo, std::true
 		return (char*)&cacheVector[lastIndex];
 	};
 }
-#endif // defined(MIRROR_COLLECTION_STD_STACK) && MIRROR_COLLECTION_STD_STACK
+#endif // defined(MIR_COLLECTION_STD_STACK) && MIR_COLLECTION_STD_STACK
 
-#if defined(MIRROR_COLLECTION_STD_PAIR) && MIRROR_COLLECTION_STD_PAIR
+#if defined(MIR_COLLECTION_STD_PAIR) && MIR_COLLECTION_STD_PAIR
 template <typename T>
 static void SetCollectionLambdasPair(Mirror::TypeInfo* constTypeInfo, std::false_type) { }
 
@@ -408,9 +408,9 @@ static void SetCollectionLambdasPair(Mirror::TypeInfo* constTypeInfo, std::true_
 		else return nullptr;
 	};
 }
-#endif // defined(MIRROR_COLLECTION_STD_PAIR) && MIRROR_COLLECTION_STD_PAIR
+#endif // defined(MIR_COLLECTION_STD_PAIR) && MIR_COLLECTION_STD_PAIR
 
-#if defined(MIRROR_COLLECTION_STD_PRIORITY_QUEUE) && MIRROR_COLLECTION_STD_PRIORITY_QUEUE
+#if defined(MIR_COLLECTION_STD_PRIORITY_QUEUE) && MIR_COLLECTION_STD_PRIORITY_QUEUE
 template <typename T>
 static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -427,9 +427,9 @@ static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* constTypeInfo, s
 		return (char*)&cache.top();
 	};
 }
-#endif // defined(MIRROR_COLLECTION_STD_PRIORITY_QUEUE) && MIRROR_COLLECTION_STD_PRIORITY_QUEUE
+#endif // defined(MIR_COLLECTION_STD_PRIORITY_QUEUE) && MIR_COLLECTION_STD_PRIORITY_QUEUE
 
-#if defined(MIRROR_COLLECTION_STD_TUPLE) && MIRROR_COLLECTION_STD_TUPLE
+#if defined(MIR_COLLECTION_STD_TUPLE) && MIR_COLLECTION_STD_TUPLE
 template <typename T>
 static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -491,9 +491,9 @@ static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true
 	};
 	mutableTypeInfo->typeConstructorFunc = [](void* preallocatedMemoryAddress) { new(preallocatedMemoryAddress) T; };
 }
-#endif // defined(MIRROR_COLLECTION_STD_TUPLE) && MIRROR_COLLECTION_STD_TUPLE
+#endif // defined(MIR_COLLECTION_STD_TUPLE) && MIR_COLLECTION_STD_TUPLE
 
-#if defined(MIRROR_COLLECTION_STD_VECTOR) && MIRROR_COLLECTION_STD_VECTOR
+#if defined(MIR_COLLECTION_STD_VECTOR) && MIR_COLLECTION_STD_VECTOR
 template <typename T>
 static void SetCollectionLambdasVector(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
@@ -517,7 +517,7 @@ static void SetCollectionLambdasVector(Mirror::TypeInfo* constTypeInfo, std::tru
 	// #TODO Pros/cons of unique versus generic macro implementation
 	// GENERIC_ITERATE_LAMBDA
 }
-#endif // defined(MIRROR_COLLECTION_STD_VECTOR) && MIRROR_COLLECTION_STD_VECTOR
+#endif // defined(MIR_COLLECTION_STD_VECTOR) && MIR_COLLECTION_STD_VECTOR
 
 template <typename T>
 static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::false_type) {
@@ -544,59 +544,59 @@ static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::true_type
 	static_assert(is_stl_container<T>::value, "Type T is not a collection!");
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 
-#ifdef MIRROR_COLLECTION_STD_ARRAY
+#ifdef MIR_COLLECTION_STD_ARRAY
 	SetCollectionLambdasArray<T>(mutableTypeInfo, is_stl_array_impl::is_stl_array<T>::type());
-#endif // MIRROR_COLLECTION_STD_ARRAY
+#endif // MIR_COLLECTION_STD_ARRAY
 
-#ifdef MIRROR_COLLECTION_STD_DEQUE
+#ifdef MIR_COLLECTION_STD_DEQUE
 	SetCollectionLambdasDeque<T>(mutableTypeInfo, is_stl_deque_impl::is_stl_deque<T>::type());
-#endif // MIRROR_COLLECTION_STD_DEQUE
+#endif // MIR_COLLECTION_STD_DEQUE
 
-#ifdef MIRROR_COLLECTION_STD_FORWARD_LIST
+#ifdef MIR_COLLECTION_STD_FORWARD_LIST
 	SetCollectionLambdasForwardList<T>(mutableTypeInfo, is_stl_forward_list_impl::is_stl_forward_list<T>::type());
-#endif // MIRROR_COLLECTION_STD_FORWARD_LIST
+#endif // MIR_COLLECTION_STD_FORWARD_LIST
 
-#ifdef MIRROR_COLLECTION_STD_LIST
+#ifdef MIR_COLLECTION_STD_LIST
 	SetCollectionLambdasList<T>(mutableTypeInfo, is_stl_list_impl::is_stl_list<T>::type());
-#endif // MIRROR_COLLECTION_STD_LIST
+#endif // MIR_COLLECTION_STD_LIST
 
-#ifdef MIRROR_COLLECTION_STD_MAP
+#ifdef MIR_COLLECTION_STD_MAP
 	SetCollectionLambdasMap<T>(mutableTypeInfo, is_stl_map_impl::is_stl_map<T>::type());
-#endif // MIRROR_COLLECTION_STD_MAP
+#endif // MIR_COLLECTION_STD_MAP
 
-#ifdef MIRROR_COLLECTION_STD_MULTI_MAP
+#ifdef MIR_COLLECTION_STD_MULTI_MAP
 	SetCollectionLambdasMultiMap<T>(mutableTypeInfo, is_stl_multi_map_impl::is_stl_multi_map<T>::type());
-#endif // MIRROR_COLLECTION_STD_MULTI_MAP
+#endif // MIR_COLLECTION_STD_MULTI_MAP
 
-#ifdef MIRROR_COLLECTION_STD_MULTI_SET
+#ifdef MIR_COLLECTION_STD_MULTI_SET
 	SetCollectionLambdasMultiSet<T>(mutableTypeInfo, is_stl_multi_set_impl::is_stl_multi_set<T>::type());
-#endif // MIRROR_COLLECTION_STD_MULTI_SET
+#endif // MIR_COLLECTION_STD_MULTI_SET
 
-#ifdef MIRROR_COLLECTION_STD_QUEUE
+#ifdef MIR_COLLECTION_STD_QUEUE
 	SetCollectionLambdasQueue<T>(mutableTypeInfo, is_stl_queue_impl::is_stl_queue<T>::type());
-#endif // MIRROR_COLLECTION_STD_QUEUE
+#endif // MIR_COLLECTION_STD_QUEUE
 
-#ifdef MIRROR_COLLECTION_STD_SET
+#ifdef MIR_COLLECTION_STD_SET
 	SetCollectionLambdasSet<T>(mutableTypeInfo, is_stl_set_impl::is_stl_set<T>::type());
-#endif // MIRROR_COLLECTION_STD_SET
+#endif // MIR_COLLECTION_STD_SET
 
-#ifdef MIRROR_COLLECTION_STD_STACK
+#ifdef MIR_COLLECTION_STD_STACK
 	SetCollectionLambdasStack<T>(mutableTypeInfo, is_stl_stack_impl::is_stl_stack<T>::type());
-#endif // MIRROR_COLLECTION_STD_STACK
+#endif // MIR_COLLECTION_STD_STACK
 
-#ifdef MIRROR_COLLECTION_STD_PAIR
+#ifdef MIR_COLLECTION_STD_PAIR
 	SetCollectionLambdasPair<T>(mutableTypeInfo, is_stl_pair_impl::is_stl_pair<T>::type());
-#endif // MIRROR_COLLECTION_STD_PAIR
+#endif // MIR_COLLECTION_STD_PAIR
 
-#ifdef MIRROR_COLLECTION_STD_PRIORITY_QUEUE
+#ifdef MIR_COLLECTION_STD_PRIORITY_QUEUE
 	SetCollectionLambdasPriorityQueue<T>(mutableTypeInfo, is_stl_priority_queue_impl::is_stl_priority_queue<T>::type());
-#endif // MIRROR_COLLECTION_STD_PRIORITY_QUEUE
+#endif // MIR_COLLECTION_STD_PRIORITY_QUEUE
 
-#ifdef MIRROR_COLLECTION_STD_TUPLE
+#ifdef MIR_COLLECTION_STD_TUPLE
 	SetCollectionLambdasTuple<T>(mutableTypeInfo, is_stl_tuple_impl::is_stl_tuple<T>::type());
-#endif MIRROR_COLLECTION_STD_TUPLE
+#endif MIR_COLLECTION_STD_TUPLE
 
-#ifdef MIRROR_COLLECTION_STD_VECTOR
+#ifdef MIR_COLLECTION_STD_VECTOR
 	SetCollectionLambdasVector<T>(mutableTypeInfo, is_stl_vector_impl::is_stl_vector<T>::type());
-#endif // MIRROR_COLLECTION_STD_VECTOR
+#endif // MIR_COLLECTION_STD_VECTOR
 }

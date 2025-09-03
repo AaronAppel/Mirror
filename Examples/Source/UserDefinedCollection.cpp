@@ -5,11 +5,11 @@
 #include "Main.h"
 #include "ForMirror.h"
 
-// MIRROR_TYPE(int[10])
+// MIR_TYPE(int[10])
 
-// MIRROR_CLASS(UserCollection)
-// MIRROR_CLASS_MEMBER(buffer)
-// MIRROR_CLASS_END
+// MIR_CLASS(UserCollection)
+// MIR_CLASS_MEMBER(buffer)
+// MIR_CLASS_END
 
 // #TODO Create example user type reflection
 #define MIRROR_USER_COLLECTION(USER_COLLECTION_TYPE, ELEMENT_TYPE) // #TODO Implement
