@@ -31,6 +31,8 @@ MIR_TYPE(std::array<int, 10>)
 MIR_TYPE(std::vector<char>)
 MIR_TYPE(std::pair<const int, bool>)
 MIR_TYPE(std::map<int, bool>)
+MIR_TYPE(std::tuple<int>)
+MIR_TYPE(std::tuple<int, bool, char, double, float>)
 
 MIR_CLASS(ExampleChildClass)
 MIR_CLASS_MEMBER_FLAGS(intZ, 1 << 0)

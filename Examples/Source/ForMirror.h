@@ -32,3 +32,7 @@ MIR_TYPE_ID(108, std::array<int, 10>)
 MIR_TYPE_ID(109, UserCollection)
 MIR_TYPE_ID(110, std::filesystem::path)
 MIR_TYPE_ID(111, int[10])
+
+MIR_TYPE_ID(112, std::tuple<int, char, bool, int, char, bool>)
+MIR_TYPE_ID(113, std::tuple<int>)
+MIR_TYPE_ID(114, std::tuple<int, bool, char, double, float>);

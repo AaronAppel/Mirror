@@ -182,8 +182,8 @@ struct Mirror
 	template <typename T>
 	static const TypeInfo* InfoForType();
 
-	template <typename T>
-	static constexpr MIR_TYPE_ID_TYPE IdForType(T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
+	template <typename T> // #NOTE Fails when using arrays due to [] brace ordering, so define here for all types
+	static constexpr MIR_TYPE_ID_TYPE IdForType(T& typeObj) { return IdForType<T>(); } // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
 
 	template <typename T>
 	static constexpr MIR_TYPE_ID_TYPE IdForType();
@@ -196,12 +196,16 @@ struct Mirror
 #define TYPE_WRAP(TYPE) STRIP_PARENTHESES(VA_ARGS TYPE)
 
 #if _MSC_VER && (!defined(_MSVC_TRADITIONAL) || _MSVC_TRADITIONAL) // Compile option disabled: /Zc:preprocessor
-#define MIR_TYPE_ID_IMPL(ID, TYPE) \
+#define MIR_TYPE_ID_IMPL(ID, TYPE)													\
 	template <> constexpr MIR_TYPE_ID_TYPE Mirror::IdForType<TYPE>() { return ID; }
 
 #define MIR_TYPE_ID(ID, ...) MIR_TYPE_ID_IMPL(ID, __VA_ARGS__)
 
 #else // Compile option enabled: /Zc:preprocessor
+
+// #TODO IdForType not working in Examples solution, but does in QwerkE as _MSVC_TRADITIONAL is not defined.
+// Using GetId() instead as a work around. Maybe better to use long term, but still need to review why Examples can't use IdForType(obj).
+
 #define MIR_TYPE_ID_IMPL(ID, TYPE) \
 	template <> constexpr MIR_TYPE_ID_TYPE Mirror::IdForType<TYPE_WRAP(TYPE)>() { return ID; }
 

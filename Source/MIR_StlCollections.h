@@ -21,6 +21,8 @@
 #define MIR_COLLECTION_STD_TUPLE			1 // 0
 #define MIR_COLLECTION_STD_VECTOR			1 // 1
 
+#define MIR_COLLECTION_STD_ALL				0 // #TODO Look at a more convenient way to just support all STL/STD types
+
 // #TODO multimap forced const key type
 #define GENERIC_ITERATE_LAMBDA														\
 	mutableTypeInfo->collectionIterateCurrentFunc =									\
@@ -434,7 +436,6 @@ template <typename T>
 static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
 // #TODO lambdas loop over args
-
 template <typename T, typename... TupleType>
 void SetCollectionLambdasTuple_Singular(T tuple, std::vector<uint64_t>& tupleVec, Mirror::TypeInfo* mutableTypeInfo)
 {
@@ -455,15 +456,27 @@ static void SetCollectionLambdasTuple_Plural(Mirror::TypesList<TupleType...>, st
 	SetCollectionLambdasTuple_Singular<TupleType...>(tuple, tupleVec, mutableTypeInfo);
 }
 
+template <typename T, std::size_t... Is>
+void TupleTypeInfos(std::index_sequence<Is...>, Mirror::TypeInfo* mutableTypeInfo) {
+	using Swallow = int[];
+	(void)Swallow {
+		0, (void( mutableTypeInfo->collectionTypeInfos.push_back( Mir::InfoForType<std::tuple_element_t<Is, T>>() ) ), 0) ...
+	};
+}
+
 template <typename T>
 static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true_type) {
-	static_assert(false, "Tuple not currently supported!");
+	// static_assert(false, "Tuple not currently supported!");
 	static_assert(is_stl_tuple<T>::value, "Type T is not a tuple!");
 
 	// #TODO Look at examples from: https://en.cppreference.com/w/cpp/utility/tuple/tuple
 	// template<class... Args>
 	// void print(std::string_view message, const std::tuple<Args...>& t)
 	// Expanding tuple arguments to send to SetCollectionLambdasTuple_Plural()
+
+	constexpr std::size_t numberOfTupleElements = std::tuple_size<T>::value;
+	Mirror::TypeInfo* mutableTypeInfo1 = const_cast<Mirror::TypeInfo*>(Mirror::InfoForType<T>());
+	TupleTypeInfos<T>(std::make_index_sequence<numberOfTupleElements>{}, mutableTypeInfo1);
 
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionOffsetsVecFunc = []() -> const std::vector<size_t>* {
@@ -486,6 +499,8 @@ static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true
 		// T* tuple = (T*)tupleObjAddress;
 		const Mirror::TypeInfo* immutableTypeInfo = Mirror::InfoForType<T>(); // #NOTE Capturing outside mutableTypeInfo changes function pointer signature
 		const std::vector<size_t>* tupleIndexOffsets = immutableTypeInfo->collectionOffsetsVecFunc();
+		T& tuple = *(T*)tupleObjAddress;
+		// std::get<(uint64_t)aIndex>(tuple);
 		if (aIndex < immutableTypeInfo->collectionTypeInfos.size()) { return (char*)(tupleObjAddress) + tupleIndexOffsets->at(aIndex); }
 		return nullptr;
 	};

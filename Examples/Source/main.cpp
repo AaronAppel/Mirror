@@ -74,10 +74,34 @@ int main()
 	if (index < arr.size())
 	{
 	}
+	// #TODO Linker error, can't find IdForType(obj), but GetId might work
+	Mir::Id arrayInt10Id = Mir::IdForType<std::array<int, 10>>();
+	Mir::IdForType(arr);
+	Mir::GetId<std::array<int, 10>>();
+
+	std::tuple<int, bool, char, double, float> tupleMulti = std::make_tuple(0, 0, 0, 0, 0);
+	const size_t tupleIndex = 0;
+	auto varX = std::get<tupleIndex>(tupleMulti);
+	int c = varX;
+	std::cout << c;
+
+	Mir::Id tupleMultiId = Mir::GetId(tupleMulti);
+	const Mir::TypeInfo* tupleMultiInfo = Mir::GetInfo(tupleMulti);
+
+	std::tuple<int> tupleInt = std::make_tuple(0);
+	Mir::Id tupleIntId = Mir::GetId(tupleInt);
+	const Mir::TypeInfo* tupleIntInfo = Mir::GetInfo(tupleInt);
+
+	// Mir::Id intId = Mir::GetId<int>();
+
+	// #TODO IdForType not working here, but does in QwerkE as _MSVC_TRADITIONAL is not defined. Using GetId() instead
+	// Mir::Id tupleVecIntId = Mir::IdForType(tupleVecInt);
 
 	//* #TODO std::Tuple support in Mirror
 	std::tuple<int, char, bool, int, char, bool> tuple6 = std::make_tuple(0, 1, 0, 0, 0, 0);
 	auto var = &std::get<1>(tuple6);
+
+	// Mir::Id tupleId = Mir::IdForType(tuple6);
 
 	constexpr size_t sizeT = 0;
 	auto varSize = sizeof(std::get<sizeT>(tuple6));
