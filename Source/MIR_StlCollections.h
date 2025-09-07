@@ -464,30 +464,35 @@ void TupleTypeInfos(std::index_sequence<Is...>, Mirror::TypeInfo* mutableTypeInf
 	};
 }
 
+#include <functional>
+template <typename Tuple, std::size_t... Is>
+auto make_address_getters2(std::index_sequence<Is...>) {
+	using getter_t = std::function<char* (Tuple&)>;
+	return std::array<getter_t, sizeof...(Is)>{
+		{ [](Tuple& t) -> char* {
+			return reinterpret_cast<char*>(&std::get<Is>(t));
+			}... }
+	};
+}
+
+template <typename... Args>
+char* get_tuple_member_address_by_index2(std::tuple<Args...>& t, std::size_t index) {
+	static auto getters = make_address_getters2<std::tuple<Args...>>(std::index_sequence_for<Args...>{});
+	if (index >= getters.size()) {
+		return nullptr;
+	}
+	return getters[index](t);
+}
+
 template <typename T>
 static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true_type) {
-	// static_assert(false, "Tuple not currently supported!");
 	static_assert(is_stl_tuple<T>::value, "Type T is not a tuple!");
-
-	// #TODO Look at examples from: https://en.cppreference.com/w/cpp/utility/tuple/tuple
-	// template<class... Args>
-	// void print(std::string_view message, const std::tuple<Args...>& t)
-	// Expanding tuple arguments to send to SetCollectionLambdasTuple_Plural()
 
 	constexpr std::size_t numberOfTupleElements = std::tuple_size<T>::value;
 	Mirror::TypeInfo* mutableTypeInfo1 = const_cast<Mirror::TypeInfo*>(Mirror::InfoForType<T>());
 	TupleTypeInfos<T>(std::make_index_sequence<numberOfTupleElements>{}, mutableTypeInfo1);
 
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
-	mutableTypeInfo->collectionOffsetsVecFunc = []() -> const std::vector<size_t>* {
-		static std::vector<size_t> tupleIndexOffsets;
-		if (tupleIndexOffsets.empty())
-		{
-			Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(Mirror::InfoForType<T>());
-			// SetCollectionLambdasTuple_Plural<T>(Mirror::TypesList { T... }, tupleIndexOffsets, mutableTypeInfo);
-		}
-		return &tupleIndexOffsets;
-	};
 	mutableTypeInfo->collectionAddFunc = [](void* tupleObjAddress, size_t aIndex, const void* elementFirst, const void* elementSecond) -> void {
 		T* tuple = (T*)tupleObjAddress;
 		const Mirror::TypeInfo* immutableTypeInfo = Mirror::InfoForType<T>(); // #NOTE Capturing outside mutableTypeInfo changes function pointer signature
@@ -498,10 +503,12 @@ static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true
 	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* tupleObjAddress, size_t aIndex) -> char* {
 		// T* tuple = (T*)tupleObjAddress;
 		const Mirror::TypeInfo* immutableTypeInfo = Mirror::InfoForType<T>(); // #NOTE Capturing outside mutableTypeInfo changes function pointer signature
-		const std::vector<size_t>* tupleIndexOffsets = immutableTypeInfo->collectionOffsetsVecFunc();
-		T& tuple = *(T*)tupleObjAddress;
-		// std::get<(uint64_t)aIndex>(tuple);
-		if (aIndex < immutableTypeInfo->collectionTypeInfos.size()) { return (char*)(tupleObjAddress) + tupleIndexOffsets->at(aIndex); }
+		T& tuple = *((T*)tupleObjAddress);
+		if (aIndex < immutableTypeInfo->collectionTypeInfos.size())
+		{
+			return get_tuple_member_address_by_index2(tuple, aIndex);
+			// return (char*)(tupleObjAddress) + tupleIndexOffsets->at(aIndex);
+		}
 		return nullptr;
 	};
 	mutableTypeInfo->typeConstructorFunc = [](void* preallocatedMemoryAddress) { new(preallocatedMemoryAddress) T; };

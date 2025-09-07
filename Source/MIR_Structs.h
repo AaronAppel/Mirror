@@ -131,8 +131,6 @@ struct Mirror
 		FuncPtr_void_voidPtr_sizet_constvoidPtr_constvoidPtr collectionAddFunc = nullptr;
 		FuncPtr_charPtr_constVoidPtr_sizet collectionIterateCurrentFunc = nullptr;
 
-		FuncPtr_constVectorSizetPtr collectionOffsetsVecFunc = nullptr;
-
 		FuncPtr_void_voidPtr typeConstructorFunc = nullptr;
 		FuncPtr_bool_constVoidPtr typeDynamicCastFunc = nullptr;
 

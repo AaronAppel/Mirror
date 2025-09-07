@@ -63,10 +63,62 @@ void RecursiveClassPrint()
 	std::cout << "\n";
 }
 
+#include <tuple>
+#include <iostream>
+#include <typeinfo>
 #include <array>
+#include <functional>
 
+template <typename Tuple, std::size_t... Is>
+auto make_address_getters(std::index_sequence<Is...>) {
+	using getter_t = std::function<char* (Tuple&)>;
+	return std::array<getter_t, sizeof...(Is)>{
+		{ [](Tuple& t) -> char* {
+			return reinterpret_cast<char*>(&std::get<Is>(t));
+			}... }
+	};
+}
+
+template <typename... Args>
+char* get_tuple_member_address_by_index(std::tuple<Args...>& t, std::size_t index) {
+	static auto getters = make_address_getters<std::tuple<Args...>>(std::index_sequence_for<Args...>{});
+	if (index >= getters.size()) {
+		return nullptr;
+	}
+	return getters[index](t);
+}
+
+#include <array>
 int main()
 {
+	std::tuple<int, double, char> tup{ 123, 3.14, 'A' };
+
+	std::tuple<int, double, char>& tupRef = tup;
+	get_tuple_member_address_by_index(tupRef, 0);
+
+	auto v = make_address_getters<std::tuple<int, double, char>>(std::index_sequence_for<int, double, char>{});
+
+	for (std::size_t i = 0; i < 3; ++i) {
+		char* addr = get_tuple_member_address_by_index(tup, i);
+		std::cout << "Element #" << i << " address: " << static_cast<void*>(addr) << "\n";
+	}
+
+	// Modify the first element (int) to 456
+	if (char* addr = get_tuple_member_address_by_index(tup, 0)) {
+		*reinterpret_cast<int*>(addr) = 456;
+	}
+
+	// Modify the third element (char) to 'Z'
+	if (char* addr = get_tuple_member_address_by_index(tup, 2)) {
+		*reinterpret_cast<char*>(addr) = 'Z';
+	}
+
+	// Print updated tuple values
+	std::cout << "Updated values:\n";
+	std::cout << "int: " << std::get<0>(tup) << "\n";
+	std::cout << "double: " << std::get<1>(tup) << "\n";
+	std::cout << "char: " << std::get<2>(tup) << "\n";
+
 	// #TODO Test std::array by de/serializing
 	std::array<int, 10> arr;
 	arr[0] = 0;
@@ -87,6 +139,21 @@ int main()
 
 	Mir::Id tupleMultiId = Mir::GetId(tupleMulti);
 	const Mir::TypeInfo* tupleMultiInfo = Mir::GetInfo(tupleMulti);
+
+	char* intAddress = tupleMultiInfo->collectionIterateCurrentFunc(&tupleMulti, 0);
+	*(int*)(intAddress) = 1234;
+
+	char* boolAddress = tupleMultiInfo->collectionIterateCurrentFunc(&tupleMulti, 1);
+	*(bool*)(boolAddress) = true;
+
+	char* charAddress = tupleMultiInfo->collectionIterateCurrentFunc(&tupleMulti, 2);
+	*charAddress = 'A';
+
+	char* doubleAddress = tupleMultiInfo->collectionIterateCurrentFunc(&tupleMulti, 3);
+	*(double*)(doubleAddress) = 1.5;
+
+	char* floatAddress = tupleMultiInfo->collectionIterateCurrentFunc(&tupleMulti, 4);
+	*(float*)(floatAddress) = 5.76f;
 
 	std::tuple<int> tupleInt = std::make_tuple(0);
 	Mir::Id tupleIntId = Mir::GetId(tupleInt);
