@@ -95,6 +95,8 @@ struct Mirror
 		const TypeInfo* collectionTypeInfoFirst = nullptr;
 		const TypeInfo* collectionTypeInfoSecond = nullptr;
 
+		// #TODO No need for dynamic array if known at compile time. Move as much logic as possible to compile time.
+		// There is benefit to avoiding type reflection if never referenced but may not be practically worthwhile.
 		std::vector<const TypeInfo*> collectionTypeInfos; // #TODO Review using an array or std::array
 
 		// #TODO Support tuples and handle collection logic type-agnosticly using a vector of const TypeInfo*s?

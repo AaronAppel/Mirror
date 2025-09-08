@@ -436,26 +436,6 @@ template <typename T>
 static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
 
 // #TODO lambdas loop over args
-template <typename T, typename... TupleType>
-void SetCollectionLambdasTuple_Singular(T tuple, std::vector<uint64_t>& tupleVec, Mirror::TypeInfo* mutableTypeInfo)
-{
-	static int counter = 0; // #TODO Will index always match the type? Order dependency
-	([&]()
-	{
-		char* tupleAddress = &tuple;
-		char* tupleTypeAddress = &std::get<counter>(tuple);
-		tupleVec.emplace_back(tupleTypeAddress - tupleAddress); // #TODO Review dynamic emplace back allocation(s)
-		mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<TupleType>());
-	}(), ...);
-}
-
-template <typename T, typename... TupleType>
-static void SetCollectionLambdasTuple_Plural(Mirror::TypesList<TupleType...>, std::vector<uint64_t>& tupleVec, Mirror::TypeInfo* mutableTypeInfo)
-{
-	static T tuple; // #TODO Need to pass?
-	SetCollectionLambdasTuple_Singular<TupleType...>(tuple, tupleVec, mutableTypeInfo);
-}
-
 template <typename T, std::size_t... Is>
 void TupleTypeInfos(std::index_sequence<Is...>, Mirror::TypeInfo* mutableTypeInfo) {
 	using Swallow = int[];
@@ -484,6 +464,25 @@ char* get_tuple_member_address_by_index2(std::tuple<Args...>& t, std::size_t ind
 	return getters[index](t);
 }
 
+template <typename Tuple, std::size_t... Is>
+auto make_address_sizes(std::index_sequence<Is...>) {
+	using size_func_t = std::function<size_t(Tuple&)>;
+	return std::array<size_func_t, sizeof...(Is)>{
+		{ [](Tuple& t) -> size_t {
+			return sizeof(std::tuple_element<Is, Tuple>::type);
+			}... }
+	};
+}
+
+template <typename... Args>
+size_t get_tuple_member_size_by_index(std::tuple<Args...>& t, std::size_t index) {
+	static auto getters = make_address_sizes<std::tuple<Args...>>(std::index_sequence_for<Args...>{});
+	if (index >= getters.size()) {
+		return 0;
+	}
+	return getters[index](t);
+}
+
 template <typename T>
 static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true_type) {
 	static_assert(is_stl_tuple<T>::value, "Type T is not a tuple!");
@@ -494,11 +493,10 @@ static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true
 
 	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionAddFunc = [](void* tupleObjAddress, size_t aIndex, const void* elementFirst, const void* elementSecond) -> void {
-		T* tuple = (T*)tupleObjAddress;
-		const Mirror::TypeInfo* immutableTypeInfo = Mirror::InfoForType<T>(); // #NOTE Capturing outside mutableTypeInfo changes function pointer signature
-		char* tupleIndexAddress = (char*)&std::get<0>(*tuple);
-		tupleIndexAddress += immutableTypeInfo->size; // #TODO Get size, maybe by looping over values
-		memcpy((void*)tupleIndexAddress, elementFirst, immutableTypeInfo->collectionTypeInfos[aIndex]->size);
+		T& tuple = *((T*)tupleObjAddress);
+		const int elementSize = get_tuple_member_size_by_index(tuple, aIndex);
+		void* elementAddress = (void*)get_tuple_member_address_by_index2(tuple, aIndex);
+		memcpy(elementAddress, elementFirst, elementSize);
 	};
 	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* tupleObjAddress, size_t aIndex) -> char* {
 		// T* tuple = (T*)tupleObjAddress;
