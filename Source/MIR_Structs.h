@@ -84,58 +84,52 @@ struct Mirror
 
 	struct TypeInfo
 	{
-		std::string stringName = "";
+		TypeInfo() : superTypeInfo(nullptr), typeDynamicCastFunc(nullptr) { }
+
+		std::string stringName = ""; // #TODO Could reduce overhead/class size using const char*
 		MIR_TYPE_ID_TYPE id = 0;
 		MIR_TYPE_SIZE_TYPE size = 0;
 		TypeInfoCategories category = TypeInfoCategories::TypeInfoCategory_Primitive;
 
 		std::vector<Field> fields = { };
-		std::vector<const TypeInfo*> derivedTypes;
-
-		const TypeInfo* collectionTypeInfoFirst = nullptr;
-		const TypeInfo* collectionTypeInfoSecond = nullptr;
-
-		// #TODO No need for dynamic array if known at compile time. Move as much logic as possible to compile time.
-		// There is benefit to avoiding type reflection if never referenced but may not be practically worthwhile.
-		std::vector<const TypeInfo*> collectionTypeInfos; // #TODO Review using an array or std::array
 
 		// #TODO Support tuples and handle collection logic type-agnosticly using a vector of const TypeInfo*s?
 
-		const TypeInfo* superTypeInfo;
-		const TypeInfo* pointerDereferencedTypeInfo;
-
-		using FuncPtr_void_voidPtr_sizet_constvoidPtr_constvoidPtr = void (*)(void*, size_t, const void*, const void*);
+		using FuncPtr_void_voidPtr_sizet_constvoidPtr = void (*)(void*, size_t, const void*);
 		using FuncPtr_void_voidPtr = void (*)(void*);
 		using FuncPtr_charPtr_constVoidPtr_sizet = char* (*)(const void*, size_t);
 		using FuncPtr_bool_constVoidPtr = bool (*)(const void*);
-		using FuncPtr_constVectorSizetPtr = const std::vector<size_t>* (*)();
+
+		// #TODO No need for dynamic array if known at compile time. Move as much logic as possible to compile time.
+		// There is benefit to avoiding type reflection if never referenced but may not be practically worthwhile.
+
+		std::vector<const TypeInfo*> collectionTypeInfos; // #TODO Review using an array or std::array
+		std::vector<const TypeInfo*> derivedTypes; // #TODO Review using an array or std::array
 
 		// #TODO Review anonymous union structs for aliasing "opposing" members
 		union
 		{
-			struct // Collection
+			struct // Collection or pointer specific
 			{
-				// const TypeInfo* collectionTypeInfoFirst2;
-				// const TypeInfo* collectionTypeInfoSecond2;
+				const TypeInfo* pointerDereferencedTypeInfo; // #NOTE Pointer specific
+				// #TODO Type won't play nice std::vector<const TypeInfo*> collectionTypeInfos; // #TODO Review using an array or std::array
 
-				FuncPtr_void_voidPtr_sizet_constvoidPtr_constvoidPtr collectionAddFunc2;
-				FuncPtr_charPtr_constVoidPtr_sizet collectionIterateCurrentFunc2;
+				FuncPtr_void_voidPtr_sizet_constvoidPtr collectionAddFunc;
+				// FuncPtr_charPtr_constVoidPtr_sizet collectionIterateCurrentFunc2;
 			};
-			struct // Class
+			struct // Class specific
 			{
-				// const TypeInfo* superTypeInfo2;
-
-				FuncPtr_void_voidPtr typeConstructorFunc2;
-				FuncPtr_bool_constVoidPtr typeDynamicCastFunc2;
+				const TypeInfo* superTypeInfo;
+				FuncPtr_bool_constVoidPtr typeDynamicCastFunc;
+				// #TODO Type won't play nice std::vector<const TypeInfo*> derivedTypes;
 			};
 		};
 
-		FuncPtr_void_voidPtr_sizet_constvoidPtr_constvoidPtr collectionAddFunc = nullptr;
 		FuncPtr_charPtr_constVoidPtr_sizet collectionIterateCurrentFunc = nullptr;
 
 		FuncPtr_void_voidPtr typeConstructorFunc = nullptr;
-		FuncPtr_bool_constVoidPtr typeDynamicCastFunc = nullptr;
 
+		// #TODO Review helper methods to deprecate
 		const TypeInfo* AbsoluteType() const {
 			return pointerDereferencedTypeInfo ? pointerDereferencedTypeInfo : this;
 		}
@@ -161,10 +155,10 @@ struct Mirror
 			return this;
 		}
 
-		void CollectionAppend(void* collectionAddress, size_t index, void* first, void* second = nullptr) const {
+		void CollectionAppend(void* collectionAddress, size_t index, void* first) const {
 			MIR_ASSERT(collectionAddFunc && "Null collectionAddFunc!");
 			if (collectionAddFunc) {
-				collectionAddFunc(collectionAddress, index, first, second);
+				collectionAddFunc(collectionAddress, index, first);
 			}
 		}
 

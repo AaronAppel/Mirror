@@ -100,28 +100,24 @@ mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddr
 		lastIndex = aIndex;
 
 template <typename T>
-static void SetConstructionLambda(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetConstructionLambda(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetConstructionLambda(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetConstructionLambda(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(std::is_class_v<T> || std::is_same_v<T, std::string>, "Type T is not a class!");
-
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->typeConstructorFunc = [](void* preallocatedMemoryAddress) { new(preallocatedMemoryAddress) T; };
 }
 
 #if defined(MIR_COLLECTION_STD_ARRAY) && MIR_COLLECTION_STD_ARRAY
 template <typename T>
-static void SetCollectionLambdasArray(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasArray(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasArray(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasArray(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_array<T>::value, "Type T is not of type stl::array!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t aIndex, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t aIndex, const void* elementFirst) {
 		T& arrRef = *(T*)collectionObjAddress;
 		arrRef[aIndex] = (*(typename T::value_type*)elementFirst);
 	};
@@ -137,16 +133,14 @@ static void SetCollectionLambdasArray(Mirror::TypeInfo* constTypeInfo, std::true
 
 #if defined(MIR_COLLECTION_STD_DEQUE) && MIR_COLLECTION_STD_DEQUE
 template <typename T>
-static void SetCollectionLambdasDeque(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasDeque(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasDeque(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasDeque(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_deque<T>::value, "Type T is not of type stl::deque!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->push_back(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
@@ -155,16 +149,14 @@ static void SetCollectionLambdasDeque(Mirror::TypeInfo* constTypeInfo, std::true
 
 #if defined(MIR_COLLECTION_STD_FORWARD_LIST) && MIR_COLLECTION_STD_FORWARD_LIST
 template <typename T>
-static void SetCollectionLambdasForwardList(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasForwardList(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasForwardList(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasForwardList(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_forward_list<T>::value, "Type T is not of type stl::forward_list!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t aIndex, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t aIndex, const void* elementFirst) {
 		// #NOTE Assumed reversed order on serialize
 		((T*)collectionObjAddress)->emplace_front(*(typename T::value_type*)elementFirst);
 	};
@@ -211,16 +203,14 @@ static void SetCollectionLambdasForwardList(Mirror::TypeInfo* constTypeInfo, std
 
 #if defined(MIR_COLLECTION_STD_LIST) && MIR_COLLECTION_STD_LIST
 template <typename T>
-static void SetCollectionLambdasList(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasList(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasList(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasList(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_list<T>::value, "Type T is not of type stl::list!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->emplace_back(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
@@ -229,16 +219,14 @@ static void SetCollectionLambdasList(Mirror::TypeInfo* constTypeInfo, std::true_
 
 #if defined(MIR_COLLECTION_STD_MAP) && MIR_COLLECTION_STD_MAP
 template <typename T>
-static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::false_type) { }
+static void SetCollectionLambdasMap(Mirror::TypeInfo* mutableTypeInfo, std::false_type) { }
 
 template <typename T>
-static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasMap(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_map<T>::value, "Type T is not a map!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->insert(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
@@ -247,16 +235,14 @@ static void SetCollectionLambdasMap(Mirror::TypeInfo* constTypeInfo, std::true_t
 
 #if defined(MIR_COLLECTION_STD_MULTI_MAP) && MIR_COLLECTION_STD_MULTI_MAP
 template <typename T>
-static void SetCollectionLambdasMultiMap(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasMultiMap(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasMultiMap(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasMultiMap(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_multi_map<T>::value, "Type T is not of type std::multimap!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionAddress)->insert(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
@@ -265,16 +251,14 @@ static void SetCollectionLambdasMultiMap(Mirror::TypeInfo* constTypeInfo, std::t
 
 #if defined(MIR_COLLECTION_STD_MULTI_SET) && MIR_COLLECTION_STD_MULTI_SET
 template <typename T>
-static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_multi_set<T>::value, "Type T is not of type std::multiset!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->insert(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
@@ -283,16 +267,14 @@ static void SetCollectionLambdasMultiSet(Mirror::TypeInfo* constTypeInfo, std::t
 
 #if defined(MIR_COLLECTION_STD_QUEUE) && MIR_COLLECTION_STD_QUEUE
 template <typename T>
-static void SetCollectionLambdasQueue(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasQueue(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasQueue(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasQueue(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_queue<T>::value, "Type T is not of type std::queue!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->push(*(typename T::value_type*)elementFirst);
 	};
 	DEEP_COPY_ITERATE_FUNC
@@ -304,16 +286,14 @@ static void SetCollectionLambdasQueue(Mirror::TypeInfo* constTypeInfo, std::true
 
 #if defined(MIR_COLLECTION_STD_SET) && MIR_COLLECTION_STD_SET
 template <typename T>
-static void SetCollectionLambdasSet(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasSet(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasSet(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasSet(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_set<T>::value, "Type T is not of type std::set!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->insert(*(typename T::value_type*)elementFirst);
 	};
 	GENERIC_ITERATE_LAMBDA
@@ -322,16 +302,14 @@ static void SetCollectionLambdasSet(Mirror::TypeInfo* constTypeInfo, std::true_t
 
 #if defined(MIR_COLLECTION_STD_STACK) && MIR_COLLECTION_STD_STACK
 template <typename T>
-static void SetCollectionLambdasStack(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasStack(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasStack(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasStack(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_stack<T>::value, "Type T is not of type std::stack!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>()); // #TODO Review collectionTypeInfos for non-pair or tuple types
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->push(*(typename T::value_type*)elementFirst);
 	};
 	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddress, size_t aIndex) -> char* {
@@ -382,26 +360,18 @@ static void SetCollectionLambdasStack(Mirror::TypeInfo* constTypeInfo, std::true
 
 #if defined(MIR_COLLECTION_STD_PAIR) && MIR_COLLECTION_STD_PAIR
 template <typename T>
-static void SetCollectionLambdasPair(Mirror::TypeInfo* constTypeInfo, std::false_type) { }
+static void SetCollectionLambdasPair(Mirror::TypeInfo* mutableTypeInfo, std::false_type) { }
 
 template <typename T>
-static void SetCollectionLambdasPair(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasPair(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_pair<T>::value, "Type T is not a pair!");
-
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::first_type>());
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::second_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::first_type>();
-	mutableTypeInfo->collectionTypeInfoSecond = Mirror::InfoForType<T::second_type>();
-
-	mutableTypeInfo->collectionAddFunc = [](void* pairObjAddress, size_t /*aIndex*/, const void* elementFirst, const void* elementSecond) {
+	mutableTypeInfo->collectionAddFunc = [](void* pairObjAddress, size_t aIndex, const void* elementFirst) {
 		T* pair = (T*)pairObjAddress;
-		// #TODO Below commented code can be reviewed for deprecation
-		// #TODO May need to remove elementSecond and use aIndex to determine 1st or 2nd type
-		// if (0 == aIndex) { memcpy((void*)&pair->first, elementFirst, sizeof(T::first_type)); } else { memcpy((void*)&pair->second, elementSecond, sizeof(T::second_type)); }
-		memcpy((void*)&pair->first, elementFirst, sizeof(T::first_type));
-		memcpy((void*)&pair->second, elementSecond, sizeof(T::second_type));
+		if (0 == aIndex) memcpy((void*)&pair->first, elementFirst, sizeof(T::first_type));
+		else if (1 == aIndex) memcpy((void*)&pair->second, elementFirst, sizeof(T::second_type));
 	};
 	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* pairObjAddress, size_t aIndex) -> char* {
 		T* pair = (T*)pairObjAddress;
@@ -414,15 +384,14 @@ static void SetCollectionLambdasPair(Mirror::TypeInfo* constTypeInfo, std::true_
 
 #if defined(MIR_COLLECTION_STD_PRIORITY_QUEUE) && MIR_COLLECTION_STD_PRIORITY_QUEUE
 template <typename T>
-static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_priority_queue<T>::value, "Type T is not of type std::priority_queue!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*aIndex*/, const void* elementFirst, const void* elementSecond) {
+	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t /*aIndex*/, const void* elementFirst) {
 		((T*)collectionObjAddress)->push(*(typename T::value_type*)elementFirst);
 	};
 	DEEP_COPY_ITERATE_FUNC
@@ -433,7 +402,7 @@ static void SetCollectionLambdasPriorityQueue(Mirror::TypeInfo* constTypeInfo, s
 
 #if defined(MIR_COLLECTION_STD_TUPLE) && MIR_COLLECTION_STD_TUPLE
 template <typename T>
-static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasTuple(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 // #TODO lambdas loop over args
 template <typename T, std::size_t... Is>
@@ -484,28 +453,23 @@ size_t get_tuple_member_size_by_index(std::tuple<Args...>& t, std::size_t index)
 }
 
 template <typename T>
-static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasTuple(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_tuple<T>::value, "Type T is not a tuple!");
 
 	constexpr std::size_t numberOfTupleElements = std::tuple_size<T>::value;
-	Mirror::TypeInfo* mutableTypeInfo1 = const_cast<Mirror::TypeInfo*>(Mirror::InfoForType<T>());
-	TupleTypeInfos<T>(std::make_index_sequence<numberOfTupleElements>{}, mutableTypeInfo1);
+	TupleTypeInfos<T>(std::make_index_sequence<numberOfTupleElements>{}, mutableTypeInfo);
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
-	mutableTypeInfo->collectionAddFunc = [](void* tupleObjAddress, size_t aIndex, const void* elementFirst, const void* elementSecond) -> void {
+	mutableTypeInfo->collectionAddFunc = [](void* tupleObjAddress, size_t aIndex, const void* elementFirst) -> void {
 		T& tuple = *((T*)tupleObjAddress);
 		const int elementSize = get_tuple_member_size_by_index(tuple, aIndex);
 		void* elementAddress = (void*)get_tuple_member_address_by_index2(tuple, aIndex);
 		memcpy(elementAddress, elementFirst, elementSize);
 	};
 	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* tupleObjAddress, size_t aIndex) -> char* {
-		// T* tuple = (T*)tupleObjAddress;
-		const Mirror::TypeInfo* immutableTypeInfo = Mirror::InfoForType<T>(); // #NOTE Capturing outside mutableTypeInfo changes function pointer signature
 		T& tuple = *((T*)tupleObjAddress);
-		if (aIndex < immutableTypeInfo->collectionTypeInfos.size())
+		if (aIndex < Mirror::InfoForType<T>()->collectionTypeInfos.size()) // #NOTE Capturing non-const mutableTypeInfo changes function pointer signature
 		{
 			return get_tuple_member_address_by_index2(tuple, aIndex);
-			// return (char*)(tupleObjAddress) + tupleIndexOffsets->at(aIndex);
 		}
 		return nullptr;
 	};
@@ -515,16 +479,14 @@ static void SetCollectionLambdasTuple(Mirror::TypeInfo* constTypeInfo, std::true
 
 #if defined(MIR_COLLECTION_STD_VECTOR) && MIR_COLLECTION_STD_VECTOR
 template <typename T>
-static void SetCollectionLambdasVector(Mirror::TypeInfo* constTypeInfo, std::false_type) {}
+static void SetCollectionLambdasVector(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {}
 
 template <typename T>
-static void SetCollectionLambdasVector(Mirror::TypeInfo* constTypeInfo, std::true_type) {
+static void SetCollectionLambdasVector(Mirror::TypeInfo* mutableTypeInfo, std::true_type) {
 	static_assert(is_stl_vector_impl::is_stl_vector<T>::type(), "Type T is not a vector!");
 
-	Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<T::value_type>();
-	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst, const void* /*elementSecond*/) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t /*index*/, const void* elementFirst) {
 		((T*)collectionAddress)->emplace_back(*(typename T::value_type*)elementFirst);
 	};
 	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
@@ -540,14 +502,12 @@ static void SetCollectionLambdasVector(Mirror::TypeInfo* constTypeInfo, std::tru
 #endif // defined(MIR_COLLECTION_STD_VECTOR) && MIR_COLLECTION_STD_VECTOR
 
 template <typename T>
-static void SetCollectionLambdas(Mirror::TypeInfo* constTypeInfo, std::false_type) {
+static void SetCollectionLambdas(Mirror::TypeInfo* mutableTypeInfo, std::false_type) {
 	if (std::is_array_v<T>)
 	{
-		Mirror::TypeInfo* mutableTypeInfo = const_cast<Mirror::TypeInfo*>(constTypeInfo);
 		typedef typename std::remove_all_extents<T>::type ArrayElementType;
 		mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<ArrayElementType>());
-		mutableTypeInfo->collectionTypeInfoFirst = Mirror::InfoForType<ArrayElementType>();
-		mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t index, const void* elementFirst, const void* /*elementSecond*/) {
+		mutableTypeInfo->collectionAddFunc = [](void* collectionAddress, size_t index, const void* elementFirst) {
 			memcpy((char*)collectionAddress + (sizeof(ArrayElementType) * index), elementFirst, sizeof(ArrayElementType));
 		};
 		mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
