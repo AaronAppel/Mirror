@@ -81,8 +81,8 @@ You can change the type at the top of MIR_Structs.h, as you wish.
 5. Use type info to serialize type info fields :
 ```
 const Mir::TypeInfo* typeInfo = Mir::Info<ExampleClass>();
-
 std::cout << typeInfo->stringName << " Mirrored Fields:\n";
+
 for (int i = 0; i < typeInfo->fields.size(); i++)
 {
 	const Mir::Field& field = typeInfo->fields[i];
