@@ -1,8 +1,8 @@
 ⚠️ Refactor in progress. Documentation out of date ⚠️
 
 # TL;DR
-Required files: MIR_Mirror.h, MIR_Structs.h, and MIR_TypeDeduction.h
-Include MIR_Mirror.h in your files.
+Include MIR_Mirror.h in your source files.  
+Required files: MIR_Mirror.h, MIR_Structs.h, and MIR_TypeDeduction.h  
 Optional (pre-defined types): MIR_Ids.h, MIR_Infos.cpp, MIR_StlCollections.h
 
 # Mirror
