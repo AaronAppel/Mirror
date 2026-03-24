@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include <iostream>
 #include <stdio.h>
 #include <string>
@@ -88,7 +89,6 @@ char* get_tuple_member_address_by_index(std::tuple<Args...>& t, std::size_t inde
 	return getters[index](t);
 }
 
-#include <array>
 int main()
 {
 	std::tuple<int, double, char> tup{ 123, 3.14, 'A' };
@@ -126,8 +126,8 @@ int main()
 	if (index < arr.size())
 	{
 	}
-	// #TODO Linker error, can't find IdForType(obj), but GetId might work
-	Mir::Id arrayInt10Id = Mir::IdForType<std::array<int, 10>>();
+	Mir::Id arrayInt10Id = Mir::IdForType(arr);
+	arrayInt10Id = Mir::IdForType<std::array<int, 10>>();
 	Mir::IdForType(arr);
 	Mir::GetId<std::array<int, 10>>();
 
@@ -139,6 +139,7 @@ int main()
 
 	Mir::Id tupleMultiId = Mir::GetId(tupleMulti);
 	const Mir::TypeInfo* tupleMultiInfo = Mir::GetInfo(tupleMulti);
+	assert(tupleMultiInfo->category == Mir::TypeInfoCategory_Collection);
 
 	char* intAddress = tupleMultiInfo->collectionIterateCurrentFunc(&tupleMulti, 0);
 	*(int*)(intAddress) = 1234;

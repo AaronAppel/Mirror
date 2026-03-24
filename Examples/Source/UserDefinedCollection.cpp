@@ -25,9 +25,9 @@ template <> static const Mirror::TypeInfo* Mirror::InfoForType<UserCollection>()
 	localStaticTypeInfo.size = sizeof(UserCollection);
 
 	localStaticTypeInfo.typeConstructorFunc = [](void* preallocatedMemoryAddress) { new(preallocatedMemoryAddress) UserCollection; };
-	localStaticTypeInfo.collectionTypeInfoFirst = Mirror::InfoForType<int>();
-	localStaticTypeInfo.collectionAddFunc = [](void* collectionAddress, size_t index, const void* elementFirst, const void* /*elementSecond*/) {
-		memcpy((char*)collectionAddress + (sizeof(int) * index), elementFirst, sizeof(int));
+	localStaticTypeInfo.collectionTypeInfos.push_back(Mirror::InfoForType<int>());
+	localStaticTypeInfo.collectionAddFunc = [](void* collectionObjAddress, size_t elementIndex, const void* elementFirst) {
+		memcpy((char*)collectionObjAddress + (sizeof(int) * elementIndex), elementFirst, sizeof(int));
 		};
 	localStaticTypeInfo.collectionIterateCurrentFunc = [](const void* collectionAddress, size_t aIndex) -> char* {
 		static size_t index = 0;

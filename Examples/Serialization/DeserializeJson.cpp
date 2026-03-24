@@ -160,47 +160,28 @@ namespace Serialize {
 
         size_t elementIndex = 0;
         const cJSON* jsonIterator = collectionJson->child;
+
+        // ASSERT(collectionTypeInfo->collectionTypeInfos.size() > 0, "No valid type info!")
+        const Mirror::TypeInfo* currentTypeInfo = collectionTypeInfo->collectionTypeInfos[0];
+
+        // ASSERT(currentTypeInfo, "Null currentTypeInfo!");
+
         while (jsonIterator)
         {
-            /* Testing tuple support
-            {
-                const Mirror::TypeInfo* currentTypeInfo = collectionTypeInfo->collectionTypeInfos[typeInfoIndex];
+            // #TODO Review allocating temporary object buffers, then copying into collections causing new allocations.
+            // Look to utilize move semantics or constructing in place
 
-                Buffer elementFirstBuffer(currentTypeInfo->size);
-                FromJson(jsonIterator, currentTypeInfo, elementFirstBuffer.As<void>());
+            Buffer elementFirstBuffer(currentTypeInfo->size);
+            FromJson(jsonIterator, currentTypeInfo, elementFirstBuffer.As<void>());
+            collectionTypeInfo->CollectionAppend(collectionAddress, elementIndex, elementFirstBuffer.As<void>());
 
-                // collectionTypeInfo->CollectionAppend(collectionAddress, elementIndex, elementFirstBuffer.As<void>(), elementSecondBuffer.As<void>());
-
-                if (typeInfoIndex + 1 < collectionTypeInfo->collectionTypeInfos.size())
-                {
-                    ++typeInfoIndex;
-                }
-                else
-                {
-                    break; // #TODO Review. Shouldn't need to break. End on vector last element, or tuple last type. Both should be jsonIterator->next == nullptr
-                }
-                continue;
-            }
-            //*/
-
-            // Old
-            Buffer elementFirstBuffer(collectionTypeInfo->collectionTypeInfoFirst->size);
-            FromJson(jsonIterator, collectionTypeInfo->collectionTypeInfoFirst, elementFirstBuffer.As<void>());
-
-            const bool isPair = collectionTypeInfo->collectionTypeInfoSecond;
-            Buffer elementSecondBuffer(isPair ? collectionTypeInfo->collectionTypeInfoSecond->size : 0);
-            if (isPair)
-            {
-                FromJson(jsonIterator->next, collectionTypeInfo->collectionTypeInfoSecond, elementSecondBuffer.As<void>());
-            }
-            collectionTypeInfo->CollectionAppend(collectionAddress, elementIndex, elementFirstBuffer.As<void>(), elementSecondBuffer.As<void>());
-
-            if (isPair)
-            {
-                break; // #NOTE 1 iteration for pairs #TODO Review tuples
-            }
             jsonIterator = jsonIterator->next;
             ++elementIndex;
+
+            if (jsonIterator && collectionTypeInfo->collectionTypeInfos.size() > elementIndex)
+            {
+                currentTypeInfo = collectionTypeInfo->collectionTypeInfos[elementIndex];
+            }
         }
         return;
     }
