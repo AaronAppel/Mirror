@@ -177,6 +177,30 @@ struct Mirror
 		}
 	};
 
+	// #TODO Find a way to get a TypeInfo* from an ID to convert back and forth at runtime
+	// Generic, unimplemented (error)
+	// template <int N>
+	// TypeInfo* InfoForType() {
+	// 	std::cout << "Generic implementation for N = " << N << std::endl;
+	//  return InforForType<TYPE>();
+	// }
+	// Specific to type id
+	// template <>
+	// TypeInfo* InfoForType<5>() {
+	// 	std::cout << "Specialized implementation for N = 5" << std::endl;
+	//  return InforForType<TYPE>();
+	// }
+	// #TODO And what about non-template arguments?
+	//
+	// Can offer optional mapping helpers for users like
+	// #define MIR_MAP_TYPE_ID_TO_TYPE_START()					\
+	// static map<ID, TypeInfo*> s_idMapping;
+	// #define MIR_MAP_TYPE_ID_TO_TYPE(TYPE)					\
+	// const Mir::TypeInfo* typeInfo = Mir::GetInfo<TYPE>();	\
+	// s_idMapping[typeInfo->id] = typeInfo; // #TODO Validation, error checking, etc
+	// #define MIR_MAP_TYPE_ID_TO_TYPE_END() ;
+	// Give documentation example for user to implement, or create a new file for user optional #include
+
 	template <typename T>
 	static const TypeInfo* InfoForType(T& typeObj); // #NOTE Making arg const, reference, etc, requires additional reflecting of T as const, reference, etc
 
