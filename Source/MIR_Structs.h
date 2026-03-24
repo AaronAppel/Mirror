@@ -83,6 +83,21 @@ struct Mirror
 #endif // !MIR_OMIT_FLAGS
 	};
 
+#ifndef MIR_OMIT_METHODS
+	struct Method
+	{
+		const TypeInfo* returnType = nullptr;
+		std::string name;
+		std::vector<const TypeInfo*> parameters = { };
+		// Qualifiers? (const, virtual, override, etc)
+
+		void Invoke(void* data) {  } // Lambda to read buffer (if needed) and extract type values
+#ifndef MIR_OMIT_FLAGS
+		MIR_FIELD_FLAG_TYPE flags = 0;
+#endif // !MIR_OMIT_FLAGS
+	};
+#endif // MIR_OMIT_METHODS
+
 	struct TypeInfo
 	{
 		TypeInfo() : superTypeInfo(nullptr), typeDynamicCastFunc(nullptr) { }
