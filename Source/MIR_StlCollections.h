@@ -117,16 +117,16 @@ static void SetCollectionLambdasArray(Mirror::TypeInfo* mutableTypeInfo, std::tr
 	static_assert(is_stl_array<T>::value, "Type T is not of type stl::array!");
 
 	mutableTypeInfo->collectionTypeInfos.emplace_back(Mirror::InfoForType<T::value_type>());
-	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t aIndex, const void* elementFirst) {
+	mutableTypeInfo->collectionAddFunc = [](void* collectionObjAddress, size_t elementIndex, const void* elementFirst) {
 		T& arrRef = *(T*)collectionObjAddress;
-		arrRef[aIndex] = (*(typename T::value_type*)elementFirst);
+		arrRef[elementIndex] = (*(typename T::value_type*)elementFirst);
 	};
-	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddress, size_t aIndex) -> char* {
-		static size_t index = 0; // #TODO Support iterating backwards over a collection, and random access
+	mutableTypeInfo->collectionIterateCurrentFunc = [](const void* collectionObjAddress, size_t elementIndex) -> char* {
+		static size_t staticIndex = 0; // #TODO Support iterating backwards over a collection, and random access
 		T* vector = ((T*)collectionObjAddress);
-		if (aIndex < index) index = aIndex;
-		if (index >= vector->size()) { index = 0; return nullptr; }
-		return (char*)vector->data() + (sizeof(T::value_type) * index++);
+		if (elementIndex < staticIndex) staticIndex = elementIndex;
+		if (staticIndex >= vector->size()) { staticIndex = 0; return nullptr; }
+		return (char*)vector->data() + (sizeof(T::value_type) * staticIndex++);
 	};
 }
 #endif // defined(MIR_COLLECTION_STD_ARRAY) && MIR_COLLECTION_STD_ARRAY
