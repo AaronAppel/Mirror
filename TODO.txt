@@ -1,2 +1,13 @@
 Setup a dead-simple GLFW + imgui example showing how to serialize/deserialize objects at runtime, and some basic type inspection like in QwerkE.
 Could look at more visual demonstrations on Mirror too.
+
+UserData* like how physics engines allow users to store data in types for retrieval when resolving collisions.
+Move lambda pointers for container iteration onto the user.
+If the user wants lambdas then they can create some struct of function pointers and store it in the type info UserData*.
+Can also make UserData* only assignable at type init time, and add a macro to expose a runtime edit method.
+
+Add support for reflecting more type info like:
+- methods with arguments and qualifiers (const, virtual, static, etc)
+- multiple inheritance (vector of parent types)
+- helper methods like isStruct(), or return the true type (auto a = info->BaseType()) to let the user use std:: meta functions
+- string hashing to ints for better runtime performance. Strip debug strings using a #define

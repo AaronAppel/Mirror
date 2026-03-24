@@ -146,3 +146,6 @@ Builds with strict conformance (/permissive-) fail due to template compiler Erro
 #TODO List expected/common errors and their solutions
 - Conformance command line argument /permissive compile errors
 - Missing/forgot to mirror type or mirror type id linker errors
+
+# Best Practices
+- Defines individual types 1st, then collections and free functions, then classes (base type, then derived types)
