@@ -94,6 +94,12 @@ struct Mirror
 
 		std::vector<Field> fields = { };
 
+		std::vector<Method> methods = { }; // #TODO Only classes/structs have methods so excessive on other types. Maybe use a pointer to store data to reduce RAM on all other types
+
+		// #TODO Move non-generic logic like QwerkE serialization function/lambda* to user code.
+		// User may not need collection add, iterate, etc, functions or want to implement logic differently.
+		void* userData = nullptr;
+
 		// #TODO Support tuples and handle collection logic type-agnosticly using a vector of const TypeInfo*s?
 
 		using FuncPtr_void_voidPtr_sizet_constvoidPtr = void (*)(void*, size_t, const void*);
