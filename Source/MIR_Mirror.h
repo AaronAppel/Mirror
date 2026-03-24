@@ -47,7 +47,9 @@ template <>																																	\
 static const Mirror::TypeInfo* Mirror::InfoForType<TYPE_WRAP(TYPE)>() {																		\
 	static Mirror::TypeInfo localStaticTypeInfo;																							\
 																																			\
-	if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; }															\
+	/* Cannot use .name if removed from release builds: if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; } */	\
+	/* Cannot use .size if null type: if (!localStaticTypeInfo.stringName.empty()) { return &localStaticTypeInfo; }	*/						\
+	if (localStaticTypeInfo.id != MIR_NULL_ID) { return &localStaticTypeInfo; }																\
 																																			\
 	localStaticTypeInfo.category = GetCategory<TYPE_WRAP(TYPE)>();																			\
 	localStaticTypeInfo.stringName = TYPE_WRAP_STRING(TYPE);																				\

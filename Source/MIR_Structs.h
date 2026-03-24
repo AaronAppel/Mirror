@@ -27,6 +27,7 @@
 #endif // !MIR_TYPE_ID_TYPE
 
 #define MIR_TYPE_ID_MAX UINT16_MAX
+#define MIR_NULL_ID MIR_TYPE_ID_MAX // Leave id of 0 as valid for user
 #define MIR_TYPE_SIZE_TYPE uint16_t
 #define MIR_TYPE_SIZE_MAX UINT16_MAX
 #define MIR_TYPE_CATEGORY_TYPE uint8_t
@@ -74,7 +75,7 @@ struct Mirror
 	{
 		const TypeInfo* typeInfo = nullptr;
 
-		std::string name = "";
+		std::string name = ""; // #TODO Consider string hashing for debug build serialization performance (in a userData*?)
 		std::size_t offset = 0;
 		MIR_TYPE_SIZE_TYPE size = 0;
 #ifndef MIR_OMIT_FLAGS
@@ -86,8 +87,8 @@ struct Mirror
 	{
 		TypeInfo() : superTypeInfo(nullptr), typeDynamicCastFunc(nullptr) { }
 
-		std::string stringName = ""; // #TODO Could reduce overhead/class size using const char*
-		MIR_TYPE_ID_TYPE id = 0;
+		std::string stringName = ""; // #TODO Review making const char*. Could reduce overhead/class size in string literal cases where dynamic string manipulation not needed
+		MIR_TYPE_ID_TYPE id = MIR_NULL_ID;
 		MIR_TYPE_SIZE_TYPE size = 0;
 		TypeInfoCategories category = TypeInfoCategories::TypeInfoCategory_Primitive;
 
